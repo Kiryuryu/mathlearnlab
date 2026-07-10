@@ -1,0 +1,150 @@
+/* === 静逸书卷 — Base Design System === */
+
+/* ── Custom Properties ── */
+:root {
+  /* Warm paper palette */
+  --bg-page:        #faf8f5;
+  --bg-card:        #ffffff;
+  --bg-nav:         #f5f0e8;
+  --bg-chat:        #fdfcf9;
+  --bg-input:       #faf8f5;
+  --text-primary:   #2c2c2c;
+  --text-secondary: #5c5c5c;
+  --text-muted:     #8c8c8c;
+  --accent:         #5b7b94;
+  --accent-warm:    #8b7355;
+  --accent-correct: #4a7c59;
+  --accent-error:   #b55a5a;
+  --border:         #e8e0d5;
+  --border-focus:   #c4b9a8;
+  --radius:         4px;
+  --radius-lg:      8px;
+  --shadow-card:    0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-elevated: 0 4px 12px rgba(0,0,0,0.06);
+
+  /* Typography */
+  --font-heading:   'Noto Serif SC', 'Songti SC', 'SimSun', Georgia, serif;
+  --font-body:      'Noto Sans SC', 'PingFang SC', -apple-system, 'Helvetica Neue', sans-serif;
+  --font-mono:      'JetBrains Mono', 'Fira Code', 'SF Mono', 'Menlo', monospace;
+  --line-height:    1.75;
+}
+
+/* Dark mode — reading by lamplight */
+[data-theme="dark"] {
+  --bg-page:        #1a1814;
+  --bg-card:        #24211c;
+  --bg-nav:         #1e1c17;
+  --bg-chat:        #221f1a;
+  --bg-input:       #2a2722;
+  --text-primary:   #e8e0d0;
+  --text-secondary: #b0a898;
+  --text-muted:     #7a7262;
+  --accent:         #7a9eb3;
+  --accent-warm:    #c4a97a;
+  --accent-correct: #6a9e7a;
+  --accent-error:   #c47a7a;
+  --border:         #3a3530;
+  --border-focus:   #5a5248;
+  --shadow-card:    0 1px 3px rgba(0,0,0,0.2);
+  --shadow-elevated: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: var(--line-height);
+  color: var(--text-primary);
+  background: var(--bg-page);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Typography ── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text-primary);
+}
+h1 { font-size: 26px; margin-bottom: 8px; }
+h2 { font-size: 21px; margin: 28px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+h3 { font-size: 17px; margin: 20px 0 8px; }
+h4 { font-size: 15px; margin: 16px 0 6px; }
+p { margin: 8px 0; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Code ── */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--bg-nav);
+  padding: 2px 5px;
+  border-radius: 3px;
+  color: var(--text-primary);
+}
+pre {
+  background: var(--bg-nav);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  overflow-x: auto;
+  margin: 12px 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+pre code { background: none; padding: 0; }
+
+/* ── Tables ── */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 12px 0;
+  font-size: 14px;
+}
+th, td {
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  text-align: left;
+}
+th {
+  background: var(--bg-nav);
+  font-weight: 600;
+  font-family: var(--font-heading);
+}
+
+/* ── Blockquotes ── */
+blockquote {
+  border-left: 3px solid var(--accent);
+  margin: 12px 0;
+  padding: 8px 16px;
+  background: var(--bg-nav);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* ── Details/Summary ── */
+details {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin: 8px 0;
+  background: var(--bg-card);
+}
+details summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-family: var(--font-heading);
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ── Selection ── */
+::selection { background: var(--accent-warm); color: #fff; opacity: 0.3; }

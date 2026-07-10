@@ -1,0 +1,174 @@
+{
+  "topic": "limits",
+  "topic_name_zh": "极限与连续",
+  "problems": [
+    {
+      "id": "LIM-001",
+      "difficulty": "easy",
+      "difficulty_label_zh": "简单",
+      "knowledge_points": ["等价无穷小", "极限计算"],
+      "problem_statement": "求极限：$\\lim_{x \\to 0} \\frac{\\sin 3x}{\\tan 5x}$",
+      "solution": {
+        "method": "等价无穷小替换",
+        "steps": [
+          "当 $x \\to 0$ 时，$\\sin 3x \\sim 3x$，$\\tan 5x \\sim 5x$",
+          "原式 $= \\lim_{x \\to 0} \\frac{3x}{5x} = \\frac{3}{5}$"
+        ],
+        "final_answer": "\\frac{3}{5}",
+        "alternative_methods": ["洛必达法则：分子分母同时求导也得到 3/5"]
+      },
+      "grading_rubric": {
+        "key_steps": ["正确使用等价无穷小替换", "化简得到正确比值"],
+        "common_errors": ["混淆 sin 和 tan 的等价无穷小", "替换时忘了系数"]
+      }
+    },
+    {
+      "id": "LIM-002",
+      "difficulty": "medium",
+      "difficulty_label_zh": "中等",
+      "knowledge_points": ["重要极限", "1^∞型"],
+      "problem_statement": "求极限：$\\lim_{x \\to 0} (1 + 2x)^{\\frac{1}{\\sin x}}$",
+      "solution": {
+        "method": "利用重要极限 $\\lim (1+□)^{1/□} = e$",
+        "steps": [
+          "这是 $1^\\infty$ 型不定式。",
+          "$(1+2x)^{1/\\sin x} = \\exp\\left(\\frac{\\ln(1+2x)}{\\sin x}\\right)$",
+          "$\\ln(1+2x) \\sim 2x$，$\\sin x \\sim x$（当 $x\\to 0$）",
+          "原式 $= \\exp\\left(\\lim_{x\\to 0}\\frac{2x}{x}\\right) = e^2$"
+        ],
+        "final_answer": "e^2",
+        "alternative_methods": ["也可写为 $[(1+2x)^{1/(2x)}]^{2x/\\sin x} \\to e^2$"]
+      },
+      "grading_rubric": {
+        "key_steps": ["识别1^∞型", "取对数或凑重要极限形式", "正确使用等价无穷小"],
+        "common_errors": ["直接代入 x=0 认为答案是 1", "等价无穷小使用不当", "忘记指数上的极限"]
+      }
+    },
+    {
+      "id": "LIM-003",
+      "difficulty": "medium",
+      "difficulty_label_zh": "中等",
+      "knowledge_points": ["左右极限", "极限存在性"],
+      "problem_statement": "讨论函数 $f(x) = \\frac{|x|}{x} + \\frac{\\sin x}{|x|}$ 在 $x=0$ 处的极限是否存在，若不存在说明原因。",
+      "solution": {
+        "method": "分别计算左右极限",
+        "steps": [
+          "当 $x \\to 0^+$ 时：$|x|/x = 1$，$\\sin x/|x| = \\sin x/x \\to 1$，所以 $\\lim_{x\\to 0^+} f(x) = 2$",
+          "当 $x \\to 0^-$ 时：$|x|/x = -1$，$\\sin x/|x| = \\sin x/(-x) = -(\\sin x/x) \\to -1$，所以 $\\lim_{x\\to 0^-} f(x) = -2$",
+          "左右极限不相等（$2 \\neq -2$），因此极限不存在。"
+        ],
+        "final_answer": "极限不存在，因为 $\\lim_{x\\to 0^+} f(x)=2 \\neq \\lim_{x\\to 0^-} f(x)=-2$"
+      },
+      "grading_rubric": {
+        "key_steps": ["正确拆分函数", "分别计算 x→0⁺ 和 x→0⁻", "比较左右极限得出结论"],
+        "common_errors": ["忘记分左右讨论", "|x|/x 的符号搞反", "忽略 sin x/|x| 在左右侧的不同"]
+      }
+    },
+    {
+      "id": "LIM-004",
+      "difficulty": "hard",
+      "difficulty_label_zh": "困难",
+      "knowledge_points": ["泰勒展开", "极限计算"],
+      "problem_statement": "求极限：$\\lim_{x \\to 0} \\frac{\\tan x - \\sin x}{x^3}$",
+      "solution": {
+        "method": "泰勒展开",
+        "steps": [
+          "$\\tan x = x + \\frac{x^3}{3} + O(x^5)$",
+          "$\\sin x = x - \\frac{x^3}{6} + O(x^5)$",
+          "$\\tan x - \\sin x = \\frac{x^3}{3} + \\frac{x^3}{6} + O(x^5) = \\frac{x^3}{2} + O(x^5)$",
+          "原式 $= \\lim_{x\\to 0} \\frac{x^3/2 + O(x^5)}{x^3} = \\frac{1}{2}$"
+        ],
+        "final_answer": "\\frac{1}{2}",
+        "alternative_methods": ["也可用洛必达法则（需三次）但计算量大，易出错"]
+      },
+      "grading_rubric": {
+        "key_steps": ["展开 tan x 至少到 x³", "展开 sin x 至少到 x³", "相减后除以 x³ 取极限"],
+        "common_errors": ["只展开到一阶（结果0，错误）", "tan x 泰勒公式记错", "分母 x³ 决定了必须展开到三阶"]
+      }
+    },
+    {
+      "id": "LIM-005",
+      "difficulty": "medium",
+      "difficulty_label_zh": "中等",
+      "knowledge_points": ["连续性", "间断点分类"],
+      "problem_statement": "设 $f(x) = \\begin{cases} \\frac{\\sin x}{x}, & x \\neq 0 \\\\ a, & x = 0 \\end{cases}$。问 $a$ 为何值时 $f(x)$ 在 $x=0$ 处连续？",
+      "solution": {
+        "method": "利用连续性的定义",
+        "steps": [
+          "函数在 $x=0$ 处连续，需要 $\\lim_{x\\to 0} f(x) = f(0) = a$",
+          "已知 $\\lim_{x\\to 0} \\frac{\\sin x}{x} = 1$（重要极限）",
+          "所以 $a = 1$ 时函数在 $x=0$ 处连续。"
+        ],
+        "final_answer": "a = 1"
+      },
+      "grading_rubric": {
+        "key_steps": ["写出连续性的条件", "计算极限", "解出参数值"],
+        "common_errors": ["直接认为 a=0", "忘记检查连续性条件"]
+      }
+    },
+    {
+      "id": "LIM-006",
+      "difficulty": "hard",
+      "difficulty_label_zh": "困难",
+      "knowledge_points": ["等价无穷小", "极限比较"],
+      "problem_statement": "设 $\\alpha > 0$，求 $\\lim_{x \\to 0^+} \\frac{\\ln(1+x^\\alpha)}{\\sqrt{x}}$，并讨论 $\\alpha$ 取何值时极限为有限非零值。",
+      "solution": {
+        "method": "等价无穷小替换 + 参数讨论",
+        "steps": [
+          "当 $x \\to 0^+$ 时，$x^\\alpha \\to 0$，所以 $\\ln(1+x^\\alpha) \\sim x^\\alpha$",
+          "原式 $= \\lim_{x\\to 0^+} \\frac{x^\\alpha}{x^{1/2}} = \\lim_{x\\to 0^+} x^{\\alpha - 1/2}$",
+          "当 $\\alpha > 1/2$ 时，$x^{\\alpha-1/2} \\to 0$，极限为 0",
+          "当 $\\alpha = 1/2$ 时，$x^{0} \\to 1$，极限为 1（有限非零）",
+          "当 $\\alpha < 1/2$ 时，$x^{\\alpha-1/2} \\to +\\infty$，极限为无穷大"
+        ],
+        "final_answer": "\\alpha = 1/2 时极限为 1（有限非零）"
+      },
+      "grading_rubric": {
+        "key_steps": ["正确使用 ln(1+u) ~ u", "化简为幂函数极限", "对参数 α 分类讨论"],
+        "common_errors": ["忘记 x^α → 0 的条件", "混淆 α>0 的给定条件", "讨论不完整"]
+      }
+    },
+    {
+      "id": "LIM-007",
+      "difficulty": "easy",
+      "difficulty_label_zh": "简单",
+      "knowledge_points": ["夹逼准则", "极限存在性"],
+      "problem_statement": "求极限：$\\lim_{n \\to \\infty} \\frac{\\sin n}{n}$",
+      "solution": {
+        "method": "夹逼准则（有界函数除以无穷大）",
+        "steps": [
+          "因为 $-1 \\leq \\sin n \\leq 1$，所以 $-\\frac{1}{n} \\leq \\frac{\\sin n}{n} \\leq \\frac{1}{n}$",
+          "而 $\\lim_{n\\to\\infty} \\frac{1}{n} = 0$，$\\lim_{n\\to\\infty} (-\\frac{1}{n}) = 0$",
+          "由夹逼准则，$\\lim_{n\\to\\infty} \\frac{\\sin n}{n} = 0$"
+        ],
+        "final_answer": "0"
+      },
+      "grading_rubric": {
+        "key_steps": ["利用 sin n 的有界性", "构造上下界不等式", "应用夹逼准则"],
+        "common_errors": ["误以为 sin n 的极限存在", "不会构造不等式", "把 n→∞ 和 x→0 混淆"]
+      }
+    },
+    {
+      "id": "LIM-008",
+      "difficulty": "medium",
+      "difficulty_label_zh": "中等",
+      "knowledge_points": ["等价无穷小", "洛必达法则"],
+      "problem_statement": "求极限：$\\lim_{x \\to 0} \\frac{e^x - e^{\\sin x}}{x - \\sin x}$",
+      "solution": {
+        "method": "拉格朗日中值定理或泰勒展开",
+        "steps": [
+          "法一（拉格朗日）：$e^x - e^{\\sin x} = e^{\\xi}(x - \\sin x)$，其中 $\\xi$ 在 $x$ 与 $\\sin x$ 之间",
+          "当 $x \\to 0$ 时，$\\xi \\to 0$，$e^{\\xi} \\to 1$，所以极限 $=1$",
+          "法二（泰勒）：$e^x = 1+x+\\frac{x^2}{2}+O(x^3)$，$e^{\\sin x} = 1+\\sin x+\\frac{\\sin^2 x}{2}+O(x^3)$",
+          "分子 $= (x-\\sin x) + \\frac{x^2-\\sin^2 x}{2} + \\cdots$，除以 $x-\\sin x \\sim \\frac{x^3}{6}$，极限 $=1$"
+        ],
+        "final_answer": "1",
+        "alternative_methods": ["拉格朗日中值定理是此题的最简解法"]
+      },
+      "grading_rubric": {
+        "key_steps": ["识别分子可以因式分解或用中值定理", "正确处理分母的等价无穷小", "得到正确极限值"],
+        "common_errors": ["直接用洛必达导致复杂的表达式", "不会使用中值定理简化计算"]
+      }
+    }
+  ]
+}

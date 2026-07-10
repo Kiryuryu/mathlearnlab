@@ -1,0 +1,12 @@
+#!/usr/bin/expect -f
+# ECS deploy helper — use with: expect scripts/ecs-run.exp "command here"
+
+set timeout 180
+set host "root@8.137.78.250"
+set password "Tickingaway997-"
+
+set cmd [lindex $argv 0]
+
+spawn ssh -o StrictHostKeyChecking=no $host $cmd
+expect "password:" { send "$password\r" }
+expect eof

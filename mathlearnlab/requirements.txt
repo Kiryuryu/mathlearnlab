@@ -1,0 +1,37 @@
+# MathLearnLab — Full dependencies
+
+# ── Web Framework ──
+fastapi>=0.110
+uvicorn[standard]>=0.29
+pydantic-settings>=2.2
+jinja2>=3.1
+python-multipart>=0.0.9
+aiofiles>=24.1
+
+# ── Anthropic API ──
+anthropic>=0.30
+
+# ── Image processing ──
+Pillow>=10.0
+
+# ── Core numerical & symbolic (notebooks) ──
+numpy>=1.26
+scipy>=1.13
+sympy>=1.14
+
+# ── Visualization (notebooks) ──
+matplotlib>=3.8
+plotly>=5.18
+seaborn>=0.13
+
+# ── Interactive widgets (notebooks) ──
+ipywidgets>=8.1
+ipympl>=0.9
+
+# ── Jupyter ecosystem ──
+jupyterlab>=4.0
+notebook>=7.0
+nbformat>=5.9
+
+# ── Animation support ──
+ipython>=8.20
