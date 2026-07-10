@@ -5,10 +5,16 @@ var MuseumChat = (function() {
   var currentModel = 'claude-sonnet-4-20250514';
   var customModelId = '';
   var customApiKey = '';
+  var initialized = false;
 
   function $(id) { return document.getElementById(id); }
 
   function init() {
+    if (initialized) return;
+    initialized = true;
+    // Ensure popup starts hidden
+    var p = $('chatPopup');
+    if (p) p.hidden = true;
     // Restore custom model config
     try { customModelId = localStorage.getItem('museum:customModelId') || ''; } catch(e) {}
     try { customApiKey = localStorage.getItem('museum:customApiKey') || ''; } catch(e) {}
@@ -24,6 +30,7 @@ var MuseumChat = (function() {
 
   function toggle() {
     var p = $('chatPopup');
+    if (!p) return;
     p.hidden = !p.hidden;
   }
 
@@ -161,5 +168,9 @@ var MuseumChat = (function() {
   }
 
   document.addEventListener('DOMContentLoaded', init);
+  // Also init immediately in case DOMContentLoaded already fired
+  if (document.readyState === 'interactive' || document.readyState === 'complete') {
+    setTimeout(init, 100);
+  }
   return { toggle: toggle, send: send, onKeydown: onKeydown, setModel: setModel, saveCustomModel: saveCustomModel, newSession: newSession };
 })();
