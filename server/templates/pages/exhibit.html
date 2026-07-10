@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}{{ exhibit.get('zh', topic_key) }}{% endblock %}
+{% block content %}
+<!-- Hero -->
+<div class="exhibit-hero {{ topic_key }}-bg">
+  <h1>{{ exhibit.icon }} {{ exhibit.zh }}</h1>
+  <p class="big-question">❓ {{ exhibit.big_question }}</p>
+  <p class="historian-line">关键人物：{{ exhibit.historian }}</p>
+  <p class="beauty-moment">✨ {{ exhibit.beauty }}</p>
+</div>
+
+<!-- Content -->
+<div class="exhibit-content">
+  {{ content_html | safe }}
+
+  <!-- Interactive Visualization Area -->
+  <div class="viz-container" id="vizContainer">
+    <h4>🎨 交互探索</h4>
+    <div id="vizPlot" style="min-height:400px;"></div>
+    <div id="vizControls" style="text-align:center;margin-top:8px;"></div>
+  </div>
+</div>
+
+<!-- Actions -->
+<div class="exhibit-actions">
+  <a href="/practice/{{ topic_key }}" class="btn btn-primary" style="padding:12px 32px;font-size:15px;">🧪 进入动手实验室</a>
+</div>
+
+<script>
+// Auto-detect which visualization to load
+(function() {
+  var topic = '{{ topic_key }}';
+  var container = document.getElementById('vizPlot');
+  if (!container || !window.Plotly) return;
+
+  if (topic === 'limits') {
+    MuseumViz.epsilonDelta(container);
+  } else if (topic === 'derivatives') {
+    MuseumViz.tangentLine(container);
+  } else if (topic === 'integrals') {
+    MuseumViz.riemannSum(container);
+  } else if (topic === 'series') {
+    MuseumViz.fourierSeries(container);
+  } else if (topic === 'multivariable') {
+    MuseumViz.gradientDescent(container);
+  }
+})();
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/museum_viz.js"></script>
+{% endblock %}

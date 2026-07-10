@@ -1,11 +1,17 @@
 """
-Practice API — problem bank queries.
+Practice API — problem bank queries + AI generation.
 """
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
+from pydantic import BaseModel
 from server.services import problem_bank
 
 router = APIRouter()
+
+
+class GenerateRequest(BaseModel):
+    topic_key: str
+    difficulty: str = "medium"
 
 
 @router.get("/api/practice/{topic}/problems")
@@ -30,3 +36,81 @@ async def get_problem(topic: str, problem_id: str):
     if not p:
         raise HTTPException(status_code=404, detail=f"Problem {problem_id} not found")
     return {"problem": p}
+
+
+@router.post("/api/practice/generate")
+async def generate_problem(request: Request):
+    """Use Claude to generate a new practice problem on the fly."""
+    try:
+        body = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON body")
+
+    topic_key = body.get("topic_key", "limits")
+    difficulty = body.get("difficulty", "medium")
+
+    exhibit = settings.exhibits.get(topic_key, {})
+    exhibit_name = exhibit.get("zh", topic_key)
+    knowledge_points = exhibit.get("big_question", "")
+
+    diff_guide = {"easy": "基础计算题，考察核心概念的直接应用", "medium": "中等难度，需要综合运用多个知识点", "hard": "困难，需要技巧性转化或深层理解"}
+
+    import anthropic, json, random, string
+    key = settings.anthropic_api_key
+    if not key:
+        # Fallback: generate a simple problem from the bank
+        p = problem_bank.get_random_problem(topic_key, difficulty)
+        if p:
+            return {"problem": p, "generated": False}
+        raise HTTPException(status_code=500, detail="API key not configured and no problems in bank")
+
+    prompt = f"""你是一位考研数学命题专家。请为"{exhibit_name}"展厅生成一道{difficulty}难度的练习题。
+
+难度要求：{diff_guide.get(difficulty, '中等难度')}
+相关知识点：{knowledge_points}
+
+请用 JSON 格式输出：
+{{
+  "id": "GEN-{''.join(random.choices(string.ascii_uppercase + string.digits, k=5))}",
+  "difficulty": "{difficulty}",
+  "knowledge_points": ["知识点1", "知识点2"],
+  "problem_statement": "完整的题目描述，用 LaTeX 语法写数学公式",
+  "preview": "题目简短预览（120字以内）",
+  "solution": {{
+    "method": "解题思路概述",
+    "steps": ["步骤1的详细描述", "步骤2的详细描述", "步骤3的详细描述"],
+    "final_answer": "最终答案，LaTeX 格式"
+  }},
+  "grading_rubric": {{
+    "key_steps": ["关键得分步骤1", "关键得分步骤2"],
+    "common_errors": ["常见错误1", "常见错误2"]
+  }},
+  "metadata": {{"problem_type": "计算题"}}
+}}
+
+只输出 JSON，不要其他内容。确保 problem_statement 使用正确的 LaTeX 语法（$...$ 或 $$...$$）。"""
+
+    client = anthropic.AsyncAnthropic(api_key=key)
+    response = await client.messages.create(
+        model=settings.default_model,
+        max_tokens=1500,
+        system="你是一位考研数学命题专家。只输出有效 JSON，不要其他内容。",
+        messages=[{"role": "user", "content": prompt}],
+    )
+
+    raw = response.content[0].text
+    if "```json" in raw:
+        raw = raw.split("```json")[1].split("```")[0]
+    elif "```" in raw:
+        raw = raw.split("```")[1].split("```")[0]
+
+    try:
+        problem = json.loads(raw.strip())
+    except json.JSONDecodeError:
+        # Fallback to bank
+        p = problem_bank.get_random_problem(topic_key, difficulty)
+        if p:
+            return {"problem": p, "generated": False}
+        raise HTTPException(status_code=500, detail="Failed to parse generated problem")
+
+    return {"problem": problem, "generated": True}

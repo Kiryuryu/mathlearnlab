@@ -79,7 +79,7 @@ async def exhibit_page(request: Request, topic: str):
             content_html=f"<p class=\"content-error\">展厅未找到: {topic}</p>", title="未知展厅"))
     filepath = f"notebooks/{exhibit_info['notebook']}.md"
     content_html = await _read_md(filepath)
-    return templates.TemplateResponse("pages/content.html", _ctx(request,
+    return templates.TemplateResponse("pages/exhibit.html", _ctx(request,
         content_html=content_html, title=exhibit_info.get("zh", topic),
         exhibit=exhibit_info, topic_key=topic))
 
