@@ -25,6 +25,11 @@ class Settings(BaseSettings):
     max_grading_tokens: int = 2000
     max_chat_tokens: int = 4096
 
+    # ── Auth / JWT ──
+    jwt_secret_key: str = "change-me-in-production"
+    jwt_algorithm: str = "HS256"
+    jwt_expire_minutes: int = 60 * 24  # 24 hours
+
     # ── Topics ──
     topics: dict = {
         "limits":        {"zh": "极限与连续", "icon": "§", "json": "limits.json", "desc": "极限定义、左右极限、连续性、间断点"},
