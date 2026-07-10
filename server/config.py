@@ -97,6 +97,25 @@ class Settings(BaseSettings):
     ]
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
+    """pydantic model config"""
+
+
+def get_settings_dict() -> dict:
+    """Return settings as plain dict for Jinja2 template context.
+    Must convert nested dicts and non-serializable values to plain types."""
+    s = settings
+    return {
+        "app_name": s.app_name,
+        "app_subtitle": s.app_subtitle,
+        "debug": s.debug,
+        "content_dir": s.content_dir,
+        "data_dir": s.data_dir,
+        "default_model": s.default_model,
+        "fast_model": s.fast_model,
+        "exhibits": s.exhibits,
+        "difficulty": s.difficulty,
+        "nav_tree": s.nav_tree,
+    }
 
 
 settings = Settings()
