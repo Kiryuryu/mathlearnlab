@@ -1,17 +1,18 @@
 """
 Chat API — SSE streaming chat with Claude.
+API key now comes from backend config, not user header.
 """
 
-import json
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException, Depends
 from fastapi.responses import StreamingResponse
+from server.routers.auth import require_user
 from server.services import chat_service
 
 router = APIRouter()
 
 
 @router.post("/api/chat/stream")
-async def chat_stream(request: Request):
+async def chat_stream(request: Request, user: dict = Depends(require_user)):
     """Stream a chat conversation with Claude via SSE.
 
     Request body (JSON):
@@ -33,7 +34,6 @@ async def chat_stream(request: Request):
     model = body.get("model")
     max_tokens = body.get("max_tokens")
     context_route = body.get("context_route", "")
-    api_key = request.headers.get("X-API-Key")
 
     return StreamingResponse(
         chat_service.stream_chat(
@@ -41,13 +41,13 @@ async def chat_stream(request: Request):
             system=system,
             model=model,
             max_tokens=max_tokens,
-            api_key=api_key,
+            api_key=None,  # use server-side API key from config
             context_route=context_route,
         ),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
-            "X-Accel-Buffering": "no",  # Disable nginx buffering for SSE
+            "X-Accel-Buffering": "no",
         },
     )

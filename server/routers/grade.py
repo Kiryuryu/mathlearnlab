@@ -3,14 +3,15 @@ Grade API — OCR handwriting grading endpoint.
 """
 
 import base64
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException, Depends
+from server.routers.auth import require_user
 from server.services import grader, problem_bank, history as history_svc
 
 router = APIRouter()
 
 
 @router.post("/api/grade")
-async def grade_submission(request: Request):
+async def grade_submission(request: Request, user: dict = Depends(require_user)):
     """Grade a handwritten answer.
 
     Request body (JSON):
@@ -52,8 +53,9 @@ async def grade_submission(request: Request):
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Grading failed: {str(e)}")
 
-    # Save to history
+    # Save to history with user_id
     history_svc.save_grade(
+        user_id=user["user_id"],
         topic_key=topic_key,
         problem_id=problem_id,
         problem_statement=problem.get("problem_statement", ""),
