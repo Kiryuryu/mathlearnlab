@@ -9,7 +9,8 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     # ── Server ──
-    app_name: str = "MathLearnLab"
+    app_name: str = "数学博物馆"
+    app_subtitle: str = "知其然，知其所以然"
     debug: bool = False
     host: str = "127.0.0.1"
     port: int = 8000
@@ -30,13 +31,33 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 60 * 24  # 24 hours
 
-    # ── Topics ──
-    topics: dict = {
-        "limits":        {"zh": "极限与连续", "icon": "§", "json": "limits.json", "desc": "极限定义、左右极限、连续性、间断点"},
-        "derivatives":   {"zh": "微分学",     "icon": "¶", "json": "derivatives.json", "desc": "导数定义、求导法则、中值定理、泰勒公式"},
-        "integrals":     {"zh": "积分学",     "icon": "∫", "json": "integrals.json", "desc": "不定积分、定积分、换元法、分部积分、应用"},
-        "series":        {"zh": "无穷级数",   "icon": "∑", "json": "series.json", "desc": "数项级数审敛、幂级数、傅里叶级数"},
-        "multivariable": {"zh": "多元微积分", "icon": "∂", "json": "multivariable.json", "desc": "偏导数、梯度、二重积分、线面积分"},
+    # ── Museum Exhibits ──
+    exhibits: dict = {
+        "limits":        {"zh": "极限 — 无限逼近的艺术", "icon": "∞", "json": "limits.json",
+                          "historian": "柯西、魏尔斯特拉斯",
+                          "big_question": "如何用数学语言精确描述'无限接近'？",
+                          "beauty": "ε-δ 定义用有限的符号捕捉了无穷的直觉",
+                          "notebook": "01-gaoshu/01-limits-continuity-differentiation"},
+        "derivatives":   {"zh": "导数 — 瞬间的变化率",   "icon": "∆", "json": "derivatives.json",
+                          "historian": "费马、牛顿、莱布尼茨",
+                          "big_question": "如何在某一瞬间测量变化？",
+                          "beauty": "泰勒展开：任何光滑函数都可以用多项式逼近",
+                          "notebook": "01-gaoshu/01-limits-continuity-differentiation"},
+        "integrals":     {"zh": "积分 — 和的极限",       "icon": "∫", "json": "integrals.json",
+                          "historian": "阿基米德、黎曼、勒贝格",
+                          "big_question": "如何求一个曲线下方不规则图形的面积？",
+                          "beauty": "微积分基本定理：微分和积分是互逆运算——这是数学史上最伟大的发现之一",
+                          "notebook": "01-gaoshu/02-integration"},
+        "series":        {"zh": "无穷级数 — 无限的拼图",  "icon": "∑", "json": "series.json",
+                          "historian": "欧拉、傅里叶",
+                          "big_question": "无穷多个数加起来可以是有限的吗？",
+                          "beauty": "巴塞尔问题：1+1/4+1/9+1/16+... = π²/6 —— 自然数的倒数平方和竟然与圆周率有关",
+                          "notebook": "01-gaoshu/03-infinite-series"},
+        "multivariable": {"zh": "多元微积分 — 从平面到空间","icon": "∂", "json": "multivariable.json",
+                          "historian": "拉格朗日、高斯、格林",
+                          "big_question": "如何在多维世界中理解变化、极值和流动？",
+                          "beauty": "梯度下降：沿着最陡峭的方向下山——这个概念今天驱动着所有AI的学习",
+                          "notebook": "01-gaoshu/04-multivariable-calculus"},
     }
 
     difficulty: dict = {
@@ -45,47 +66,31 @@ class Settings(BaseSettings):
         "hard":   {"zh": "困难", "stars": "★★★"},
     }
 
-    # ── Navigation tree ──
+    # ── Navigation tree — Museum floor plan ──
     nav_tree: list[dict] = [
         {
-            "section": "高等数学",
+            "section": "序幕",
             "entries": [
-                {"label": "极限、连续与微分", "route": "/notebooks/01-gaoshu/01-limits-continuity-differentiation"},
-                {"label": "积分学",            "route": "/notebooks/01-gaoshu/02-integration"},
-                {"label": "无穷级数",          "route": "/notebooks/01-gaoshu/03-infinite-series"},
-                {"label": "多元微积分",         "route": "/notebooks/01-gaoshu/04-multivariable-calculus"},
+                {"label": "序幕大厅", "route": "/"},
             ],
         },
         {
-            "section": "知识笔记",
+            "section": "展厅",
             "entries": [
-                {"label": "高等数学", "route": "/notes/01-gaoshu/README"},
-                {"label": "线性代数", "route": "/notes/02-xiandai/README"},
-                {"label": "概率论",   "route": "/notes/03-gailvlun/README"},
+                {"label": "第一展厅：极限", "route": "/exhibit/limits"},
+                {"label": "第二展厅：导数", "route": "/exhibit/derivatives"},
+                {"label": "第三展厅：积分", "route": "/exhibit/integrals"},
+                {"label": "第四展厅：无穷级数", "route": "/exhibit/series"},
+                {"label": "第五展厅：多元微积分", "route": "/exhibit/multivariable"},
             ],
         },
         {
-            "section": "解题集",
-            "entries": [
-                {"label": "极限与连续", "route": "/problems/01-gaoshu/limits-problems"},
-                {"label": "积分学",    "route": "/problems/01-gaoshu/integration-problems"},
-                {"label": "无穷级数",  "route": "/problems/01-gaoshu/series-problems"},
-                {"label": "多元微积分", "route": "/problems/01-gaoshu/multivariable-problems"},
-            ],
-        },
-        {
-            "section": "错题本",
-            "entries": [
-                {"label": "高等数学", "route": "/error-log"},
-            ],
-        },
-        {
-            "section": "OCR 刷题",
+            "section": "动手实验室",
             "entries": [
                 {"label": "极限与连续", "route": "/practice/limits"},
-                {"label": "微分学",     "route": "/practice/derivatives"},
-                {"label": "积分学",     "route": "/practice/integrals"},
-                {"label": "无穷级数",   "route": "/practice/series"},
+                {"label": "微分学", "route": "/practice/derivatives"},
+                {"label": "积分学", "route": "/practice/integrals"},
+                {"label": "无穷级数", "route": "/practice/series"},
                 {"label": "多元微积分", "route": "/practice/multivariable"},
             ],
         },

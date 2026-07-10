@@ -1,75 +1,50 @@
 {% extends "base.html" %}
-{% block title %}MathLearnLab{% endblock %}
+{% block title %}数学博物馆{% endblock %}
 {% block content %}
 <div class="content-page">
-  <h1>MathLearnLab</h1>
-  <p style="color: var(--text-secondary); font-size: 15px;">
-    高等数学复习 · 交互可视化 · AI 答疑 · OCR 刷题
+  <h1>数学博物馆</h1>
+  <p style="color: var(--text-secondary); font-size: 16px; max-width: 600px;">
+    知其然，知其所以然。欢迎来到数学博物馆——这里不是教你怎么做题，而是带你理解数学概念从何而来、为什么这样定义、美在哪里。
   </p>
 
-  <h2>学习概览</h2>
-  <div class="stats-row">
-    <div class="stat-card">
-      <div class="stat-value">{{ stats.total }}</div>
-      <div class="stat-label">总答题数</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value">{{ stats.accuracy }}%</div>
-      <div class="stat-label">正确率</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value">{{ stats.correct }}</div>
-      <div class="stat-label">正确</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value">{{ stats.incorrect }}</div>
-      <div class="stat-label">需复习</div>
-    </div>
-  </div>
+  <h2>🏛 序幕</h2>
+  <p style="color: var(--text-secondary);">
+    微积分是人类思想史上最伟大的成就之一。从芝诺的飞矢不动悖论，到牛顿和莱布尼茨的激烈争论，到柯西和魏尔斯特拉斯用 ε-δ 语言为它打下坚实根基——这是一个跨越两千年的故事。
+  </p>
+  <p style="color: var(--text-secondary);">
+    关键洞察：<strong>无穷小量</strong>到底是不是零？如果是零，为什么可以除？如果不是零，为什么最后可以扔掉？整个微积分的历史，就是在回答这个问题。
+  </p>
 
-  <h2>高等数学</h2>
+  <h2>🏛 展厅导览</h2>
   <div class="home-grid">
-    <a href="/notebooks/01-gaoshu/01-limits-continuity-differentiation" class="home-card">
-      <h3>极限、连续与微分</h3>
-      <p>&epsilon;-&delta; 定义、中值定理、泰勒展开、洛必达法则</p>
-      <div class="card-meta">可视化 + 笔记 + 解题</div>
+    {% for key, e in settings.exhibits.items() %}
+    <a href="/exhibit/{{ key }}" class="home-card">
+      <h3>{{ e.icon }} {{ e.zh }}</h3>
+      <p>{{ e.big_question }}</p>
+      <div class="card-meta">提出者：{{ e.historian }}</div>
     </a>
-    <a href="/notebooks/01-gaoshu/02-integration" class="home-card">
-      <h3>积分学</h3>
-      <p>黎曼和、换元法、分部积分、旋转体体积、反常积分</p>
-      <div class="card-meta">3D 旋转体 + 笔记 + 解题</div>
-    </a>
-    <a href="/notebooks/01-gaoshu/03-infinite-series" class="home-card">
-      <h3>无穷级数</h3>
-      <p>审敛法、幂级数、泰勒级数、傅里叶级数、吉布斯现象</p>
-      <div class="card-meta">谐波叠加动画 + 笔记 + 解题</div>
-    </a>
-    <a href="/notebooks/01-gaoshu/04-multivariable-calculus" class="home-card">
-      <h3>多元微积分</h3>
-      <p>偏导数、梯度下降、拉格朗日乘数、二重积分、线积分</p>
-      <div class="card-meta">3D 梯度下降 + 笔记 + 解题</div>
-    </a>
+    {% endfor %}
   </div>
 
-  <h2>快速入口</h2>
+  <h2>🧪 动手实验室</h2>
+  <p style="color: var(--text-secondary);">
+    理解之后，验证你的直觉。纸笔作答，拍照上传，AI 会给你详细的批改和反馈。
+  </p>
   <div class="home-grid">
-    <a href="/practice/integrals" class="home-card">
-      <h3>OCR 刷题 — 积分学</h3>
-      <p>纸笔作答 → 拍照上传 → AI 批改 → 错题记录</p>
-      <div class="card-meta">开始刷题</div>
+    {% for key, e in settings.exhibits.items() %}
+    <a href="/practice/{{ key }}" class="home-card">
+      <h3>{{ e.icon }} {{ e.zh }} — 动手区</h3>
+      <p>纸笔作答 → 拍照上传 → AI 批改</p>
+      <div class="card-meta">开始验证</div>
     </a>
-    <a href="/error-log" class="home-card">
-      <h3>错题本</h3>
-      <p>查看答错的题目和分析，针对性复习</p>
-      <div class="card-meta">查看错题</div>
-    </a>
+    {% endfor %}
   </div>
 
-  <h2>使用说明</h2>
+  <h2>📖 使用说明</h2>
   <ul>
-    <li><strong>左侧导航</strong> — 选择学习内容或刷题</li>
-    <li><strong>右侧"页边笔记"</strong> — AI 助手，随时提问</li>
-    <li><strong>OCR 刷题</strong> — 纸笔作答后拍照，AI 批改</li>
+    <li><strong>左侧导航</strong> — 浏览博物馆各展厅，自由探索</li>
+    <li><strong>右侧"页边笔记"</strong> — AI 助手，随时回答你的好奇</li>
+    <li><strong>动手实验室</strong> — 纸笔作答后拍照，AI 批改验证</li>
     <li>完整交互可视化内容需本地运行 <code>jupyter lab</code></li>
   </ul>
 </div>

@@ -41,7 +41,17 @@ async def startup():
 # ── Health check ──
 @app.get("/api/health")
 async def health():
-    return {"status": "ok", "app": settings.app_name, "version": "3.0.0"}
+    return {"status": "ok", "app": settings.app_name, "version": "4.0.0"}
+
+# ── Museum exhibit info ──
+@app.get("/api/museum/exhibits")
+async def museum_exhibits():
+    return {
+        "app_name": settings.app_name,
+        "app_subtitle": settings.app_subtitle,
+        "exhibits": settings.exhibits,
+        "nav_tree": settings.nav_tree,
+    }
 
 # Import and include routers
 from server.routers import content, practice, grade, chat, stats, auth

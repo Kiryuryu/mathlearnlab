@@ -17,7 +17,7 @@ router = APIRouter()
 
 def _ctx(request: Request, **extra):
     """Build template context with settings as plain dict."""
-    return {"request": request, "settings": settings.model_dump(), **extra}
+    return {"request": request, "settings": settings.model_dump(), "app_subtitle": settings.app_subtitle, **extra}
 
 
 async def _read_md(filepath: str) -> str:
@@ -72,9 +72,22 @@ async def error_log_page(request: Request):
         content_html=content_html, title="错题本"))
 
 
+@router.get("/exhibit/{topic}", response_class=HTMLResponse)
+async def exhibit_page(request: Request, topic: str):
+    exhibit_info = settings.exhibits.get(topic, {})
+    if not exhibit_info:
+        return templates.TemplateResponse("pages/content.html", _ctx(request,
+            content_html=f"<p class=\"content-error\">展厅未找到: {topic}</p>", title="未知展厅"))
+    filepath = f"notebooks/{exhibit_info['notebook']}.md"
+    content_html = await _read_md(filepath)
+    return templates.TemplateResponse("pages/content.html", _ctx(request,
+        content_html=content_html, title=exhibit_info.get("zh", topic),
+        exhibit=exhibit_info, topic_key=topic))
+
+
 @router.get("/practice/{topic}", response_class=HTMLResponse)
 async def practice_page(request: Request, topic: str):
-    topic_info = settings.topics.get(topic, {})
+    exhibit_info = settings.exhibits.get(topic, {})
     summaries = problem_bank.list_problem_summaries(topic)
     return templates.TemplateResponse("pages/practice.html", _ctx(request,
-        topic_key=topic, topic=topic_info, problems=summaries, count=len(summaries)))
+        topic_key=topic, topic=exhibit_info or {"zh": topic}, problems=summaries, count=len(summaries)))
