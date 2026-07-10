@@ -18,6 +18,8 @@ class SettingsScreen extends ConsumerWidget {
         children: [
           Text('设置', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 16),
+          Text('数学博物馆',
+              style: Theme.of(context).textTheme.bodyLarge),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(20),

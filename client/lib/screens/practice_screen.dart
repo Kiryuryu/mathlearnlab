@@ -124,7 +124,7 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final topicName = AppConfig.topicNames[widget.topic] ?? widget.topic;
+    final topicName = AppConfig.exhibitNames[widget.topic]?.replaceAll('\n', ' — ') ?? widget.topic;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

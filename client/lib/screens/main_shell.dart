@@ -7,37 +7,37 @@ import '../widgets/sidebar.dart';
 import '../widgets/chat_panel.dart';
 import '../services/auth_service.dart';
 import 'home_screen.dart';
-import 'content_screen.dart';
+import 'exhibit_screen.dart';
 import 'practice_screen.dart';
 import 'error_log_screen.dart';
 import 'settings_screen.dart';
 import 'login_screen.dart';
 
-enum AppRoute { home, content, practice, errorLog, settings }
+enum AppRoute { home, exhibit, practice, errorLog, settings }
 
 class ShellState {
   final AppRoute route;
   final AppRoute? prevRoute;
-  final String contentPath;
+  final String? exhibitKey;
   final String? practiceTopic;
 
   const ShellState({
     this.route = AppRoute.home,
     this.prevRoute,
-    this.contentPath = '',
+    this.exhibitKey,
     this.practiceTopic,
   });
 
   ShellState copyWith({
     AppRoute? route,
     AppRoute? prevRoute,
-    String? contentPath,
+    String? exhibitKey,
     String? practiceTopic,
   }) {
     return ShellState(
       route: route ?? this.route,
       prevRoute: prevRoute,
-      contentPath: contentPath ?? this.contentPath,
+      exhibitKey: exhibitKey ?? this.exhibitKey,
       practiceTopic: practiceTopic,
     );
   }
@@ -51,15 +51,13 @@ class ShellNotifier extends StateNotifier<ShellState> {
   ShellNotifier() : super(const ShellState());
 
   void goHome() =>
-      state = ShellState(
-          route: AppRoute.home, prevRoute: state.route);
-  void goContent(String path) => state = ShellState(
-      route: AppRoute.content, prevRoute: state.route, contentPath: path);
+      state = ShellState(route: AppRoute.home, prevRoute: state.route);
+  void goExhibit(String key) => state = ShellState(
+      route: AppRoute.exhibit, prevRoute: state.route, exhibitKey: key);
   void goPractice(String topic) => state = ShellState(
       route: AppRoute.practice,
       prevRoute: state.route,
-      practiceTopic: topic,
-      contentPath: '');
+      practiceTopic: topic);
   void goErrorLog() =>
       state = ShellState(route: AppRoute.errorLog, prevRoute: state.route);
   void goSettings() =>
@@ -68,7 +66,14 @@ class ShellNotifier extends StateNotifier<ShellState> {
   void goBack() {
     if (state.prevRoute != null) {
       final prev = state.prevRoute!;
-      state = state.copyWith(route: prev, prevRoute: null);
+      final prevExhibitKey = state.exhibitKey;
+      final prevPracticeTopic = state.practiceTopic;
+      state = ShellState(
+        route: prev,
+        prevRoute: null,
+        exhibitKey: prevExhibitKey,
+        practiceTopic: prevPracticeTopic,
+      );
     }
   }
 }
@@ -96,10 +101,10 @@ class MainShell extends ConsumerWidget {
             : null,
         title: Row(
           children: [
-            const Text('MathLearnLab'),
+            const Text('数学博物馆'),
             const SizedBox(width: 8),
             Text(
-              '高等数学复习',
+              '知其然，知其所以然',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],
@@ -129,8 +134,8 @@ class MainShell extends ConsumerWidget {
     switch (shell.route) {
       case AppRoute.home:
         return const HomeScreen();
-      case AppRoute.content:
-        return ContentScreen(path: shell.contentPath);
+      case AppRoute.exhibit:
+        return ExhibitScreen(key: ValueKey(shell.exhibitKey), exhibitKey: shell.exhibitKey ?? 'limits');
       case AppRoute.practice:
         return PracticeScreen(topic: shell.practiceTopic ?? 'integrals');
       case AppRoute.errorLog:
