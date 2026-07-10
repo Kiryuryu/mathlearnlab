@@ -1,0 +1,31 @@
+# Table of Contents for JupyterBook
+format: jb-book
+root: README
+
+parts:
+  - caption: 高等数学
+    chapters:
+      - file: notebooks/01-gaoshu/01-limits-continuity-differentiation
+      - file: notebooks/01-gaoshu/02-integration
+      - file: notebooks/01-gaoshu/03-infinite-series
+      - file: notebooks/01-gaoshu/04-multivariable-calculus
+
+  - caption: 线性代数
+    chapters:
+      - file: notebooks/02-xiandai/README
+
+  - caption: 概率论与数理统计
+    chapters:
+      - file: notebooks/03-gailvlun/README
+
+  - caption: 知识笔记
+    chapters:
+      - file: notes/01-gaoshu/README
+
+  - caption: 解题集
+    chapters:
+      - file: problems/01-gaoshu/README
+
+  - caption: 错题本
+    chapters:
+      - file: error-log/README

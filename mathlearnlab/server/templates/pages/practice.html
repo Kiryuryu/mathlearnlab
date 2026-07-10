@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}{{ topic.zh }} — OCR 刷题{% endblock %}
+{% block content %}
+<div class="content-page">
+  <h2>{{ topic.zh }} — 刷题</h2>
+  <p style="color: var(--text-secondary);">选题 → 纸笔作答 → 拍照上传 → AI 批改 → 错题记录</p>
+
+  <div class="practice-phase" id="practiceApp">
+    <!-- Phase 1: Select -->
+    <div id="phaseSelect">
+      <button class="btn btn-primary" onclick="Practice.randomProblem()" style="margin:10px 0;">
+        随机抽题
+      </button>
+
+      <div style="margin:8px 0;">
+        <label style="font-size:13px;color:var(--text-muted);">筛选难度：</label>
+        <select id="diffFilter" onchange="Practice.filterProblems()" class="chat-model-select">
+          <option value="all">全部</option>
+          <option value="easy">简单</option>
+          <option value="medium">中等</option>
+          <option value="hard">困难</option>
+        </select>
+        <span style="margin-left:12px;font-size:13px;color:var(--text-muted);">
+          共 {{ count }} 题
+        </span>
+      </div>
+
+      <div id="problemList">
+        {% for p in problems %}
+        <div class="problem-list-item" onclick="Practice.selectProblem('{{ p.id }}')"
+             data-difficulty="{{ p.difficulty }}">
+          <div>
+            <strong>{{ settings.difficulty[p.difficulty].stars }} {{ p.id }}</strong>
+            &mdash; {{ p.preview }}
+            <div style="font-size:12px;color:var(--text-muted);">
+              {{ p.knowledge_points[:3] | join(' · ') }} · {{ settings.difficulty[p.difficulty].zh }}
+            </div>
+          </div>
+          <span style="font-size:18px;color:var(--text-muted);">&rarr;</span>
+        </div>
+        {% endfor %}
+      </div>
+
+      {% if count == 0 %}
+      <p style="color:var(--text-muted);margin-top:16px;">
+        该 topic 暂无题目。运行 <code>scripts/seed_problem_bank.py</code> 生成。
+      </p>
+      {% endif %}
+    </div>
+
+    <!-- Phase 2: Solve (hidden initially) -->
+    <div id="phaseSolve" style="display:none;">
+      <button class="btn btn-sm" onclick="Practice.goToPhase('select')" style="margin-bottom:12px;">
+        &larr; 返回选题
+      </button>
+      <div id="solveContent"></div>
+    </div>
+
+    <!-- Phase 3: Results (hidden initially) -->
+    <div id="phaseResults" style="display:none;">
+      <div id="resultsContent"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Initialize practice with topic and settings from server
+  window.PRACTICE_TOPIC = '{{ topic_key }}';
+  window.PRACTICE_SETTINGS = {
+    difficulty: {{ settings.difficulty | tojson }},
+  };
+</script>
+{% endblock %}

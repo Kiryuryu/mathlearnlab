@@ -1,0 +1,141 @@
+{
+  "topic": "multivariable",
+  "topic_name_zh": "多元微积分",
+  "problems": [
+    {
+      "id": "MUL-001",
+      "difficulty": "easy",
+      "difficulty_label_zh": "简单",
+      "knowledge_points": ["偏导数", "全微分"],
+      "problem_statement": "设 $z = x^2 y + e^x \\sin y$，求 $\\frac{\\partial z}{\\partial x}$ 和 $\\frac{\\partial z}{\\partial y}$。",
+      "solution": {
+        "method": "直接求偏导数",
+        "steps": [
+          "对 $x$ 求偏导（视 $y$ 为常数）：$\\frac{\\partial z}{\\partial x} = 2xy + e^x \\sin y$",
+          "对 $y$ 求偏导（视 $x$ 为常数）：$\\frac{\\partial z}{\\partial y} = x^2 + e^x \\cos y$"
+        ],
+        "final_answer": "\\frac{\\partial z}{\\partial x} = 2xy + e^x\\sin y, \\quad \\frac{\\partial z}{\\partial y} = x^2 + e^x\\cos y"
+      },
+      "grading_rubric": {
+        "key_steps": ["对 x 求偏导", "对 y 求偏导", "正确使用基本求导公式"],
+        "common_errors": ["对 x 求导时把 y 当常数忘了", "e^x 对 x 求导是 e^x，对 y 求导是 0（搞混）"]
+      }
+    },
+    {
+      "id": "MUL-002",
+      "difficulty": "medium",
+      "difficulty_label_zh": "中等",
+      "knowledge_points": ["方向导数", "梯度"],
+      "problem_statement": "求 $f(x,y) = x^2 + y^2$ 在点 $(1,2)$ 处沿方向 $\\mathbf{v} = (3,4)$ 的方向导数。",
+      "solution": {
+        "method": "$D_{\\mathbf{u}}f = \\nabla f \\cdot \\mathbf{u}$，其中 $\\mathbf{u}$ 为单位方向向量",
+        "steps": [
+          "$\\nabla f = (2x, 2y)$，在 $(1,2)$ 处 $\\nabla f(1,2) = (2, 4)$",
+          "方向向量 $(3,4)$ 的单位化：$\\|\\mathbf{v}\\| = \\sqrt{9+16} = 5$，$\\mathbf{u} = (3/5, 4/5)$",
+          "$D_{\\mathbf{u}}f(1,2) = (2,4) \\cdot (3/5, 4/5) = \\frac{6}{5} + \\frac{16}{5} = \\frac{22}{5} = 4.4$"
+        ],
+        "final_answer": "\\frac{22}{5}"
+      },
+      "grading_rubric": {
+        "key_steps": ["计算梯度 ∇f", "将方向向量单位化", "计算点积得到方向导数"],
+        "common_errors": ["忘记将方向向量单位化", "梯度计算错误", "点积计算错误"]
+      }
+    },
+    {
+      "id": "MUL-003",
+      "difficulty": "medium",
+      "difficulty_label_zh": "中等",
+      "knowledge_points": ["二重积分", "积分次序交换"],
+      "problem_statement": "计算二重积分：$\\iint_D xy \\, dx\\,dy$，其中 $D$ 由 $y = x$ 和 $y = x^2$ 围成。",
+      "solution": {
+        "method": "确定积分区域 → 累次积分",
+        "steps": [
+          "求交点：$x = x^2$，$x = 0$ 或 $x = 1$",
+          "在 $[0,1]$ 上，$x^2 \\leq x$，所以 $D: 0 \\leq x \\leq 1, x^2 \\leq y \\leq x$",
+          "$\\iint_D xy\\,dxdy = \\int_0^1 \\int_{x^2}^x xy\\,dy\\,dx = \\int_0^1 x \\cdot [\\frac{y^2}{2}]_{x^2}^x \\,dx$",
+          "$= \\int_0^1 x \\cdot \\frac{x^2 - x^4}{2}\\,dx = \\frac{1}{2}\\int_0^1 (x^3 - x^5)\\,dx$",
+          "$= \\frac{1}{2}[\\frac{x^4}{4} - \\frac{x^6}{6}]_0^1 = \\frac{1}{2}(\\frac{1}{4} - \\frac{1}{6}) = \\frac{1}{2} \\cdot \\frac{1}{12} = \\frac{1}{24}$"
+        ],
+        "final_answer": "\\frac{1}{24}"
+      },
+      "grading_rubric": {
+        "key_steps": ["正确找出积分区域和交点", "确定积分次序和上下限", "逐层积分计算"],
+        "common_errors": ["积分上下限写反", "判断哪条曲线在上时出错", "逐层积分时代入上下限错误"]
+      }
+    },
+    {
+      "id": "MUL-004",
+      "difficulty": "hard",
+      "difficulty_label_zh": "困难",
+      "knowledge_points": ["拉格朗日乘数法", "条件极值"],
+      "problem_statement": "在椭圆 $x^2 + 4y^2 = 4$ 上求一点，使其到原点的距离最大化。",
+      "solution": {
+        "method": "拉格朗日乘数法",
+        "steps": [
+          "目标：最大化 $d^2 = x^2 + y^2$（等价于最大化距离本身），约束：$x^2 + 4y^2 = 4$",
+          "拉格朗日函数：$L(x,y,\\lambda) = x^2 + y^2 + \\lambda(x^2 + 4y^2 - 4)$",
+          "$\\frac{\\partial L}{\\partial x} = 2x + 2\\lambda x = 0$",
+          "$\\frac{\\partial L}{\\partial y} = 2y + 8\\lambda y = 0$",
+          "$\\frac{\\partial L}{\\partial \\lambda} = x^2 + 4y^2 - 4 = 0$",
+          "由 (1)：$x(1+\\lambda) = 0$，$x=0$ 或 $\\lambda=-1$",
+          "由 (2)：$y(1+4\\lambda) = 0$，$y=0$ 或 $\\lambda=-1/4$",
+          "分析各种组合... $x=0$ 时 $4y^2=4$, $y=\\pm 1$，距离 1",
+          "$y=0$ 时 $x^2=4$, $x=\\pm 2$，距离 2 → 最大",
+          "所以最远点为 $(\\pm 2, 0)$（长轴端点），最大距离为 2"
+        ],
+        "final_answer": "(\\pm 2, 0)，最大距离为 2"
+      },
+      "grading_rubric": {
+        "key_steps": ["构造拉格朗日函数", "求偏导并建方程组", "解方程组找出所有候选点", "比较目标函数值确定最值"],
+        "common_errors": ["约束方程写错", "方程组求解不完整（漏解）", "不比较所有候选点就下结论"]
+      }
+    },
+    {
+      "id": "MUL-005",
+      "difficulty": "hard",
+      "difficulty_label_zh": "困难",
+      "knowledge_points": ["二重积分", "极坐标变换"],
+      "problem_statement": "计算 $\\iint_D \\sqrt{x^2 + y^2} \\, dx\\,dy$，其中 $D$ 为 $x^2 + y^2 \\leq 2x$。",
+      "solution": {
+        "method": "极坐标变换",
+        "steps": [
+          "$x^2 + y^2 \\leq 2x$ 即 $(x-1)^2 + y^2 \\leq 1$，是圆心在 $(1,0)$、半径 1 的圆",
+          "极坐标：$x = r\\cos\\theta, y = r\\sin\\theta$，$dxdy = r\\,dr\\,d\\theta$",
+          "不等式变为 $r^2 \\leq 2r\\cos\\theta$，即 $r \\leq 2\\cos\\theta$（$r>0$时）",
+          "$\\theta$ 的范围：$r \\geq 0$ 且 $\\cos\\theta \\geq 0$，所以 $\\theta \\in [-\\pi/2, \\pi/2]$",
+          "$\\iint_D r \\cdot r\\,dr\\,d\\theta = \\int_{-\\pi/2}^{\\pi/2} \\int_0^{2\\cos\\theta} r^2\\,dr\\,d\\theta$",
+          "$= \\int_{-\\pi/2}^{\\pi/2} [\\frac{r^3}{3}]_0^{2\\cos\\theta} \\,d\\theta = \\int_{-\\pi/2}^{\\pi/2} \\frac{8\\cos^3\\theta}{3}\\,d\\theta$",
+          "利用 $\\int_{-\\pi/2}^{\\pi/2} \\cos^3\\theta\\,d\\theta = \\frac{4}{3}$，所以 $= \\frac{8}{3} \\cdot \\frac{4}{3} = \\frac{32}{9}$"
+        ],
+        "final_answer": "\\frac{32}{9}",
+        "alternative_methods": ["也可用直角坐标 $x$ 先 $y$ 后的累次积分，但计算更复杂"]
+      },
+      "grading_rubric": {
+        "key_steps": ["识别区域 → 选择极坐标", "正确写出极坐标下的区域不等式", "确定 θ 和 r 的范围", "分层积分计算"],
+        "common_errors": ["θ 范围取错", "极坐标变换忘记乘 r", "cos³θ 积分计算错误"]
+      }
+    },
+    {
+      "id": "MUL-006",
+      "difficulty": "medium",
+      "difficulty_label_zh": "中等",
+      "knowledge_points": ["链式法则", "多元复合函数求导"],
+      "problem_statement": "设 $z = f(x^2 + y^2)$，其中 $f$ 可导。证明：$y\\frac{\\partial z}{\\partial x} - x\\frac{\\partial z}{\\partial y} = 0$。",
+      "solution": {
+        "method": "链式法则",
+        "steps": [
+          "令 $u = x^2 + y^2$，则 $z = f(u)$",
+          "$\\frac{\\partial z}{\\partial x} = f'(u) \\cdot \\frac{\\partial u}{\\partial x} = f'(u) \\cdot 2x$",
+          "$\\frac{\\partial z}{\\partial y} = f'(u) \\cdot \\frac{\\partial u}{\\partial y} = f'(u) \\cdot 2y$",
+          "$y\\frac{\\partial z}{\\partial x} - x\\frac{\\partial z}{\\partial y} = y \\cdot 2x f'(u) - x \\cdot 2y f'(u) = 0$",
+          "证毕。"
+        ],
+        "final_answer": "证明题，恒等式的证明完成"
+      },
+      "grading_rubric": {
+        "key_steps": ["正确使用链式法则", "计算偏导数", "代入验证恒等式"],
+        "common_errors": ["链式法则用错", "把 f'(u) 漏掉", "偏导数计算错误"]
+      }
+    }
+  ]
+}

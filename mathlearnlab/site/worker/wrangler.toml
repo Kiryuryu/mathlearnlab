@@ -1,0 +1,6 @@
+name = "mathlearnlab-api"
+main = "index.js"
+compatibility_date = "2025-07-01"
+
+# Free tier: 100,000 requests/day
+# Deploy with: npx wrangler deploy

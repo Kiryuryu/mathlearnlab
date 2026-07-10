@@ -1,0 +1,14 @@
+[Unit]
+Description=MathLearnLab FastAPI
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/apps/mathlearnlab
+ExecStart=/opt/apps/mathlearnlab/venv/bin/python3 -m uvicorn server.main:app --host 127.0.0.1 --port 8000
+Restart=always
+RestartSec=5
+EnvironmentFile=/opt/apps/mathlearnlab/.env
+
+[Install]
+WantedBy=multi-user.target

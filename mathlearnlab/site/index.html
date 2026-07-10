@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MathLearnLab — 考研数学复习</title>
+
+  <!-- CDN: marked (markdown) -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- CDN: highlight.js (code syntax) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css" id="hljs-light">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.min.css" id="hljs-dark" disabled>
+  <script src="https://cdn.jsdelivr.net/npm/highlight.js@11/lib/highlight.min.js"></script>
+
+  <!-- MathJax v3 -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true,
+      },
+      svg: { fontCache: 'global' },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+  <!-- App CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-left">
+      <button class="menu-toggle" id="menuToggle" aria-label="菜单">☰</button>
+      <h1 class="app-title">🧮 MathLearnLab</h1>
+      <span class="app-subtitle">考研数学复习</span>
+    </div>
+    <div class="header-right">
+      <button id="themeToggle" class="icon-btn" aria-label="切换主题">🌙</button>
+      <button id="apiKeyBtn" class="icon-btn" aria-label="API Key">🔑</button>
+    </div>
+  </header>
+
+  <!-- API Key Modal -->
+  <div class="modal-overlay" id="apiKeyModal" hidden>
+    <div class="modal">
+      <h3>🔑 设置 Anthropic API Key</h3>
+      <p class="modal-hint">你的 Key 只存在浏览器本地，不会上传到任何服务器。</p>
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." class="input-full">
+      <p class="modal-hint">
+        没有 Key？
+        <a href="https://console.anthropic.com/" target="_blank" rel="noopener">前往 Anthropic Console 注册</a>
+      </p>
+      <div class="modal-actions">
+        <button id="apiKeySave" class="btn btn-primary">保存</button>
+        <button id="apiKeyCancel" class="btn btn-secondary">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Layout -->
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-inner" id="sidebarContent"></div>
+    </nav>
+
+    <!-- Sidebar overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay" hidden></div>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+      <div class="content-loading">加载中...</div>
+    </main>
+
+    <!-- AI Chat Panel -->
+    <aside class="chat-panel" id="chatPanel">
+      <div class="chat-panel-inner">
+        <div class="chat-header">
+          <span>🤖 AI 数学助手</span>
+          <div class="chat-header-actions">
+            <select id="chatModel" class="chat-model-select">
+              <option value="claude-sonnet-4-20250514">Claude Sonnet 4</option>
+              <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (快)</option>
+            </select>
+            <button id="chatNewBtn" class="icon-btn-sm" title="新对话">➕</button>
+            <button id="chatToggleBtn" class="icon-btn-sm" title="收起">◀</button>
+          </div>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+          <div class="chat-welcome">
+            <p>👋 你好！我是你的考研数学 AI 助手。</p>
+            <p>有不懂的概念、题目随时问我，比如：</p>
+            <ul>
+              <li>"华里士公式是什么？"</li>
+              <li>"帮我解释一下格林公式"</li>
+              <li>"这道题怎么做？∫x·e^x dx"</li>
+            </ul>
+            <p class="chat-context-hint" id="chatContextHint"></p>
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <textarea id="chatInput" placeholder="输入你的问题..." rows="2"></textarea>
+          <button id="chatSendBtn" class="btn btn-primary btn-sm">发送</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Chat toggle button (when panel is collapsed) -->
+    <button id="chatFloatingBtn" class="chat-floating-btn" hidden title="打开AI助手">💬</button>
+  </div>
+
+  <!-- App JS -->
+  <script src="js/config.js"></script>
+  <script src="js/utils/storage.js"></script>
+  <script src="js/utils/markdown.js"></script>
+  <script src="js/utils/image-utils.js"></script>
+  <script src="js/utils/api.js"></script>
+  <script src="js/components/theme-toggle.js"></script>
+  <script src="js/components/sidebar.js"></script>
+  <script src="js/components/content-viewer.js"></script>
+  <script src="js/components/chat.js"></script>
+  <script src="js/components/ocr-practice.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+# JupyterBook configuration
+title: MathLearnLab — 考研数学复习
+author: joycezhang
+logo: ""
+execute:
+  execute_notebooks: "off"  # Don't re-execute on build; outputs are committed
+parse:
+  myst_enable_extensions:
+    - amsmath
+    - dollarmath
+    - linkify
+repository:
+  url: https://github.com/joycezhang/mathlearnlab
+  branch: main
+html:
+  use_repository_button: true
+  use_issues_button: true
