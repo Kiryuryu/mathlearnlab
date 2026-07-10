@@ -53,7 +53,7 @@ class Settings(BaseSettings):
         },
         {
             "section": "知识笔记",
-            "items": [
+            "entries": [
                 {"label": "高等数学", "route": "/notes/01-gaoshu/README"},
                 {"label": "线性代数", "route": "/notes/02-xiandai/README"},
                 {"label": "概率论",   "route": "/notes/03-gailvlun/README"},
@@ -61,7 +61,7 @@ class Settings(BaseSettings):
         },
         {
             "section": "解题集",
-            "items": [
+            "entries": [
                 {"label": "极限与连续", "route": "/problems/01-gaoshu/limits-problems"},
                 {"label": "积分学",    "route": "/problems/01-gaoshu/integration-problems"},
                 {"label": "无穷级数",  "route": "/problems/01-gaoshu/series-problems"},
@@ -70,13 +70,13 @@ class Settings(BaseSettings):
         },
         {
             "section": "错题本",
-            "items": [
+            "entries": [
                 {"label": "高等数学", "route": "/error-log"},
             ],
         },
         {
             "section": "OCR 刷题",
-            "items": [
+            "entries": [
                 {"label": "极限与连续", "route": "/practice/limits"},
                 {"label": "微分学",     "route": "/practice/derivatives"},
                 {"label": "积分学",     "route": "/practice/integrals"},
