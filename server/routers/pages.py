@@ -8,16 +8,16 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from server.config import settings
 from server.main import CONTENT_DIR
-from server.services import problem_bank, history as history_svc
+from server.services import problem_bank
 
 TEMPLATE_DIR = Path(__file__).resolve().parent.parent / "templates"
 templates = Jinja2Templates(directory=str(TEMPLATE_DIR))
 
 router = APIRouter()
 
+
 def _ctx(request: Request, **extra):
-    """Build template context with settings as plain dict."""
-    return {"request": request, "settings": settings.model_dump(), "app_subtitle": settings.app_subtitle, **extra}
+    return {"request": request, "settings": settings, **extra}
 
 
 async def _read_md(filepath: str) -> str:
@@ -36,8 +36,7 @@ async def _read_md(filepath: str) -> str:
 
 @router.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    stats = history_svc.get_stats()
-    return templates.TemplateResponse("pages/home.html", _ctx(request, stats=stats))
+    return templates.TemplateResponse("pages/home.html", _ctx(request))
 
 
 @router.get("/notebooks/{chapter}/{filename}", response_class=HTMLResponse)
