@@ -30,10 +30,10 @@
         <div class="problem-list-item" onclick="Practice.selectProblem('{{ p.id }}')"
              data-difficulty="{{ p.difficulty }}">
           <div>
-            <strong>{{ settings.difficulty[p.difficulty].stars }} {{ p.id }}</strong>
+            <strong>{% set d = settings.difficulty.get(p.difficulty, {}) %}{{ d.get('stars', '') }} {{ p.id }}</strong>
             &mdash; {{ p.preview }}
             <div style="font-size:12px;color:var(--text-muted);">
-              {{ p.knowledge_points[:3] | join(' · ') }} · {{ settings.difficulty[p.difficulty].zh }}
+              {{ (p.knowledge_points or [])[:3] | join(' · ') }} · {{ d.get('zh', '') }}
             </div>
           </div>
           <span style="font-size:18px;color:var(--text-muted);">&rarr;</span>
