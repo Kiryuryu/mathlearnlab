@@ -31,7 +31,19 @@ var MuseumChat = (function() {
   function toggle() {
     var p = $('chatPopup');
     if (!p) return;
-    p.hidden = !p.hidden;
+    var hidden = p.hidden;
+    var display = p.style.display;
+    if (display === 'none') {
+      // Was hidden via style, show it
+      p.style.display = '';
+      p.hidden = false;
+    } else if (p.hidden) {
+      p.hidden = false;
+      p.style.display = '';
+    } else {
+      p.hidden = true;
+      p.style.display = 'none';
+    }
   }
 
   function setModel(val) {
