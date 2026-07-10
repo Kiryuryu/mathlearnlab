@@ -33,7 +33,7 @@
     </div>
     <div class="header-right">
       <button class="header-btn" id="themeToggle" title="切换明暗">◐</button>
-      <button class="header-btn" id="apiKeyBtn" title="API Key" onclick="window.openApiKeyModal()">钥</button>
+      <button class="header-btn" id="apiKeyBtn" title="API Key">钥</button>
     </div>
   </header>
 
@@ -47,8 +47,8 @@
         没有 Key？<a href="https://console.anthropic.com/" target="_blank" rel="noopener">注册 Anthropic Console</a>
       </p>
       <div class="modal-actions">
-        <button class="btn btn-primary" id="apiKeySave" onclick="window.saveApiKey()">保存</button>
-        <button class="btn" id="apiKeyCancel" onclick="window.closeApiKeyModal()">取消</button>
+        <button class="btn btn-primary" id="apiKeySave">保存</button>
+        <button class="btn" id="apiKeyCancel">取消</button>
       </div>
     </div>
   </div>
@@ -109,6 +109,41 @@
   <script src="/static/js/chat.js"></script>
   <script src="/static/js/practice.js"></script>
   <script src="/static/js/app.js"></script>
+
+  <script>
+    // API Key modal — inline to guarantee binding
+    (function() {
+      var modal = document.getElementById('apiKeyModal');
+      var btn = document.getElementById('apiKeyBtn');
+      var input = document.getElementById('apiKeyInput');
+      var saveBtn = document.getElementById('apiKeySave');
+      var cancelBtn = document.getElementById('apiKeyCancel');
+
+      if (!modal || !btn) return;
+
+      function getKey() {
+        try { return localStorage.getItem('mathlearnlab:apikey') || ''; } catch(e) { return ''; }
+      }
+
+      btn.onclick = function() {
+        if (input) input.value = getKey();
+        modal.hidden = false;
+      };
+
+      saveBtn.onclick = function() {
+        var key = input ? input.value.trim() : '';
+        try { localStorage.setItem('mathlearnlab:apikey', key); } catch(e) {}
+        modal.hidden = true;
+        btn.textContent = key ? '钥✓' : '钥';
+      };
+
+      cancelBtn.onclick = function() { modal.hidden = true; };
+
+      modal.onclick = function(e) { if (e.target === modal) modal.hidden = true; };
+
+      if (getKey()) btn.textContent = '钥✓';
+    })();
+  </script>
 
   {% block scripts %}{% endblock %}
 </body>
