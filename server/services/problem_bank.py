@@ -7,6 +7,7 @@ import json
 import random
 from pathlib import Path
 from server.main import DATA_DIR
+from server.config import settings
 
 PROBLEM_BANK_DIR = DATA_DIR / "problem_bank"
 
