@@ -33,7 +33,7 @@
     </div>
     <div class="header-right">
       <button class="header-btn" id="themeToggle" title="切换明暗">◐</button>
-      <button class="header-btn" id="apiKeyBtn" title="API Key">钥</button>
+      <button class="header-btn" id="apiKeyBtn" title="API Key" onclick="window.openApiKeyModal()">钥</button>
     </div>
   </header>
 
@@ -47,8 +47,8 @@
         没有 Key？<a href="https://console.anthropic.com/" target="_blank" rel="noopener">注册 Anthropic Console</a>
       </p>
       <div class="modal-actions">
-        <button class="btn btn-primary" id="apiKeySave">保存</button>
-        <button class="btn" id="apiKeyCancel">取消</button>
+        <button class="btn btn-primary" id="apiKeySave" onclick="window.saveApiKey()">保存</button>
+        <button class="btn" id="apiKeyCancel" onclick="window.closeApiKeyModal()">取消</button>
       </div>
     </div>
   </div>

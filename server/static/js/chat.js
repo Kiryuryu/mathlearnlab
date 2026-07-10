@@ -213,20 +213,24 @@
     const btn = $('apiKeyBtn');
     if (!modal || !btn) return;
 
-    btn.addEventListener('click', () => {
+    // Global functions for inline onclick
+    window.openApiKeyModal = () => {
       const input = $('apiKeyInput');
       if (input) input.value = getApiKey();
       modal.hidden = false;
-    });
+    };
 
-    $('apiKeySave')?.addEventListener('click', () => {
+    window.saveApiKey = () => {
       const key = $('apiKeyInput')?.value?.trim() || '';
       try { localStorage.setItem('mathlearnlab:apikey', key); } catch {}
       modal.hidden = true;
       $('apiKeyBtn').textContent = key ? '钥✓' : '钥';
-    });
+    };
 
-    $('apiKeyCancel')?.addEventListener('click', () => { modal.hidden = true; });
+    window.closeApiKeyModal = () => {
+      modal.hidden = true;
+    };
+
     modal.addEventListener('click', (e) => { if (e.target === modal) modal.hidden = true; });
 
     if (getApiKey()) btn.textContent = '钥✓';
