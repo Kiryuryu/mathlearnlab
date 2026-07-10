@@ -39,7 +39,7 @@ class _MathLearnLabAppState extends ConsumerState<MathLearnLabApp> {
       );
     }
     return MaterialApp(
-      title: 'MathLearnLab',
+      title: '数学博物馆',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
