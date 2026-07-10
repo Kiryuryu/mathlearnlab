@@ -1,51 +1,68 @@
 {% extends "base.html" %}
 {% block title %}数学博物馆{% endblock %}
 {% block content %}
-<div class="content-page">
-  <h1>数学博物馆</h1>
-  <p style="color: var(--text-secondary); font-size: 16px; max-width: 600px;">
-    知其然，知其所以然。欢迎来到数学博物馆——这里不是教你怎么做题，而是带你理解数学概念从何而来、为什么这样定义、美在哪里。
+<!-- Prologue -->
+<div style="text-align:center;padding:48px 32px 24px;">
+  <h1 style="font-size:32px;margin:0;">数学博物馆</h1>
+  <p style="color:var(--text-secondary);max-width:640px;margin:12px auto;font-size:15px;line-height:1.8;">
+    知其然，知其所以然。这里不是教你怎么做题，而是带你理解数学概念从何而来、为什么这样定义、美在哪里。
   </p>
-
-  <h2>🏛 序幕</h2>
-  <p style="color: var(--text-secondary);">
+  <p style="color:var(--text-muted);font-size:13px;margin-top:4px;">
     微积分是人类思想史上最伟大的成就之一。从芝诺的飞矢不动悖论，到牛顿和莱布尼茨的激烈争论，到柯西和魏尔斯特拉斯用 &epsilon;-&delta; 语言为它打下坚实根基——这是一个跨越两千年的故事。
   </p>
-  <p style="color: var(--text-secondary);">
-    关键洞察：<strong>无穷小量</strong>到底是不是零？如果是零，为什么可以除？如果不是零，为什么最后可以扔掉？整个微积分的历史，就是在回答这个问题。
-  </p>
+</div>
 
-  <h2>展厅导览</h2>
-  <div class="home-grid">
-    {% for key, e in settings.exhibits.items() %}
-    <a href="/exhibit/{{ key }}" class="home-card">
-      <h3>{{ e.icon }} {{ e.zh }}</h3>
+<!-- Gallery Grid -->
+<div class="gallery-grid">
+  {% for key, e in settings.exhibits.items() %}
+  <div class="exhibit-card" data-href="/exhibit/{{ key }}">
+    <span class="exhibit-card-icon">{{ e.icon }}</span>
+    <div class="exhibit-card-body">
+      <h2>{{ e.zh }}</h2>
       <p>{{ e.big_question }}</p>
-      <div class="card-meta">提出者：{{ e.historian }}</div>
-    </a>
-    {% endfor %}
+      <div class="historian">提出者：{{ e.historian }}</div>
+    </div>
   </div>
+  {% endfor %}
 
-  <h2>动手实验室</h2>
-  <p style="color: var(--text-secondary);">
-    理解之后，验证你的直觉。纸笔作答，拍照上传，AI 会给你详细的批改和反馈。
-  </p>
-  <div class="home-grid">
-    {% for key, e in settings.exhibits.items() %}
-    <a href="/practice/{{ key }}" class="home-card">
-      <h3>{{ e.icon }} {{ e.zh }} — 动手区</h3>
-      <p>纸笔作答 → 拍照上传 → AI 批改</p>
-      <div class="card-meta">开始验证</div>
-    </a>
-    {% endfor %}
+  <!-- Coming Soon -->
+  <div class="exhibit-card coming-soon" style="background:linear-gradient(135deg, #1a1a2e, #2a2a4e);">
+    <span class="coming-soon-badge">施工中</span>
+    <div class="exhibit-card-body">
+      <h2>线性代数 — 维度的艺术</h2>
+      <p>向量空间、线性变换、特征值与特征向量</p>
+      <div class="historian">凯莱、哈密顿、格拉斯曼</div>
+    </div>
   </div>
+  <div class="exhibit-card coming-soon" style="background:linear-gradient(135deg, #2e1a1a, #4e2a2a);">
+    <span class="coming-soon-badge">施工中</span>
+    <div class="exhibit-card-body">
+      <h2>概率论 — 不确定性的科学</h2>
+      <p>随机变量、大数定律、中心极限定理</p>
+      <div class="historian">帕斯卡、伯努利、柯尔莫哥洛夫</div>
+    </div>
+  </div>
+  <div class="exhibit-card coming-soon" style="background:linear-gradient(135deg, #1a1a1a, #3a3a3a);">
+    <span class="coming-soon-badge">远方</span>
+    <div class="exhibit-card-body">
+      <h2>拓扑学 — 橡皮膜上的几何</h2>
+      <p>连续性、紧致性、连通性</p>
+      <div class="historian">庞加莱、豪斯多夫</div>
+    </div>
+  </div>
+  <div class="exhibit-card coming-soon" style="background:linear-gradient(135deg, #1a2e1a, #2a4e2a);">
+    <span class="coming-soon-badge">远方</span>
+    <div class="exhibit-card-body">
+      <h2>数论 — 整数的奥秘</h2>
+      <p>素数分布、同余、丢番图方程</p>
+      <div class="historian">欧几里得、费马、拉马努金</div>
+    </div>
+  </div>
+</div>
 
-  <h2>使用说明</h2>
-  <ul>
-    <li><strong>左侧导航</strong> — 浏览博物馆各展厅，自由探索</li>
-    <li><strong>右侧"页边笔记"</strong> — AI 助手，随时回答你的好奇</li>
-    <li><strong>动手实验室</strong> — 纸笔作答后拍照，AI 批改验证</li>
-    <li>完整交互可视化内容需本地运行 <code>jupyter lab</code></li>
-  </ul>
+<!-- Bottom CTAs -->
+<div style="text-align:center;padding:0 0 48px;">
+  <a href="/practice/integrals" class="btn btn-primary" style="padding:12px 32px;font-size:15px;">🧪 进入动手实验室</a>
+  <p style="font-size:12px;color:var(--text-muted);margin-top:8px;">纸笔作答 → 拍照上传 → AI 批改验证</p>
 </div>
 {% endblock %}
