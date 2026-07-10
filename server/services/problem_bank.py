@@ -21,9 +21,8 @@ def _load_json(filename: str) -> dict:
 
 def load_problems(topic_key: str) -> list[dict]:
     """Load all problems for a topic."""
-    from server.config import settings
-    topic = settings.topics.get(topic_key, {})
-    filename = topic.get("json", f"{topic_key}.json")
+    exhibit = settings.exhibits.get(topic_key, {})
+    filename = exhibit.get("json", f"{topic_key}.json")
     return _load_json(filename).get("problems", [])
 
 

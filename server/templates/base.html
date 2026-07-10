@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}MathLearnLab{% endblock %} — 考研数学复习</title>
+  <title>{% block title %}数学博物馆{% endblock %} — 知其然，知其所以然</title>
   <link rel="stylesheet" href="/static/css/base.css">
   <link rel="stylesheet" href="/static/css/layout.css">
   <link rel="stylesheet" href="/static/css/components.css">
@@ -32,8 +32,8 @@
   <header class="app-header">
     <div class="header-left">
       <button class="header-btn menu-toggle" id="menuToggle" aria-label="目录">☰</button>
-      <a href="/" class="app-brand">MathLearnLab</a>
-      <span class="app-subtitle">高等数学复习</span>
+      <a href="/" class="app-brand">数学博物馆</a>
+      <span class="app-subtitle">{{ app_subtitle or "知其然，知其所以然" }}</span>
     </div>
     <div class="header-right">
       <button class="header-btn" id="themeToggle" title="切换明暗">◐</button>
