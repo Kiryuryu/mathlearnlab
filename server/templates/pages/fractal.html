@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}分形探索{% endblock %}
+{% block content %}
+<div style="max-width:1100px;margin:0 auto;padding:32px 20px;">
+  <h1>分形 — 无限自相似的宇宙</h1>
+  <p style="color:var(--text-secondary);">Mandelbrot 集出自一个最简单的公式：z → z² + c。反复迭代后，有些点会爆炸到无穷，有些永远不会——边界上形成了宇宙中最复杂的图形。用鼠标滚轮放大，探索无穷深度。</p>
+
+  <div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap;align-items:center;">
+    <button class="btn btn-sm" onclick="fractalSet('mandelbrot')" id="btnMandelbrot" style="background:var(--accent);color:#fff;">Mandelbrot 集</button>
+    <button class="btn btn-sm" onclick="fractalSet('julia')" id="btnJulia">Julia 集</button>
+    <span style="font-size:12px;color:var(--text-muted);margin-left:8px;">滚轮缩放 | 拖动平移 | 点击设置 Julia 参数</span>
+    <button class="btn btn-sm" onclick="fractalReset()" style="margin-left:auto;">重置视图</button>
+  </div>
+
+  <canvas id="fractalCanvas" style="width:100%;aspect-ratio:1;max-height:600px;border:1px solid var(--border);border-radius:8px;cursor:crosshair;"></canvas>
+
+  <div style="margin-top:12px;font-size:12px;color:var(--text-muted);text-align:center;">
+    <span id="fractalInfo">中心: -0.5+0i, 范围: 3.0</span>
+    <span style="margin-left:16px;">迭代上限: <input type="number" id="maxIter" value="100" min="20" max="500" step="10" onchange="fractalRedraw()" style="width:60px;padding:2px 4px;border:1px solid var(--border);border-radius:4px;font-size:12px;background:var(--bg-input);color:var(--text-primary);"></span>
+  </div>
+
+  <div style="margin-top:24px;font-size:14px;line-height:1.8;color:var(--text-secondary);max-width:700px;">
+    <h3>为什么分形令人着迷</h3>
+    <p>你有没有注意过：一棵树的枝干分叉和小枝杈的形状，和整棵树很像？西兰花的小颗粒和整棵西兰花很像？海岸线无论用多小的尺子量，还是弯曲的？这就是<strong>自相似性</strong>——分形的核心特征。</p>
+    <p>更惊人的是：<strong>Mandelbrot 集的边界长度是无限的</strong>，但包含的面积是有限的（约 1.506）。你放大多少次，永远能看到新的细节，永远看不到尽头。</p>
+    <p>Mandelbrot 是在 1980 年才被计算机首次画出来的——在此之前，没有人见过它的全貌。它被称为"上帝的指纹"。</p>
+  </div>
+</div>
+
+<script>
+var cx = -0.5, cy = 0, range = 3, maxIter = 100;
+var mode = 'mandelbrot';
+var juliaCx = -0.7, juliaCy = 0.27;
+
+function fractalSet(m) {
+  mode = m;
+  document.getElementById('btnMandelbrot').style.background = m==='mandelbrot' ? 'var(--accent)' : '';
+  document.getElementById('btnMandelbrot').style.color = m==='mandelbrot' ? '#fff' : '';
+  document.getElementById('btnJulia').style.background = m==='julia' ? 'var(--accent)' : '';
+  document.getElementById('btnJulia').style.color = m==='julia' ? '#fff' : '';
+  fractalRedraw();
+}
+
+function fractalReset() {
+  cx = -0.5; cy = 0; range = 3;
+  fractalRedraw();
+}
+
+function fractalRedraw() {
+  maxIter = parseInt(document.getElementById('maxIter').value) || 100;
+  var canvas = document.getElementById('fractalCanvas');
+  var w = canvas.clientWidth;
+  var h = Math.min(w, 600);
+  canvas.width = w; canvas.height = h;
+
+  document.getElementById('fractalInfo').textContent =
+    '中心: ' + cx.toFixed(6) + '+' + cy.toFixed(6) + 'i, 范围: ' + range.toExponential(2) + ', 迭代: ' + maxIter;
+
+  var ctx = canvas.getContext('2d');
+  var img = ctx.createImageData(w, h);
+
+  for (var py = 0; py < h; py++) {
+    for (var px = 0; px < w; px++) {
+      var x0 = cx + (px/w - 0.5) * range * w/h;
+      var y0 = cy + (py/h - 0.5) * range;
+      var iter;
+
+      if (mode === 'mandelbrot') {
+        var x = 0, y = 0;
+        for (iter = 0; iter < maxIter; iter++) {
+          var xt = x*x - y*y + x0;
+          y = 2*x*y + y0;
+          x = xt;
+          if (x*x + y*y > 4) break;
+        }
+      } else {
+        var x = x0, y = y0;
+        for (iter = 0; iter < maxIter; iter++) {
+          var xt = x*x - y*y + juliaCx;
+          y = 2*x*y + juliaCy;
+          x = xt;
+          if (x*x + y*y > 4) break;
+        }
+      }
+
+      var idx = (py * w + px) * 4;
+      if (iter === maxIter) {
+        img.data[idx] = 0; img.data[idx+1] = 0; img.data[idx+2] = 0; img.data[idx+3] = 255;
+      } else {
+        var t = iter / maxIter;
+        img.data[idx]   = Math.floor(9 * (1-t) * t*t*t * 255);
+        img.data[idx+1] = Math.floor(15 * (1-t)*(1-t) * t*t * 255);
+        img.data[idx+2] = Math.floor(8.5 * (1-t)*(1-t)*(1-t) * t * 255);
+        img.data[idx+3] = 255;
+      }
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+var canvas = document.getElementById('fractalCanvas');
+canvas.addEventListener('wheel', function(e) {
+  e.preventDefault();
+  var rect = canvas.getBoundingClientRect();
+  var mx = cx + ((e.clientX - rect.left) / canvas.clientWidth - 0.5) * range * canvas.clientWidth / canvas.clientHeight;
+  var my = cy + ((e.clientY - rect.top) / canvas.clientHeight - 0.5) * range;
+  var zoom = e.deltaY > 0 ? 1.5 : 1/1.5;
+  range *= zoom;
+  cx = mx + (cx - mx) * zoom;
+  cy = my + (cy - my) * zoom;
+  fractalRedraw();
+});
+
+var dragging = false, dragX, dragY;
+canvas.addEventListener('mousedown', function(e) { dragging = true; dragX = e.clientX; dragY = e.clientY; });
+canvas.addEventListener('mousemove', function(e) {
+  if (!dragging) return;
+  var dx = (e.clientX - dragX) / canvas.clientWidth * range * canvas.clientWidth / canvas.clientHeight;
+  var dy = (e.clientY - dragY) / canvas.clientHeight * range;
+  cx -= dx; cy -= dy;
+  dragX = e.clientX; dragY = e.clientY;
+  fractalRedraw();
+});
+canvas.addEventListener('mouseup', function() { dragging = false; });
+canvas.addEventListener('click', function(e) {
+  if (Math.abs(e.clientX - dragX) > 2 || Math.abs(e.clientY - dragY) > 2) return;
+  var rect = canvas.getBoundingClientRect();
+  juliaCx = cx + ((e.clientX - rect.left) / canvas.clientWidth - 0.5) * range * canvas.clientWidth / canvas.clientHeight;
+  juliaCy = cy + ((e.clientY - rect.top) / canvas.clientHeight - 0.5) * range;
+  if (mode === 'julia') fractalRedraw();
+});
+
+fractalRedraw();
+</script>
+{% endblock %}

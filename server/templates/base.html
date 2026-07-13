@@ -32,6 +32,7 @@
       <span class="app-subtitle">知其然，知其所以然</span>
     </div>
     <div class="header-right">
+      <span id="apiStatus" style="width:8px;height:8px;border-radius:50%;background:var(--text-muted);display:inline-block;margin-right:4px;" title="API 状态"></span>
       <div class="search-container" id="searchContainer">
         <button class="search-btn" onclick="toggleSearch()" title="搜索">🔍</button>
         <input type="text" id="searchInput" placeholder="搜索概念、人物、公式..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
@@ -156,6 +157,14 @@
   function escapeHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   document.addEventListener('click', function(e) {
     if (!e.target.closest('.search-container')) closeSearch();
+  });
+  // API status indicator
+  fetch('/api/health').then(function(r){ return r.json(); }).then(function(d){
+    document.getElementById('apiStatus').style.background = 'var(--accent-correct)';
+    document.getElementById('apiStatus').title = '服务正常';
+  }).catch(function(){
+    document.getElementById('apiStatus').style.background = 'var(--accent-error)';
+    document.getElementById('apiStatus').title = '服务异常';
   });
   </script>
 
