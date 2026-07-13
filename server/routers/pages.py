@@ -86,6 +86,25 @@ async def exhibit_page(request: Request, topic: str):
         exhibit=exhibit_info, topic_key=topic))
 
 
+@router.get("/mathematicians", response_class=HTMLResponse)
+async def mathematicians_list(request: Request):
+    return templates.TemplateResponse("pages/mathematicians.html", _ctx(request))
+
+
+@router.get("/mathematicians/{key}", response_class=HTMLResponse)
+async def mathematician_detail(request: Request, key: str):
+    m = settings.mathematicians.get(key, {})
+    if not m:
+        return templates.TemplateResponse("pages/content.html", _ctx(request,
+            content_html="<p class=\"content-error\">数学家未找到</p>", title="未知"))
+    return templates.TemplateResponse("pages/mathematician.html", _ctx(request, m=m, key=key))
+
+
+@router.get("/workshop", response_class=HTMLResponse)
+async def workshop_page(request: Request):
+    return templates.TemplateResponse("pages/workshop.html", _ctx(request))
+
+
 @router.get("/practice/{topic}", response_class=HTMLResponse)
 async def practice_page(request: Request, topic: str):
     exhibit_info = settings.exhibits.get(topic, {})
