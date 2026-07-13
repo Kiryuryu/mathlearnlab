@@ -64,11 +64,10 @@ async def generate_problem(request: Request):
     import anthropic, json, random, string
     key = settings.anthropic_api_key
     if not key:
-        # Fallback: generate a simple problem from the bank
-        p = problem_bank.get_random_problem(topic_key, difficulty)
+        p = problem_bank.get_random_problem(topic_key, None)
         if p:
             return {"problem": p, "generated": False}
-        raise HTTPException(status_code=500, detail="API key not configured and no problems in bank")
+        raise HTTPException(status_code=500, detail="未配置 API Key，且题库无可用题目")
 
     prompt = f"""你是一位数学命题专家。请为"{exhibit_name}"主题生成一道练习题。
 
@@ -98,26 +97,23 @@ async def generate_problem(request: Request):
 只输出 JSON，不要其他内容。确保 problem_statement 使用正确的 LaTeX 语法（$...$ 或 $$...$$）。"""
 
     client = anthropic.AsyncAnthropic(api_key=key)
-    response = await client.messages.create(
-        model=settings.default_model,
-        max_tokens=1500,
-        system="你是一位考研数学命题专家。只输出有效 JSON，不要其他内容。",
-        messages=[{"role": "user", "content": prompt}],
-    )
-
-    raw = response.content[0].text
-    if "```json" in raw:
-        raw = raw.split("```json")[1].split("```")[0]
-    elif "```" in raw:
-        raw = raw.split("```")[1].split("```")[0]
-
     try:
-        problem = json.loads(raw.strip())
-    except json.JSONDecodeError:
-        # Fallback to bank
-        p = problem_bank.get_random_problem(topic_key, difficulty)
-        if p:
-            return {"problem": p, "generated": False}
-        raise HTTPException(status_code=500, detail="Failed to parse generated problem")
+        response = await client.messages.create(
+            model=settings.default_model,
+            max_tokens=1500,
+            system="你是一位数学命题专家。只输出有效 JSON，不要其他内容。",
+            messages=[{"role": "user", "content": prompt}],
+        )
+        raw = response.content[0].text
+        if "```json" in raw:
+            raw = raw.split("```json")[1].split("```")[0]
+        elif "```" in raw:
+            raw = raw.split("```")[1].split("```")[0]
 
-    return {"problem": problem, "generated": True}
+        problem = json.loads(raw.strip())
+        return {"problem": problem, "generated": True}
+    except Exception as e:
+        p = problem_bank.get_random_problem(topic_key, None)
+        if p:
+            return {"problem": p, "generated": False, "fallback_reason": str(e)[:100]}
+        raise HTTPException(status_code=500, detail=f"生成失败: {str(e)[:200]}")
