@@ -47,13 +47,19 @@ async def generate_problem(request: Request):
         raise HTTPException(status_code=400, detail="Invalid JSON body")
 
     topic_key = body.get("topic_key", "limits")
-    difficulty = body.get("difficulty", "medium")
+    difficulty = body.get("difficulty", "exam")
 
     exhibit = settings.exhibits.get(topic_key, {})
     exhibit_name = exhibit.get("zh", topic_key)
     knowledge_points = exhibit.get("big_question", "")
 
-    diff_guide = {"easy": "基础计算题，考察核心概念的直接应用", "medium": "中等难度，需要综合运用多个知识点", "hard": "困难，需要技巧性转化或深层理解"}
+    diff_guide = {
+        "basic": "基础入门题，考察核心概念的直观理解，适合刚学完概念的学生",
+        "advanced": "进阶提高题，需要综合运用多个知识点，有适度的技巧性",
+        "exam": "考研难度，综合性强，需要灵活运用概念和技巧，对应数学一/二/三难度",
+        "graduate": "研究生水平，需要深刻理解概念本质，可能涉及证明或构造性思维",
+        "phd": "博士级难度，需要高度创造性的数学思维，可能是开放性问题或需要构造反例",
+    }
 
     import anthropic, json, random, string
     key = settings.anthropic_api_key
@@ -64,8 +70,9 @@ async def generate_problem(request: Request):
             return {"problem": p, "generated": False}
         raise HTTPException(status_code=500, detail="API key not configured and no problems in bank")
 
-    prompt = f"""你是一位考研数学命题专家。请为"{exhibit_name}"展厅生成一道{difficulty}难度的练习题。
+    prompt = f"""你是一位数学命题专家。请为"{exhibit_name}"主题生成一道练习题。
 
+难度级别：{difficulty}
 难度要求：{diff_guide.get(difficulty, '中等难度')}
 相关知识点：{knowledge_points}
 

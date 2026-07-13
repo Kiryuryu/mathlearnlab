@@ -20,9 +20,11 @@
     <div class="practice-toolbar">
       <div class="practice-filter">
         <button class="filter-chip active" data-diff="all">全部</button>
-        <button class="filter-chip" data-diff="easy">简单</button>
-        <button class="filter-chip" data-diff="medium">中等</button>
-        <button class="filter-chip" data-diff="hard">困难</button>
+        <button class="filter-chip" data-diff="basic">基础</button>
+        <button class="filter-chip" data-diff="advanced">进阶</button>
+        <button class="filter-chip" data-diff="exam">考研</button>
+        <button class="filter-chip" data-diff="graduate">研究生</button>
+        <button class="filter-chip" data-diff="phd">博士</button>
       </div>
       <div class="practice-actions">
         <button class="btn" onclick="PracticeV2.aiGenerate()" style="border-color:var(--accent-warm);color:var(--accent-warm);">生成新题</button>
@@ -31,7 +33,7 @@
     </div>
     <p id="practiceStatus" style="text-align:center;color:var(--accent);font-size:13px;margin:8px 0;"></p>
     <div id="problemList" class="practice-problem-list"></div>
-    <select id="diffFilter" style="display:none;"><option value="all">全部</option><option value="easy">简单</option><option value="medium">中等</option><option value="hard">困难</option></select>
+    <select id="diffFilter" style="display:none;"><option value="all">全部</option><option value="basic">基础</option><option value="advanced">进阶</option><option value="exam">考研</option><option value="graduate">研究生</option><option value="phd">博士</option></select>
   </div>
 
   <!-- Phase 2: Solve -->

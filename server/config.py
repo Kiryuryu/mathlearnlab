@@ -99,9 +99,11 @@ class Settings(BaseSettings):
     ]
 
     difficulty: dict = {
-        "easy":   {"zh": "简单", "stars": "★"},
-        "medium": {"zh": "中等", "stars": "★★"},
-        "hard":   {"zh": "困难", "stars": "★★★"},
+        "basic":     {"zh": "基础", "label": "基础入门"},
+        "advanced":  {"zh": "进阶", "label": "进阶提高"},
+        "exam":      {"zh": "考研", "label": "考研难度"},
+        "graduate":  {"zh": "研究生", "label": "研究生"},
+        "phd":       {"zh": "博士", "label": "博士级"},
     }
 
     # ── Mathematicians ──

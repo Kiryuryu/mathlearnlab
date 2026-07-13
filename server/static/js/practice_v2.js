@@ -31,8 +31,9 @@ var PracticeV2 = (function() {
   }
 
   async function aiGenerate() {
-    var diff = $id('diffFilter') ? $id('diffFilter').value : 'medium';
-    $id('practiceStatus').textContent = 'AI 正在生成新题目...';
+    var diff = $id('diffFilter') ? $id('diffFilter').value : 'exam';
+    
+    $id('practiceStatus').textContent = '正在生成题目...';
     try {
       var apiKey = '';
       try { apiKey = localStorage.getItem('mathlearnlab:apikey') || ''; } catch(e) {}
@@ -60,11 +61,11 @@ var PracticeV2 = (function() {
     var list = $id('problemList');
     if (!list) return;
     if (!problems.length) { list.innerHTML = '<div class="practice-empty">暂无题目，点击「生成新题」让 AI 出一道</div>'; return; }
-    var stars = {'easy':'★','medium':'★★','hard':'★★★'};
+    var labels = {'basic':'基础','advanced':'进阶','exam':'考研','graduate':'研究生','phd':'博士'};
     list.innerHTML = problems.map(function(p) {
       var d = p.difficulty || '';
       return '<div class="practice-problem-card" onclick="PracticeV2.selectProblem(\'' + p.id + '\')" data-difficulty="' + d + '">' +
-        '<span class="ppc-difficulty ppc-' + d + '">' + (stars[d] || '') + '</span>' +
+        '<span class="ppc-difficulty ppc-' + d + '">' + (labels[d] || '') + '</span>' +
         '<div class="ppc-body">' +
           '<span class="ppc-id">' + (p.id || '') + '</span>' +
           '<span class="ppc-preview">' + (p.preview || '') + '</span>' +
