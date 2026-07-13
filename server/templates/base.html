@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="/static/css/museum.css">
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
 
-  <!-- MathJax -->
+  <!-- MathJax (async) -->
   <script>
     window.MathJax = {
       tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true },
@@ -19,10 +19,6 @@
     };
   </script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
-  <!-- Plotly.js for visualizations -->
-  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-  <!-- Pyodide — Python in the browser -->
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
 <style>
 .modal-overlay { display: none !important; }
 .modal-overlay:not([hidden]) { display: flex !important; position: fixed; inset: 0; background: rgba(0,0,0,0.4); align-items: center; justify-content: center; z-index: 100; }
@@ -36,6 +32,11 @@
       <span class="app-subtitle">知其然，知其所以然</span>
     </div>
     <div class="header-right">
+      <div class="search-container" id="searchContainer">
+        <button class="search-btn" onclick="toggleSearch()" title="搜索">🔍</button>
+        <input type="text" id="searchInput" placeholder="搜索概念、人物、公式..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+        <div class="search-results" id="searchResults"></div>
+      </div>
       <button class="header-btn" id="themeToggle" title="切换明暗" onclick="Museum.toggleTheme()">◐</button>
     </div>
   </header>
@@ -44,11 +45,12 @@
   <nav class="museum-nav" id="museumNav">
     <a href="/" class="{% if request.url.path == '/' %}active{% endif %}">🏛 大厅</a>
     <span class="nav-sep">|</span>
-    <a href="/gaoshu" class="{% if request.url.path.startswith('/gaoshu') %}active{% endif %}">📐 高等数学</a>
+    <a href="/gaoshu" class="{% if request.url.path.startswith('/gaoshu') or request.url.path.startswith('/exhibit/') %}active{% endif %}">📐 高等数学</a>
     <span class="nav-sep">|</span>
     <a href="/mathematicians" class="{% if request.url.path.startswith('/mathematicians') %}active{% endif %}">🧑‍🔬 数学家长廊</a>
     <a href="/workshop" class="{% if request.url.path.startswith('/workshop') %}active{% endif %}">🎨 函数工坊</a>
-    <a href="/practice/integrals" class="{% if request.url.path.startswith('/practice') %}active{% endif %}">🧪 实验室</a>
+    <a href="/practice/limits" class="{% if request.url.path.startswith('/practice') %}active{% endif %}">🧪 实验室</a>
+    <a href="/error-log" class="{% if request.url.path.startswith('/error-log') %}active{% endif %}">📋 错题本</a>
   </nav>
 
   <!-- Body -->
@@ -108,10 +110,56 @@
   </div>
 
   <script src="/static/js/theme.js"></script>
-  <script src="/static/js/museum_py.js"></script>
   <script src="/static/js/chat_float.js"></script>
   <script src="/static/js/practice_v2.js"></script>
   <script src="/static/js/museum.js"></script>
+
+  <!-- CDN libraries: loaded at bottom so they don't block render -->
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+  <script src="/static/js/museum_py.js"></script>
+  <!-- Search -->
+  <script>
+  var searchTimer = null;
+  function toggleSearch() {
+    var c = document.getElementById('searchContainer');
+    var inp = document.getElementById('searchInput');
+    c.classList.toggle('open');
+    if (c.classList.contains('open')) { inp.focus(); }
+    else { inp.value = ''; document.getElementById('searchResults').classList.remove('show'); }
+  }
+  function closeSearch() {
+    document.getElementById('searchContainer').classList.remove('open');
+    document.getElementById('searchInput').value = '';
+    document.getElementById('searchResults').classList.remove('show');
+  }
+  function doSearch() {
+    clearTimeout(searchTimer);
+    var q = document.getElementById('searchInput').value.trim();
+    var results = document.getElementById('searchResults');
+    if (!q) { results.classList.remove('show'); return; }
+    searchTimer = setTimeout(function() {
+      fetch('/api/search?q=' + encodeURIComponent(q))
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var html = '';
+          if (data.results && data.results.length) {
+            data.results.forEach(function(r) {
+              html += '<a href="' + r.route + '" class="search-result-item"><span class="sr-title">' + escapeHtml(r.title) + '</span><span style="font-size:11px;color:var(--accent);margin-left:6px;">' + r.section + '</span><div class="sr-excerpt">' + escapeHtml(r.excerpt) + '</div></a>';
+            });
+          } else {
+            html = '<div class="search-no-results">未找到匹配内容</div>';
+          }
+          results.innerHTML = html;
+          results.classList.add('show');
+        });
+    }, 250);
+  }
+  function escapeHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.search-container')) closeSearch();
+  });
+  </script>
 
   {% block scripts %}{% endblock %}
 </body>
