@@ -35,15 +35,29 @@
 {% endblock %}
 
 {% block scripts %}
+<script>
+// Diagnostic: visible test to confirm JS execution
+(function() {
+  var d = document.createElement('div');
+  d.id = '_diag';
+  d.style.cssText = 'position:fixed;bottom:8px;right:8px;z-index:9999;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:10px;color:var(--text-muted);font-family:monospace;';
+  d.textContent = 'JS OK';
+  document.body.appendChild(d);
+})();
+</script>
 <script src="/static/js/museum_viz.js"></script>
 <script src="/static/js/thought_experiments.js"></script>
 <script>
 (function initViz() {
+  var diag = document.getElementById('_diag');
   var topic = '{{ topic_key }}';
+
   if (!window.Plotly || !window.Plotly.newPlot) {
     if (!initViz._retries) initViz._retries = 0;
     initViz._retries++;
+    if (diag) diag.textContent = 'Plotly retry ' + initViz._retries;
     if (initViz._retries > 50) {
+      if (diag) diag.textContent = 'Plotly FAIL';
       var el = document.getElementById('vizPlot');
       if (el) el.innerHTML = '<p style=\"color:var(--text-muted);text-align:center;padding:60px;\">交互图加载失败，请刷新页面重试</p>';
       return;
@@ -52,18 +66,23 @@
     return;
   }
 
+  if (diag) diag.textContent = 'Plotly OK, MuseumViz=' + (typeof MuseumViz);
+
   try {
     var container = document.getElementById('vizPlot');
     if (container) {
+      if (diag) diag.textContent += ' container OK';
       if (topic === 'limits') MuseumViz.epsilonDelta(container);
       else if (topic === 'derivatives') MuseumViz.tangentLine(container);
       else if (topic === 'integrals') MuseumViz.riemannSum(container);
       else if (topic === 'series') MuseumViz.fourierSeries(container);
       else if (topic === 'multivariable') MuseumViz.gradientDescent(container);
+      if (diag) diag.textContent += ' done';
+    } else {
+      if (diag) diag.textContent += ' container MISSING';
     }
   } catch(e) {
-    var el = document.getElementById('vizPlot');
-    if (el) el.innerHTML = '<p style=\"color:var(--accent-error);text-align:center;padding:60px;\">交互图出错: ' + e.message + '</p>';
+    if (diag) diag.textContent = 'ERR: ' + e.message;
   }
 
   try {
