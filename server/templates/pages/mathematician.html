@@ -23,6 +23,15 @@
     {% endfor %}
   </div>
 
+  <!-- Thought Recreation -->
+  <div style="margin:40px 0;">
+    <h3 style="margin-bottom:8px;">🔬 思想还原 — 站在巨人的肩膀上看问题</h3>
+    <p style="color:var(--text-secondary);font-size:14px;margin-bottom:16px;">
+      拖动滑块，用这位数学家的眼光重新审视他们发现的概念。他们的天才不仅在于计算能力——更在于看出别人看不到的联系。
+    </p>
+    <div id="teContainer"></div>
+  </div>
+
   <!-- Related exhibits -->
   <div style="margin:24px 0;">
     <h3>关联展廳</h3>
@@ -42,4 +51,16 @@
     <a href="/mathematicians" class="btn">&larr; 返回数学家长廊</a>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/thought_experiments.js"></script>
+<script>
+(function() {
+  var container = document.getElementById('teContainer');
+  if (container && window.ThoughtExperiments) {
+    ThoughtExperiments.renderMathematician('{{ key }}', container);
+  }
+})();
+</script>
 {% endblock %}
