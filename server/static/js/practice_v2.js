@@ -48,8 +48,10 @@ var PracticeV2 = (function() {
         headers: { 'Content-Type': 'application/json', 'X-API-Key': apiKey },
         body: JSON.stringify({ topic_key: currentTopic, difficulty: diff }),
       });
-      if (!resp.ok) throw new Error((await resp.json()).detail || '生成失败');
-      var data = await resp.json();
+      var text = await resp.text();
+      var data;
+      try { data = JSON.parse(text); } catch(e) { throw new Error('服务器返回异常: ' + text.substring(0,100)); }
+      if (!resp.ok) throw new Error(data.detail || '生成失败');
       currentProblem = data.problem;
       renderSolve();
     } catch(e) { alert('AI 生成失败: ' + e.message); }
