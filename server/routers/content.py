@@ -47,10 +47,14 @@ async def search_content(q: str = ""):
                     if end < len(text):
                         snippet = snippet + "..."
 
-                    # Derive title from file path
+                    # Derive title and route from file path
                     rel = str(md_file.relative_to(CONTENT_DIR))
                     title = rel.replace(".md", "").replace("-", " ").replace("/", " > ")
-                    route = "/notebooks/" + rel.replace(".md", "")
+                    if rel.startswith("problems/"): route = "/problems/" + rel.replace(".md", "")
+                    elif rel.startswith("notes/"): route = "/notes/" + rel.replace(".md", "")
+                    elif rel.startswith("error-log/"): route = "/error-log/" + rel.replace(".md", "").rsplit("/",1)[-1]
+                    elif rel.startswith("exhibits/"): route = "/exhibit/" + rel.split("/")[1]
+                    else: route = "/notebooks/" + rel.replace(".md", "")
 
                     results.append({
                         "title": title,

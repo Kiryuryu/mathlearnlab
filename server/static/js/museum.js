@@ -7,12 +7,6 @@ var Museum = (function() {
     try { localStorage.setItem('mathlearnlab:theme', current === 'light' ? 'dark' : 'light'); } catch(e) {}
   }
 
-  document.addEventListener('DOMContentLoaded', function() {
-    try {
-      var theme = localStorage.getItem('mathlearnlab:theme');
-      if (theme) document.documentElement.setAttribute('data-theme', theme);
-    } catch(e) {}
-  });
 
   // Enable exhibit card click navigation
   document.addEventListener('click', function(e) {

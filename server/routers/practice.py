@@ -70,6 +70,7 @@ async def generate_problem(request: Request):
             return {"problem": p, "generated": False}
         raise HTTPException(status_code=500, detail="未配置 API Key，且题库无可用题目")
 
+    gen_id = "GEN-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
     prompt = f"""你是一位数学命题专家。请为"{exhibit_name}"主题生成一道练习题。
 
 难度级别：{difficulty}
@@ -78,7 +79,7 @@ async def generate_problem(request: Request):
 
 请用 JSON 格式输出：
 {{
-  "id": "GEN-{''.join(random.choices(string.ascii_uppercase + string.digits, k=5))}",
+  "id": "{gen_id}",
   "difficulty": "{difficulty}",
   "knowledge_points": ["知识点1", "知识点2"],
   "problem_statement": "完整的题目描述，用 LaTeX 语法写数学公式",
