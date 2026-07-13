@@ -2,7 +2,10 @@
 var MuseumChat = (function() {
   var messages = [];
   var abortController = null;
-  var currentModel = 'claude-sonnet-4-20250514';
+  var currentModel = (function() {
+    try { return localStorage.getItem('museum:model') || 'claude-haiku-4-5-20251001'; }
+    catch(e) { return 'claude-haiku-4-5-20251001'; }
+  })();
   var customModelId = '';
   var customApiKey = '';
   var initialized = false;
@@ -12,19 +15,12 @@ var MuseumChat = (function() {
   function init() {
     if (initialized) return;
     initialized = true;
-    // Ensure popup starts hidden
     var p = $('chatPopup');
     if (p) p.hidden = true;
-    // Restore custom model config
-    try { customModelId = localStorage.getItem('museum:customModelId') || ''; } catch(e) {}
-    try { customApiKey = localStorage.getItem('museum:customApiKey') || ''; } catch(e) {}
-    if (customModelId) {
-      currentModel = customModelId;
-      $('chatModelSelect').value = 'custom';
-      $('customModelConfig').style.display = 'block';
-      $('customModelId').value = customModelId;
-      $('customApiKey').value = customApiKey;
-    }
+    // Restore model from localStorage
+    try { currentModel = localStorage.getItem('museum:model') || 'claude-haiku-4-5-20251001'; } catch(e) {}
+    var inp = document.getElementById('chatModelInput');
+    if (inp) { inp.value = currentModel; inp.onchange = function() { setModel(this.value.trim()); }; }
     updateContextHint();
   }
 
@@ -47,12 +43,10 @@ var MuseumChat = (function() {
   }
 
   function setModel(val) {
-    if (val === 'custom') {
-      $('customModelConfig').style.display = 'block';
-    } else {
-      $('customModelConfig').style.display = 'none';
-      currentModel = val;
-    }
+    currentModel = val || 'claude-haiku-4-5-20251001';
+    try { localStorage.setItem('museum:model', currentModel); } catch(e) {}
+    var inp = document.getElementById('chatModelInput');
+    if (inp) inp.value = currentModel;
   }
 
   function saveCustomModel() {
