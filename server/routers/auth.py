@@ -4,7 +4,7 @@ Auth API — registration, login, user info.
 
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from server.models.database import get_db, init_db
+from server.models.database import get_db, db_session, init_db
 from server.models.auth import (
     hash_password,
     verify_password,
@@ -71,20 +71,18 @@ async def register(body: RegisterRequest):
     if len(body.password) < 6:
         raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
 
-    conn = get_db()
-    existing = conn.execute("SELECT id FROM users WHERE username = ?", (body.username,)).fetchone()
-    if existing:
-        conn.close()
-        raise HTTPException(status_code=409, detail="Username already taken")
+    with db_session() as conn:
+        existing = conn.execute("SELECT id FROM users WHERE username = ?", (body.username,)).fetchone()
+        if existing:
+            raise HTTPException(status_code=409, detail="Username already taken")
 
-    user_id = generate_user_id()
-    pwd_hash = hash_password(body.password)
-    conn.execute(
-        "INSERT INTO users (id, username, email, password_hash) VALUES (?, ?, ?, ?)",
-        (user_id, body.username, body.email, pwd_hash),
-    )
-    conn.commit()
-    conn.close()
+        user_id = generate_user_id()
+        pwd_hash = hash_password(body.password)
+        conn.execute(
+            "INSERT INTO users (id, username, email, password_hash) VALUES (?, ?, ?, ?)",
+            (user_id, body.username, body.email, pwd_hash),
+        )
+        conn.commit()
 
     token = create_access_token(user_id, body.username)
     return {
