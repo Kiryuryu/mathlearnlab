@@ -5,6 +5,7 @@ Practice API — problem bank queries + AI generation.
 from fastapi import APIRouter, HTTPException, Query, Request
 from pydantic import BaseModel
 from server.services import problem_bank
+from server.config import settings
 
 router = APIRouter()
 
