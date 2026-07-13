@@ -593,10 +593,14 @@ p.pointer { color: #fff; font-family: var(--font-mono); }
   background: var(--bg-card);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.15);
   width: 520px;
   max-width: 90vw;
-  animation: fadeUp 0.2s ease;
+  animation: authSlideIn 0.25s ease;
+}
+@keyframes authSlideIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 .auth-modal-side {
   width: 180px;
