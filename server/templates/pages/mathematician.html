@@ -56,7 +56,13 @@
 {% block scripts %}
 <script src="/static/js/thought_experiments.js"></script>
 <script>
-(function() {
+(function initExp() {
+  if (!window.Plotly || !window.Plotly.newPlot) {
+    if (!initExp._retries) initExp._retries = 0;
+    if (++initExp._retries > 50) return;
+    setTimeout(initExp, 300);
+    return;
+  }
   var container = document.getElementById('teContainer');
   if (container && window.ThoughtExperiments) {
     ThoughtExperiments.renderMathematician('{{ key }}', container);
