@@ -48,6 +48,8 @@
     <a href="/exhibit/{{ key }}" class="{% if request.url.path.startswith('/exhibit/' + key) %}active{% endif %}">{{ e.icon }} {{ e.zh.split('—')[0].strip() if e.zh else key }}</a>
     {% endfor %}
     <span class="nav-sep">|</span>
+    <a href="/mathematicians">🧑‍🔬 数学家长廊</a>
+    <a href="/workshop">🎨 函数工坊</a>
     <a href="/practice/integrals">🧪 实验室</a>
     <a href="/error-log">📋 错题本</a>
   </nav>
