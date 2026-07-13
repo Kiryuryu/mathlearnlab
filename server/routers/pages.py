@@ -21,16 +21,20 @@ def _ctx(request: Request, **extra):
 
 
 async def _read_md(filepath: str) -> str:
-    """Read and render a markdown file to HTML."""
+    """Read and render a markdown file to HTML. Strips Python code blocks."""
     full_path = CONTENT_DIR / filepath
     if not full_path.exists():
         return f'<p class="content-error">内容未找到: {filepath}</p>'
     md_text = full_path.read_text(encoding="utf-8")
+
+    # Strip fenced code blocks: they're Jupyter notebook artifacts
+    import re
+    md_text = re.sub(r'```python[\s\S]*?```', '', md_text)
+    md_text = re.sub(r'```\s*\{.*?\}[\s\S]*?```', '', md_text)
+
     try:
         import markdown as md
-        html = md.markdown(md_text, extensions=["fenced_code", "tables", "codehilite", "nl2br"])
-        # Add language-python class for pyodide detection
-        html = html.replace('<code>', '<code class="language-python">')
+        html = md.markdown(md_text, extensions=["fenced_code", "tables", "nl2br"])
     except ImportError:
         html = f"<pre>{md_text}</pre>"
     return html
