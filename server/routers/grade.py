@@ -13,9 +13,6 @@ router = APIRouter()
 @router.post("/api/grade")
 async def grade_submission(request: Request, user: dict | None = Depends(get_current_user)):
     """Grade a handwritten answer."""
-
-    Returns the grading result dict.
-    """
     try:
         body = await request.json()
     except Exception:
