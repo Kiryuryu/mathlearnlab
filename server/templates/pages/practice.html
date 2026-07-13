@@ -9,7 +9,7 @@
     <div class="practice-topic-select">
       <span style="font-size:13px;color:var(--text-muted);">主题：</span>
       <select id="topicSelect" onchange="PracticeV2.switchTopic(this.value)" style="padding:6px 12px;border:1px solid var(--border);border-radius:6px;font-size:14px;background:var(--bg-card);color:var(--text-primary);">
-        {% for key, e in settings.gaoshu_subtopics %}
+        {% for key, e in gaoshu_subtopics %}
         <option value="{{ key }}" {% if key == topic_key %}selected{% endif %}>{{ e.zh }}</option>
         {% endfor %}
       </select>
