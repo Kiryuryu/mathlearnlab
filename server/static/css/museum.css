@@ -621,6 +621,11 @@ blockquote {
 .ppc-easy { color: var(--accent-correct); }
 .ppc-medium { color: var(--accent-warm); }
 .ppc-hard { color: var(--accent-error); }
+.ppc-basic { color: var(--accent-correct); }
+.ppc-advanced { color: var(--accent); }
+.ppc-exam { color: var(--accent-warm); }
+.ppc-graduate { color: #a45050; }
+.ppc-phd { color: #a45050; font-weight: 700; }
 .ppc-body { flex: 1; min-width: 0; }
 .ppc-id { font-size: 12px; color: var(--text-muted); }
 .ppc-preview { font-size: 14px; display: block; margin-top: 2px; }
