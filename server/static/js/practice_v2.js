@@ -9,6 +9,12 @@ var PracticeV2 = (function() {
     currentTopic = topic;
   }
 
+  function switchTopic(topic) {
+    currentTopic = topic;
+    goToPhase('select');
+    loadProblems();
+  }
+
   function $id(id) { return document.getElementById(id); }
 
   async function loadProblems() {
@@ -200,5 +206,5 @@ var PracticeV2 = (function() {
     });
   }
 
-  return { init:init, loadProblems:loadProblems, randomProblem:randomProblem, aiGenerate:aiGenerate, selectProblem:selectProblem, handleFile:handleFile, clearImage:clearImage, submitGrade:submitGrade, renderSolve:renderSolve, goToPhase:goToPhase, filterProblems:filterProblems };
+  return { init:init, switchTopic:switchTopic, loadProblems:loadProblems, randomProblem:randomProblem, aiGenerate:aiGenerate, selectProblem:selectProblem, handleFile:handleFile, clearImage:clearImage, submitGrade:submitGrade, renderSolve:renderSolve, goToPhase:goToPhase, filterProblems:filterProblems };
 })();

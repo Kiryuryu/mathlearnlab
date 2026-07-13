@@ -139,9 +139,14 @@ async def fractal_page(request: Request):
     return templates.TemplateResponse("pages/fractal.html", _ctx(request))
 
 
+@router.get("/practice", response_class=HTMLResponse)
 @router.get("/practice/{topic}", response_class=HTMLResponse)
-async def practice_page(request: Request, topic: str):
+async def practice_page(request: Request, topic: str = "limits"):
     exhibit_info = settings.exhibits.get(topic, {})
     summaries = problem_bank.list_problem_summaries(topic)
+    gaoshu_subtopics = sorted(
+        [(k, v) for k, v in settings.exhibits.items() if k != "gaoshu" and v.get("parent") == "gaoshu"],
+        key=lambda kv: kv[1].get("order", 99)
+    )
     return templates.TemplateResponse("pages/practice.html", _ctx(request,
-        topic_key=topic, topic=exhibit_info or {"zh": topic}, problems=summaries, count=len(summaries)))
+        topic_key=topic, topic=exhibit_info or {"zh": topic}, problems=summaries, count=len(summaries), gaoshu_subtopics=gaoshu_subtopics))
