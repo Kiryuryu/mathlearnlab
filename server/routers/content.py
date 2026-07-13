@@ -72,7 +72,7 @@ async def search_content(q: str = ""):
                 "title": e.get("icon", "") + " " + zh,
                 "excerpt": e.get("big_question", ""),
                 "route": "/exhibit/" + key,
-                "section": "高等数学"
+                "section": "微积分"
             })
 
     # Search mathematicians
