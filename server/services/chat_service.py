@@ -1,5 +1,5 @@
 """
-Chat service — SSE streaming chat via Anthropic API.
+Chat service — SSE streaming chat via DeepSeek API.
 Ported from the Cloudflare Worker handleChat function.
 """
 
