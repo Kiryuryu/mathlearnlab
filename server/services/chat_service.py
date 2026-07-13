@@ -1,12 +1,8 @@
 """
-Chat service — SSE streaming chat via DeepSeek API.
-Ported from the Cloudflare Worker handleChat function.
+Chat service — SSE streaming chat via DeepSeek (OpenAI-compatible) API.
 """
-
-import json
-import anthropic
+from openai import AsyncOpenAI
 from server.config import settings
-
 
 SYSTEM_PROMPT_TEMPLATE = """你是数学博物馆的 AI 导览员。{context_info}
 
@@ -24,61 +20,39 @@ SYSTEM_PROMPT_TEMPLATE = """你是数学博物馆的 AI 导览员。{context_inf
 async def stream_chat(messages: list[dict], system: str | None = None,
                       model: str | None = None, max_tokens: int | None = None,
                       api_key: str | None = None, context_route: str = ""):
-    """Async generator yielding SSE-formatted chat chunks.
-
-    Parameters
-    ----------
-    messages : list[dict]
-        Chat history as [{"role": "user"|"assistant", "content": "..."}, ...]
-    system : str or None
-        Custom system prompt. If None, uses the template with context.
-    model : str or None
-        Claude model ID. Defaults to settings.default_model.
-    max_tokens : int or None
-    api_key : str or None
-    context_route : str
-        Current page route, injected into system prompt context.
-
-    Yields
-    ------
-    str — SSE-formatted data lines.
-    """
-    key = api_key or settings.anthropic_api_key
-    if not key:
-        yield f"data: {json.dumps({'error': 'API key not configured'})}\n\n"
+    """Async generator yielding SSE-formatted chat chunks via DeepSeek."""
+    if not api_key:
+        yield "data: {\"error\":\"未配置 API Key\"}\n\n"
+        yield "data: [DONE]\n\n"
         return
 
-    # Build system prompt with context
-    context_info = ""
-    if context_route:
-        # Extract topic from route
-        topic_hints = {
-            "limits": "极限与连续", "derivatives": "微分学",
-            "integrals": "积分学", "series": "无穷级数", "multivariable": "多元微积分",
-            "integration": "积分学",
-        }
-        for hint, name in topic_hints.items():
-            if hint in context_route:
-                context_info = f"学生当前正在浏览：{name}。"
-                break
+    model = model or "deepseek-chat"
+    context_info = f"当前访客在浏览: {context_route}" if context_route else ""
+    system_msg = system or SYSTEM_PROMPT_TEMPLATE.format(context_info=context_info)
 
-    system_prompt = system or SYSTEM_PROMPT_TEMPLATE.format(context_info=context_info)
+    chat_messages = [{"role": "system", "content": system_msg}]
+    for m in messages[-30:]:
+        role = m.get("role", "user")
+        if role in ("user", "assistant"):
+            chat_messages.append({"role": role, "content": m.get("content", "")})
 
-    client = anthropic.AsyncAnthropic(api_key=key)
+    client = AsyncOpenAI(api_key=api_key, base_url="https://api.deepseek.com")
 
     try:
-        async with client.messages.stream(
-            model=model or settings.default_model,
-            max_tokens=max_tokens or settings.max_chat_tokens,
-            system=system_prompt,
-            messages=messages,
-        ) as stream:
-            async for event in stream:
-                if event.type == "content_block_delta":
-                    text = event.delta.text
-                    yield f"data: {json.dumps({'type': 'content_block_delta', 'delta': {'text': text}})}\n\n"
-                elif event.type == "message_stop":
-                    yield "data: [DONE]\n\n"
-                    break
+        stream = await client.chat.completions.create(
+            model=model,
+            messages=chat_messages,
+            max_tokens=max_tokens or 2048,
+            stream=True,
+        )
+
+        async for chunk in stream:
+            delta = chunk.choices[0].delta if chunk.choices else None
+            if delta and delta.content:
+                yield f"data: {delta.content}\n\n"
+
+        yield "data: [DONE]\n\n"
     except Exception as e:
-        yield f"data: {json.dumps({'error': str(e)})}\n\n"
+        err = str(e).replace("\n", " ")[:200]
+        yield f"data: {{\"error\":\"{err}\"}}\n\n"
+        yield "data: [DONE]\n\n"

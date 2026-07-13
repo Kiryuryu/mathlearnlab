@@ -65,7 +65,7 @@ async def generate_problem(request: Request):
         "phd": "博士级难度，需要高度创造性的数学思维，可能是开放性问题或需要构造反例",
     }
 
-    import anthropic, json, random, string
+    import json, random, string
     key = request.headers.get("X-API-Key") or settings.anthropic_api_key
     if not key:
         p = problem_bank.get_random_problem(topic_key, None)
@@ -101,15 +101,15 @@ async def generate_problem(request: Request):
 
 只输出 JSON，不要其他内容。确保 problem_statement 使用正确的 LaTeX 语法（$...$ 或 $$...$$）。"""
 
-    client = anthropic.AsyncAnthropic(api_key=key)
+    client = AsyncOpenAI(api_key=key, base_url="https://api.deepseek.com")
     try:
-        response = await client.messages.create(
-            model=settings.default_model,
+        response = await client.chat.completions.create(
+            model="deepseek-chat",
             max_tokens=1500,
-            system="你是一位数学命题专家。只输出有效 JSON，不要其他内容。",
+            
             messages=[{"role": "user", "content": prompt}],
         )
-        raw = response.content[0].text
+        raw = response.choices[0].message.content
         if "```json" in raw:
             raw = raw.split("```json")[1].split("```")[0]
         elif "```" in raw:

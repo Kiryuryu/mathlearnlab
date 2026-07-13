@@ -5,7 +5,7 @@ Ported from ocr_practice/prompts/grader.py and ocr_practice/utils/api_client.py.
 
 import json
 import base64
-import anthropic
+from openai import AsyncOpenAI
 from server.config import settings
 from server.main import CONTENT_DIR
 
@@ -136,14 +136,14 @@ async def grade_submission(problem: dict, image_bytes: bytes, api_key: str | Non
 
     client = anthropic.AsyncAnthropic(api_key=key)
 
-    response = await client.messages.create(
+    response = await client.chat.completions.create(
         model=settings.default_model,
         max_tokens=settings.max_grading_tokens,
         system=GRADER_SYSTEM_PROMPT,
         messages=[{"role": "user", "content": message_content}],
     )
 
-    raw_text = response.content[0].text
+    raw_text = response.choices[0].message.content
 
     # Parse JSON (Claude may wrap in ```json fences)
     if "```json" in raw_text:
