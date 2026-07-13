@@ -586,6 +586,90 @@ p.pointer { color: #fff; font-family: var(--font-mono); }
 }
 .auth-tab-btn:hover { color: var(--accent); }
 .auth-tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+/* Auth Modal */
+.auth-modal {
+  display: flex;
+  background: var(--bg-card);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+  width: 520px;
+  max-width: 90vw;
+  animation: fadeUp 0.2s ease;
+}
+.auth-modal-side {
+  width: 180px;
+  background: linear-gradient(135deg, #1e2935, #3a5a7c);
+  color: #fff;
+  padding: 48px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+.auth-brand {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+.auth-modal-main {
+  flex: 1;
+  padding: 40px 36px;
+}
+.auth-tabs {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+.auth-tab {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0 0 4px;
+  font-family: var(--font-heading);
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+.auth-tab:hover { color: var(--text-primary); }
+.auth-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.auth-input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  outline: none;
+  transition: border 0.15s;
+}
+.auth-input:focus { border-color: var(--accent); }
+.auth-submit {
+  width: 100%;
+  padding: 12px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: all 0.15s;
+}
+.auth-submit:hover { opacity: 0.9; }
+
+@media (max-width: 540px) {
+  .auth-modal { width: 100%; flex-direction: column; }
+  .auth-modal-side { width: 100%; padding: 24px; }
+  .auth-modal-main { padding: 28px 24px; }
+}
 /* Preset groups */
 .ws-preset-group { margin-bottom: 10px; }
 .ws-preset-btn {
