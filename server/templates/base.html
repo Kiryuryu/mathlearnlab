@@ -112,7 +112,7 @@
 
   <!-- Auth Dialog -->
   <div class="auth-dialog" id="authModal" hidden>
-    <button class="auth-close" onclick="document.getElementById('authModal').hidden=true">&times;</button>
+    <button class="auth-close" onclick="hideAuthModal()">&times;</button>
     <div class="auth-modal-side">
       <div class="auth-brand">数学博物馆</div>
       <p style="font-size:13px;opacity:0.7;">记录学习轨迹，解锁完整功能</p>
@@ -222,7 +222,19 @@
   }
   function toggleAuthModal() {
     if (authUser) return;
-    document.getElementById('authModal').hidden = !document.getElementById('authModal').hidden;
+    var m = document.getElementById('authModal');
+    m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
+    m.hidden = false;
+  }
+  function showAuthModal() {
+    var m = document.getElementById('authModal');
+    m.style.display = 'flex';
+    m.hidden = false;
+  }
+  function hideAuthModal() {
+    var m = document.getElementById('authModal');
+    m.style.display = 'none';
+    m.hidden = true;
   }
   function switchAuthTab(tab) {
     document.getElementById('authTabLogin').classList.toggle('active', tab==='login');
@@ -243,7 +255,7 @@
       authToken = d.token; authUser = d.user;
       localStorage.setItem('mathlearnlab:token', authToken);
       localStorage.setItem('mathlearnlab:user', JSON.stringify(authUser));
-      document.getElementById('authModal').hidden = true;
+      hideAuthModal();
       updateUserUI();
     } catch(e) { msg.textContent = e.message; msg.style.display=''; }
   }
@@ -269,7 +281,7 @@
       // Save model and API key
       localStorage.setItem('museum:model', m);
       localStorage.setItem('mathlearnlab:apikey', k);
-      document.getElementById('authModal').hidden = true;
+      hideAuthModal();
       updateUserUI();
       updateApiKeyStatus();
     } catch(e) { msg.textContent = e.message; msg.style.display=''; }
@@ -278,7 +290,7 @@
   // Export helpers for other scripts
   function requireAuth() {
     if (authToken) return true;
-    document.getElementById('authModal').hidden = false;
+    showAuthModal();
     return false;
   }
   window.requireAuth = requireAuth;

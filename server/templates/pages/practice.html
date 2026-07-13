@@ -59,6 +59,8 @@
 <script>
 PracticeV2.init('{{ topic_key }}');
 document.addEventListener('DOMContentLoaded', function() { PracticeV2.loadProblems(); });
+// Force login on practice page
+setTimeout(function() { if (window.requireAuth) requireAuth(); }, 500);
 
 // Filter chips
 var pf = document.querySelector('.practice-filter'); if (pf) pf.addEventListener('click', function(e) {
