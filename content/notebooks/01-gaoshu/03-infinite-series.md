@@ -58,7 +58,6 @@ x, n, k = sp.symbols('x n k', real=True)
 print("✅ 环境就绪！")
 ```
 
-
 ---
 ## 3.1 数列与级数的收敛
 
@@ -88,7 +87,6 @@ print(f"∑_{n=1}^∞ 1/n  = ∞  (调和级数发散)")
 # 交错调和级数
 print(f"∑_{n=1}^∞ (-1)^{n+1}/n  = ln(2) ≈ {np.log(2):.6f}")
 ```
-
 
 ```python
 # === 数列收敛与 ε-N 可视化 ===
@@ -136,7 +134,6 @@ interact(plot_sequence_epsilon_N,
          epsilon=FloatSlider(min=0.01, max=0.3, step=0.005, value=0.1,
                             description='ε', continuous_update=False));
 ```
-
 
 **💡 关键观察**：无论 ε 多小，总能找到对应的 N，使得 N 之后的所有项都落在 ε-带内。
 
@@ -193,7 +190,6 @@ def plot_comparison_test():
 plot_comparison_test()
 ```
 
-
 ```python
 # === 比值判别法可视化 ===
 
@@ -230,13 +226,6 @@ interact(plot_ratio_test,
                         description='ρ', continuous_update=False));
 ```
 
-
-> 🔑 **考研要点**：
-> - 比较判别法的极限形式更常用：若 $\lim a_n/b_n = c > 0$，则两级数同敛散
-> - 比值判别法对含阶乘的级数特别有效
-> - 根值判别法对含 n 次幂的级数特别有效
-> - **ρ = 1 时判别法失效**，需要用其他方法
-
 ---
 ## 3.3 幂级数与收敛半径
 
@@ -266,7 +255,6 @@ r = sp.limit((n+1)**2 / n**2, n, sp.oo)
 print(f"  收敛半径 R = {r}")
 print("  在 x = ±1 处也收敛 (因为 ∑ 1/n² 收敛)")
 ```
-
 
 ```python
 # === 收敛半径的几何可视化 ===
@@ -332,12 +320,6 @@ def plot_radius_of_convergence():
 
 plot_radius_of_convergence()
 ```
-
-
-> 🔑 **考研要点**：
-> - 收敛半径公式 $R = \lim |c_n/c_{n+1}|$（若极限存在）
-> - 端点处的收敛性必须单独判断
-> - 幂级数在收敛区间内可以**逐项求导**和**逐项积分**，收敛半径不变
 
 ---
 ## 3.4 泰勒级数 vs 原函数
@@ -416,13 +398,10 @@ interact(plot_taylor_error_heatmap,
                            description='函数'));
 ```
 
-
 **💡 关键观察**：
 - 热力图清楚地显示：在展开点 (x=0) 附近误差最小
 - 阶数越高，低误差（绿色）区域越宽
 - 这就是 Taylor 公式余项 $R_n(x)$ 的几何含义
-
-> 🔑 **考研要点**：记住 $e^x$、$\sin x$、$\cos x$、$\ln(1+x)$、$(1+x)^\alpha$ 的 Maclaurin 展开式，它们是解题的利器。
 
 ---
 ## 3.5 ⭐ 傅里叶级数
@@ -461,7 +440,6 @@ print("  f(x) = (4/π) [ sin(x) + sin(3x)/3 + sin(5x)/5 + sin(7x)/7 + ... ]")
 print()
 print("每个谐波都是奇频率的正弦波，振幅以 1/n 衰减。")
 ```
-
 
 ```python
 # === ⭐ 傅里叶级数交互动画：方波的谐波叠加 ===
@@ -525,7 +503,6 @@ interact(plot_fourier_square_wave,
          n_terms=IntSlider(min=1, max=40, step=1, value=5,
                           description='谐波数', continuous_update=False));
 ```
-
 
 **💡 拖动滑到 20+ 个谐波**，你会看到叠加结果越来越接近理想方波。但注意在跳变处仍然有过冲——这就是著名的**吉布斯现象**。
 
@@ -615,13 +592,6 @@ interact(plot_gibbs_phenomenon,
          n_terms=IntSlider(min=1, max=50, step=1, value=10,
                           description='谐波数', continuous_update=False));
 ```
-
-
-> 🔑 **考研要点**：
-> - 傅里叶级数在连续点收敛于 $f(x)$，在间断点收敛于左右极限的平均值
-> - 吉布斯现象：在间断点附近有过冲，约为跳跃幅度的 9%
-> - 正弦级数（奇延拓）vs 余弦级数（偶延拓）是重要考点
-> - 考研数学一中傅里叶级数是必考内容
 
 ---
 ## 📋 本章小结

@@ -59,7 +59,6 @@ x, t, u = sp.symbols('x t u', real=True)
 print("✅ 环境就绪！")
 ```
 
-
 ---
 ## 2.1 定积分作为黎曼和的极限
 
@@ -83,7 +82,6 @@ for name, integrand, limits in examples:
     result = sp.integrate(integrand, limits)
     print(f"{name} = {result} = {float(result):.6f}")
 ```
-
 
 ```python
 # === 黎曼和动画：矩形细分收敛 ===
@@ -144,7 +142,6 @@ def plot_riemann_sum(n=8, method='midpoint'):
     plt.tight_layout()
     plt.show()
 
-
 # 交互控件：n 和 method
 from ipywidgets import Dropdown
 
@@ -158,10 +155,7 @@ interact(riemann_interact,
                         description='取样方式'));
 ```
 
-
 **💡 关键观察**：当 n 增大时，矩形面积的和趋近于曲线下的真实面积。这就是定积分定义的核心。
-
-> 🔑 **考研要点**：理解定积分的定义有助于解决「和的极限」类问题（将和式改写为定积分）。
 
 ---
 ## 2.2 换元积分法
@@ -201,7 +195,6 @@ print(f"定积分值: {result2} = {float(result2):.6f}")
 print(f"换元验证: 令 u=1+x², x=0→u=1, x=1→u=2, du=2xdx")
 print(f"积分变为 (1/2)∫₁² du/u = (1/2)[ln|u|]₁² = (1/2)ln2 ≈ {0.5*np.log(2):.6f}")
 ```
-
 
 ```python
 # === 换元法的几何可视化 ===
@@ -261,12 +254,6 @@ def plot_substitution_visual():
 plot_substitution_visual()
 ```
 
-
-> 🔑 **考研要点**：
-> - 定积分换元时**必须同时改变积分上下限**
-> - 不定积分换元后要**换回原变量**
-> - 换元法常用于：含根号（三角函数代换）、凑微分、倒代换
-
 ---
 ## 2.3 分部积分法
 
@@ -293,7 +280,6 @@ for name, integrand in examples_ibp:
     print()
 ```
 
-
 ```python
 # 也可以让 SymPy 展示分部积分的中间步骤
 x = sp.symbols('x', real=True)
@@ -317,9 +303,6 @@ print("验证:")
 result2 = sp.integrate(sp.log(x), x)
 sp.pprint(result2)
 ```
-
-
-> 🔑 **考研要点**：分部积分的选择顺序口诀——**「反对幂指三」**（反三角函数 > 对数 > 幂函数 > 指数 > 三角函数），靠前的选为 u。
 
 ---
 ## 2.4 定积分的应用：面积
@@ -385,12 +368,6 @@ interact(plot_area_between,
          f_lower_name=Dropdown(options=curve_names, value='cos(x)', description='下曲线'));
 ```
 
-
-> 🔑 **考研要点**：
-> - 面积 = $\int_a^b$ (上 − 下) $dx$，**必须先判断哪个在上**
-> - 如果两条曲线有交叉，需要分段积分取绝对值
-> - 对 y 轴积分时（$x = g(y)$ 形式），公式变为 $A = \int_c^d$ (右 − 左) $dy$
-
 ---
 ## 2.5 旋转体体积（3D 可视化）
 
@@ -416,12 +393,10 @@ print(f"V = π ∫₀⁴ x dx = {volume2} = {float(volume2):.4f}")
 print("（这是一个底面半径 2、高 4 的圆锥，体积 8π ≈ 25.13）")
 ```
 
-
 ```python
 # === 3D 旋转体可视化 (Plotly) ===
 
 import plotly.graph_objects as go
-
 
 def plot_solid_of_revolution(f, a, b, n_theta=80, n_x=200, title="旋转体"):
     """
@@ -480,7 +455,6 @@ def plot_solid_of_revolution(f, a, b, n_theta=80, n_x=200, title="旋转体"):
     
     return fig
 
-
 # 示例 1: y = sin(x), x ∈ [0, π]
 fig1 = plot_solid_of_revolution(
     lambda x: np.sin(x),
@@ -492,7 +466,6 @@ print("💡 用鼠标拖动旋转 3D 图，从不同角度观察旋转体！")
 print(f"体积 = π ∫₀^π sin²(x) dx = π²/2 ≈ {np.pi**2/2:.4f}")
 ```
 
-
 ```python
 # 示例 2: y = √x, x ∈ [0, 4] — 形成圆锥
 fig2 = plot_solid_of_revolution(
@@ -503,12 +476,6 @@ fig2 = plot_solid_of_revolution(
 fig2.show()
 print(f"体积 = π ∫₀⁴ x dx = 8π ≈ {8*np.pi:.4f}")
 ```
-
-
-> 🔑 **考研要点**：
-> - 绕 x 轴：圆盘法 $V = \pi\int [f(x)]^2dx$
-> - 绕 y 轴：柱壳法 $V = 2\pi\int x\,f(x)dx$（或反解 $x=g(y)$ 后用圆盘法）
-> - **有洞的旋转体**（两曲线之间的区域旋转）：$V = \pi\int ([f_{\text{外}}]^2 - [f_{\text{内}}]^2)dx$
 
 ---
 ## 2.6 反常积分
@@ -540,7 +507,6 @@ for p in [0.5, 1.0, 1.5, 2.0]:
 print()
 print("结论: ∫₁^∞ 1/x^p dx 收敛 ⇔ p > 1")
 ```
-
 
 ```python
 # === 可视化：反常积分的收敛与发散 ===
@@ -586,13 +552,11 @@ def plot_improper_comparison(p=1.5):
 plot_improper_comparison()
 ```
 
-
 **💡 关键观察**：
 - $p > 1$ 时，1/x^p 衰减得足够快，尾部面积有限（收敛）
 - $p \leq 1$ 时，1/x^p 衰减不够快，尾部面积无限增长（发散）
 - $p=1$ 的 $\int_1^\infty 1/x\,dx = \ln x|_1^\infty \to \infty$ 是临界情况
 
-> 🔑 **考研要点**：比较判别法是判断反常积分收敛性的核心工具。记住两个基准：
 > - $\int_1^\infty 1/x^p\,dx$：收敛 $\iff p > 1$
 > - $\int_0^1 1/x^p\,dx$：收敛 $\iff p < 1$
 

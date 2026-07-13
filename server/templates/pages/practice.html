@@ -1,8 +1,8 @@
 {% extends "base.html" %}
-{% block title %}{{ topic.zh }} — OCR 刷题{% endblock %}
+{% block title %}{{ topic.zh }} — 练习{% endblock %}
 {% block content %}
 <div style="padding:32px;max-width:900px;margin:0 auto;">
-  <h2>{{ topic.zh }} — 刷题</h2>
+  <h2>{{ topic.zh }} — 练习</h2>
   <p style="color:var(--text-secondary);">选题 → 纸笔作答 → 拍照上传 → AI 批改</p>
   <p id="practiceStatus" style="color:var(--accent);font-size:13px;"></p>
 
@@ -11,7 +11,7 @@
     <div id="phaseSelect">
       <div class="random-actions">
         <button class="btn btn-primary" onclick="PracticeV2.randomProblem()">随机抽题</button>
-        <button class="btn" onclick="PracticeV2.aiGenerate()" style="border-color:var(--accent-warm);color:var(--accent-warm);">🤖 AI 出题</button>
+        <button class="btn" onclick="PracticeV2.aiGenerate()" style="border-color:var(--accent-warm);color:var(--accent-warm);">AI 出题</button>
       </div>
       <div style="margin:8px 0;">
         <label style="font-size:13px;color:var(--text-muted);">筛选难度：</label>

@@ -62,7 +62,6 @@ x, y, z, t = sp.symbols('x y z t', real=True)
 print("✅ 环境就绪！")
 ```
 
-
 ---
 ## 4.1 多元函数与曲面
 
@@ -135,7 +134,6 @@ interact(plot_3d_surface,
                            description='曲面'));
 ```
 
-
 ```python
 # === 4.1b 等高线图 ===
 
@@ -186,7 +184,6 @@ interact(plot_contour,
                            description='曲面'));
 ```
 
-
 **💡 关键观察**：
 - 抛物面 $z=x^2+y^2$：等高线是同心圆，中心是最低点（极小值）
 - 马鞍面 $z=x^2-y^2$：等高线是双曲线，中心是鞍点——x 方向是极小，y 方向是极大
@@ -230,7 +227,6 @@ print(f"  切平面: z = {f0} + {fx0}(x - {x0}) + {fy0}(y - {y0})")
 print(f"  即: z = {f0} + {fx0}x - {fx0*x0} + {fy0}y - {fy0*y0}")
 print(f"  即: z = {fx0}x + {fy0}y + {f0 - fx0*x0 - fy0*y0}")
 ```
-
 
 ```python
 # === 3D 切平面可视化 (Plotly) ===
@@ -303,12 +299,6 @@ interact(plot_tangent_plane,
                         continuous_update=False));
 ```
 
-
-> 🔑 **考研要点**：
-> - 偏导数存在**不能保证**函数连续（与一元不同！）
-> - 可微 ⇒ 偏导数存在 + 连续
-> - 二阶混合偏导数在连续时相等：$f_{xy} = f_{yx}$
-
 ---
 ## 4.3 方向导数与梯度
 
@@ -378,7 +368,6 @@ interact(plot_gradient_field,
                            value='马鞍面: z = x² − y²',
                            description='曲面'));
 ```
-
 
 **💡 关键观察**：
 - 梯度向量始终**垂直于**等高线
@@ -501,13 +490,10 @@ interact(plot_gradient_descent,
                            continuous_update=False));
 ```
 
-
 **💡 关键观察**：
 - 路径始终沿负梯度方向（最陡下降）
 - 学习率太大 ⇒ 震荡甚至发散；太小 ⇒ 收敛慢
 - 路径在 2D 等高线图上**垂直于等高线**
-
-> 🔑 **考研要点**：梯度方向是函数增长最快的方向；梯度的模是最大方向导数值。这也是多元函数求极值的基础。
 
 ---
 ## 4.5 拉格朗日乘数法
@@ -546,7 +532,6 @@ print()
 print("几何解释: 等高线 x²+y² = c 与直线 x+y=1 相切时取得极值")
 print("         在切点处，圆的法向量 (2x,2y) 平行于直线的法向量 (1,1)")
 ```
-
 
 ```python
 # === 拉格朗日乘数法 3D 可视化 ===
@@ -630,12 +615,6 @@ def plot_lagrange_multiplier():
 plot_lagrange_multiplier()
 ```
 
-
-> 🔑 **考研要点**：
-> - 拉格朗日乘数法是求条件极值的标准方法
-> - 方程 $\nabla f = \lambda \nabla g$ + 约束条件，共 3 个未知数 3 个方程
-> - 多约束情况可扩展到 $\nabla f = \lambda_1\nabla g_1 + \lambda_2\nabla g_2$
-
 ---
 ## 4.6 二重积分
 
@@ -670,7 +649,6 @@ result3 = sp.integrate(sp.integrate(integrand, (r, 0, 1)), (theta, 0, 2*sp.pi))
 print(f"  ∬_{x²+y²≤1} √(1−x²−y²) dxdy = {result3}")
 print(f"  = 2π/3 ≈ {float(2*sp.pi/3):.6f}  (上半球的体积的一半)")
 ```
-
 
 ```python
 # === 二重积分: 矩形棱柱逼近体积 (3D) ===
@@ -748,12 +726,6 @@ interact(plot_double_integral_approximation,
                      continuous_update=False));
 ```
 
-
-> 🔑 **考研要点**：
-> - 二重积分的计算关键是确定积分次序和上下限
-> - 极坐标变换：$dx\,dy = r\,dr\,d\theta$
-> - 交换积分次序有时能极大简化计算
-
 ---
 ## 4.7 向量场与线积分
 
@@ -826,13 +798,10 @@ def plot_vector_field_line_integral():
     print(f"  ∫_C F·dr = ∫₀^π 1 dt = π ≈ {np.pi:.6f}")
 ```
 
-
 ```python
 plot_vector_field_line_integral()
 ```
 
-
-> 🔑 **考研要点**：
 >
 > - **Green 公式**：闭曲线上的线积分 = 区域上的二重积分：$\oint_C Pdx+Qdy = \iint_D (Q_x-P_y)dxdy$
 > - **Stokes 公式**：空间闭曲线线积分 = 曲面积分

@@ -4,14 +4,14 @@
 <div class="workshop-layout">
   <!-- Left: Input Panel -->
   <div class="workshop-sidebar">
-    <h2 style="font-size:20px;margin:0 0 4px;">🎨 函数工坊</h2>
+    <h2 style="font-size:20px;margin:0 0 4px;">函数工坊</h2>
     <p style="font-size:12px;color:var(--text-muted);margin:0 0 20px;">输入函数，画出它的样子。支持 2D 曲线和 3D 曲面。</p>
 
     <!-- Mode Tabs -->
     <div class="ws-mode-tabs" id="wsModeTabs">
-      <button class="ws-mode-tab active" data-mode="2d" onclick="workshopSetMode('2d')">📈 2D 曲线</button>
-      <button class="ws-mode-tab" data-mode="3d" onclick="workshopSetMode('3d')">🌐 3D 曲面</button>
-      <button class="ws-mode-tab" data-mode="ai" onclick="workshopSetMode('ai')">🤖 AI 增强</button>
+      <button class="ws-mode-tab active" data-mode="2d" onclick="workshopSetMode('2d')">2D 曲线</button>
+      <button class="ws-mode-tab" data-mode="3d" onclick="workshopSetMode('3d')">3D 曲面</button>
+      <button class="ws-mode-tab" data-mode="ai" onclick="workshopSetMode('ai')">AI 增强</button>
     </div>
 
     <!-- 2D/3D Input -->
@@ -36,7 +36,7 @@
         <div style="font-size:12px;color:var(--text-muted);">xy 范围: [-5, 5] × [-5, 5]，采样 80×80 网格</div>
       </div>
 
-      <button class="btn btn-primary" onclick="workshopPlot()" style="width:100%;margin-top:12px;padding:10px;font-size:14px;justify-content:center;">🎨 绘制</button>
+      <button class="btn btn-primary" onclick="workshopPlot()" style="width:100%;margin-top:12px;padding:10px;font-size:14px;justify-content:center;">绘制</button>
     </div>
 
     <!-- AI Input -->
@@ -47,7 +47,7 @@
 画一个 z=x^2-y^2 的马鞍面
 用极坐标画 r=1+cos(θ) 的心形线
 展示泰勒级数逼近 sin(x) 的过程" rows="4" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:13px;resize:vertical;background:var(--bg-input);color:var(--text-primary);font-family:var(--font-body);"></textarea>
-      <button class="btn btn-primary" onclick="workshopPlot()" style="width:100%;margin-top:12px;padding:10px;font-size:14px;justify-content:center;">🤖 AI 生成</button>
+      <button class="btn btn-primary" onclick="workshopPlot()" style="width:100%;margin-top:12px;padding:10px;font-size:14px;justify-content:center;">AI 生成</button>
     </div>
 
     <!-- Presets -->
@@ -95,7 +95,7 @@
     <!-- Course Links -->
     <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
       <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">配合课程学习</div>
-      <a href="/gaoshu" class="btn btn-sm" style="width:100%;justify-content:center;margin-bottom:6px;">📐 高等数学</a>
+      <a href="/gaoshu" class="btn btn-sm" style="width:100%;justify-content:center;margin-bottom:6px;">高等数学</a>
       <a href="/exhibit/limits" class="btn btn-sm" style="width:100%;justify-content:center;margin-bottom:6px;">∞ 极限</a>
       <a href="/exhibit/derivatives" class="btn btn-sm" style="width:100%;justify-content:center;margin-bottom:6px;">∆ 导数</a>
       <a href="/exhibit/series" class="btn btn-sm" style="width:100%;justify-content:center;">∑ 级数</a>
@@ -278,7 +278,7 @@ async function plotAI(desc, plotArea, loading, explanation) {
     }
 
     if (data.explanation) {
-      explanation.innerHTML = '<h4 style="margin:0 0 8px;font-family:var(--font-heading);">📝 数学解释</h4>' + data.explanation;
+      explanation.innerHTML = '<h4 style="margin:0 0 8px;font-family:var(--font-heading);">数学解释</h4>' + data.explanation;
       explanation.style.display = 'block';
     }
   } catch(e) {
