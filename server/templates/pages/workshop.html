@@ -263,8 +263,14 @@ async function plotAI(desc, plotArea, loading, explanation) {
       headers: { 'Content-Type': 'application/json', 'X-API-Key': apiKey },
       body: JSON.stringify({ description: desc }),
     });
-    if (!resp.ok) throw new Error((await resp.json()).detail || 'API error');
-    var data = await resp.json();
+    var text = await resp.text();
+    var data;
+    try { data = JSON.parse(text); } catch(e) {
+      plotArea.innerHTML = '<p style="color:var(--accent-error);padding:40px;text-align:center;">服务器返回异常: ' + escapeHtml(text.substring(0,200)) + '</p>';
+      loading.style.display = 'none';
+      return;
+    }
+    if (!resp.ok) throw new Error(data.detail || 'API error');
 
     if (data.code) {
       try {
