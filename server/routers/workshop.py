@@ -1,7 +1,6 @@
 """
-Workshop API — AI-assisted function plotting.
+Workshop API — AI-assisted function plotting via DeepSeek.
 """
-
 import asyncio
 from fastapi import APIRouter, Request, HTTPException
 import json, re
@@ -12,8 +11,6 @@ router = APIRouter()
 
 @router.post("/api/workshop/plot")
 async def workshop_plot(request: Request):
-    """Generate Plotly visualization code from a natural language description.
-    Returns both plot code and a math explanation."""
     try:
         body = await request.json()
     except Exception:
@@ -23,71 +20,52 @@ async def workshop_plot(request: Request):
     if not description:
         raise HTTPException(status_code=400, detail="Missing description")
 
-    key = settings.anthropic_api_key
+    key = request.headers.get("X-API-Key") or settings.anthropic_api_key
     if not key:
-        return {"code": None, "explanation": None, "message": "No API key configured — using client-side parser"}
+        return {"code": None, "explanation": None, "message": "请先配置 API Key"}
 
-    import anthropic
+    from openai import AsyncOpenAI
+    client = AsyncOpenAI(api_key=key, base_url="https://api.deepseek.com")
 
-    code_prompt = f"""你是一位数据可视化专家。根据以下描述，生成 Plotly.js + JavaScript 代码来绘制图像。
-只输出可执行的 JavaScript 代码，使用 Plotly.newPlot() 或 Plotly.react() 函数。
-变量 document 引用到当前文档，请在 id="wsPlotArea" 的 DOM 元素上绘制。
+    code_prompt = f"""根据描述生成 Plotly.js 代码。只输出代码。
 
 描述: {description}
 
 要求:
-1. 只输出 JavaScript 代码，不要 markdown 代码块标记
-2. 如果有 x 范围，用 x 从 -6 到 6（除非特别指定）
-3. 曲面图用 Plotly surface trace
-4. 绘制在 document.getElementById('wsPlotArea') 上
-5. layout 中 paper_bgcolor 设为 'rgba(0,0,0,0)', plot_bgcolor 设为 'rgba(0,0,0,0)'
-6. responsive: true
-7. 代码直接用 Plotly.newPlot(document.getElementById('wsPlotArea'), traces, layout, {{ responsive: true }})
+1. 只输出 JavaScript 代码
+2. x 范围默认 -6 到 6
+3. 绘制在 document.getElementById('wsPlotArea') 上
+4. paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)'
+5. Plotly.newPlot(document.getElementById('wsPlotArea'), traces, layout, {{ responsive: true }})
 
 只输出代码。"""
 
-    explain_prompt = f"""你是一位数学教授，请用中文简要解释以下函数或表达式，面向学习高等数学的学生：
+    explain_prompt = f"""用中文简要解释以下函数（面向学习微积分的学生，2-4段）：{description}
+包含函数性质、关键特征、数学意义。只输出 HTML 段落。"""
 
-{description}
+    try:
+        code_resp, explain_resp = await asyncio.gather(
+            client.chat.completions.create(
+                model="deepseek-chat", max_tokens=1000,
+                messages=[{"role": "user", "content": code_prompt}],
+            ),
+            client.chat.completions.create(
+                model="deepseek-chat", max_tokens=600,
+                messages=[{"role": "user", "content": explain_prompt}],
+            ),
+            return_exceptions=True
+        )
 
-要求：
-1. 2-4 个自然段，简洁明了
-2. 包含：函数的基本性质（奇偶性、周期性等）、关键特征（极值点、渐近线等）、在高等数学中的意义
-3. 用简洁的 HTML 标签（<p>, <strong>, <em>）格式化
-4. 如果涉及特殊点或范围，明确指出
-5. 保持教学语气，引人入胜
+        code = None
+        if not isinstance(code_resp, Exception) and code_resp.choices:
+            code = code_resp.choices[0].message.content.strip()
+            code = re.sub(r'^```(?:javascript|js)?\s*\n', '', code)
+            code = re.sub(r'\n```\s*$', '', code)
 
-只输出 HTML 内容，不要 markdown。"""
+        explanation = None
+        if not isinstance(explain_resp, Exception) and explain_resp.choices:
+            explanation = explain_resp.choices[0].message.content.strip()
 
-    client = anthropic.AsyncAnthropic(api_key=key)
-
-    # Get code first, then explanation in parallel
-    code_resp, explain_resp = await asyncio.gather(
-        client.messages.create(
-            model=settings.default_model,
-            max_tokens=1000,
-            system="你是一个 JavaScript + Plotly 代码生成器。只输出代码，不要解释。",
-            messages=[{"role": "user", "content": code_prompt}],
-        ),
-        client.messages.create(
-            model=settings.fast_model,
-            max_tokens=600,
-            system="你是一位数学教授，用中文简洁解释函数。用HTML格式化输出。",
-            messages=[{"role": "user", "content": explain_prompt}],
-        ),
-        return_exceptions=True
-    )
-
-    code = None
-    if not isinstance(code_resp, Exception) and code_resp.content:
-        code = code_resp.content[0].text.strip()
-        code = re.sub(r'^```(?:javascript|js)?\s*\n', '', code)
-        code = re.sub(r'\n```\s*$', '', code)
-
-    explanation = None
-    if not isinstance(explain_resp, Exception) and explain_resp.content:
-        explanation = explain_resp.content[0].text.strip()
-        explanation = re.sub(r'^```(?:html)?\s*\n', '', explanation)
-        explanation = re.sub(r'\n```\s*$', '', explanation)
-
-    return {"code": code, "explanation": explanation, "description": description}
+        return {"code": code, "explanation": explanation, "description": description}
+    except Exception as e:
+        return {"code": None, "explanation": None, "description": description, "error": str(e)[:200]}
