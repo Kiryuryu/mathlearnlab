@@ -49,15 +49,30 @@ var PracticeV2 = (function() {
     $id('practiceStatus').textContent = '';
   }
 
+  function setStep(phase) {
+    document.querySelectorAll('.practice-step').forEach(function(s) {
+      s.classList.toggle('active', s.dataset.phase === phase);
+      if (s.dataset.phase === phase) s.classList.add('done');
+    });
+  }
+
   function renderProblemList(problems) {
     var list = $id('problemList');
     if (!list) return;
-    if (!problems.length) { list.innerHTML = '<p style="color:var(--text-muted);">暂无题目，点击"AI 出题"</p>'; return; }
+    if (!problems.length) { list.innerHTML = '<div class="practice-empty">暂无题目，点击「生成新题」让 AI 出一道</div>'; return; }
+    var stars = {'easy':'★','medium':'★★','hard':'★★★'};
     list.innerHTML = problems.map(function(p) {
-      return '<div class="problem-list-item" onclick="PracticeV2.selectProblem(\'' + p.id + '\')" data-difficulty="' + (p.difficulty || '') + '">' +
-        '<div><strong>' + (p.id || '?') + '</strong> — ' + (p.preview || '') + '</div>' +
-        '<span style="font-size:18px;color:var(--text-muted);">→</span></div>';
+      var d = p.difficulty || '';
+      return '<div class="practice-problem-card" onclick="PracticeV2.selectProblem(\'' + p.id + '\')" data-difficulty="' + d + '">' +
+        '<span class="ppc-difficulty ppc-' + d + '">' + (stars[d] || '') + '</span>' +
+        '<div class="ppc-body">' +
+          '<span class="ppc-id">' + (p.id || '') + '</span>' +
+          '<span class="ppc-preview">' + (p.preview || '') + '</span>' +
+        '</div>' +
+        '<span class="ppc-arrow">→</span>' +
+      '</div>';
     }).join('');
+    $id('problemCount') && ($id('problemCount').textContent = problems.length + ' 题');
   }
 
   async function selectProblem(id) {
@@ -74,23 +89,29 @@ var PracticeV2 = (function() {
     $id('phaseSelect').style.display = 'none';
     $id('phaseResults').style.display = 'none';
     $id('phaseSolve').style.display = 'block';
+    setStep('solve');
 
     var p = currentProblem;
     $id('solveContent').innerHTML =
-      '<div class="problem-card">' +
-        '<div class="problem-meta"><span>' + (p.difficulty || '') + '</span><span>' + ((p.knowledge_points || []).slice(0,3).join(' · ')) + '</span></div>' +
-        '<h3>' + (p.id || '') + '</h3>' +
-        '<div>' + (p.problem_statement || '') + '</div>' +
+      '<div class="practice-solve-card">' +
+        '<div class="psc-meta">' +
+          '<span class="ppc-difficulty ppc-' + (p.difficulty||'') + '">' + (p.difficulty||'') + '</span>' +
+          '<span style="font-size:12px;color:var(--text-muted);">' + ((p.knowledge_points||[]).slice(0,3).join(' · ')) + '</span>' +
+        '</div>' +
+        '<div class="psc-problem">' + (p.problem_statement || '') + '</div>' +
       '</div>' +
-      '<div class="upload-area" onclick="document.getElementById(\'fileInput\').click()">' +
-        '<p>点击拍照或上传图片</p><p style="font-size:12px;color:var(--text-muted);">JPG / PNG</p>' +
+      '<div class="practice-upload" onclick="document.getElementById(\'fileInput\').click()" id="uploadZone">' +
+        '<div class="practice-upload-icon">+</div>' +
+        '<p>点击拍照或上传作答图片</p>' +
+        '<p style="font-size:11px;color:var(--text-muted);">支持 JPG / PNG，可直接拍照上传</p>' +
         '<input type="file" id="fileInput" accept="image/*" capture="environment" onchange="PracticeV2.handleFile(event)" style="display:none;">' +
       '</div>' +
-      '<div id="imagePreview" style="display:none;margin:12px 0;">' +
+      '<div id="imagePreview" style="display:none;text-align:center;margin:16px 0;">' +
         '<img id="previewImg" style="max-width:100%;max-height:300px;border-radius:8px;border:1px solid var(--border);">' +
-        '<button class="btn btn-sm" onclick="PracticeV2.clearImage()" style="margin-top:6px;">清除</button>' +
+        '<br><button class="btn btn-sm" onclick="PracticeV2.clearImage()" style="margin-top:8px;">重新上传</button>' +
       '</div>' +
-      '<button class="btn btn-primary btn-block" id="submitBtn" disabled onclick="PracticeV2.submitGrade()">提交批改</button>';
+      '<button class="btn btn-primary" id="submitBtn" disabled onclick="PracticeV2.submitGrade()" style="width:100%;padding:14px;font-size:15px;margin-top:12px;">提交批改</button>' +
+      '<button class="btn" onclick="PracticeV2.goToPhase(\'select\')" style="width:100%;margin-top:8px;">返回选题</button>';
 
     if (window.MathJax) MathJax.typesetPromise();
   }
@@ -166,13 +187,14 @@ var PracticeV2 = (function() {
 
   function goToPhase(p) {
     if (p === 'select') { currentProblem = null; imageBase64 = null; result = null; $id('phaseSelect').style.display = 'block'; $id('phaseSolve').style.display = 'none'; $id('phaseResults').style.display = 'none'; loadProblems(); }
+    setStep(p);
   }
 
   function escapeHtml(s) { if (!s) return ''; var d = document.createElement('div'); d.textContent = String(s); return d.innerHTML; }
 
   function filterProblems() {
     var filter = ($id('diffFilter') || {}).value || 'all';
-    document.querySelectorAll('#problemList .problem-list-item').forEach(function(el) {
+    document.querySelectorAll('#problemList .practice-problem-card').forEach(function(el) {
       el.style.display = (filter === 'all' || el.dataset.difficulty === filter) ? '' : 'none';
     });
   }
