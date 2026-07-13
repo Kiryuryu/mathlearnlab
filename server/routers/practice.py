@@ -23,10 +23,13 @@ async def list_problems(topic: str, difficulty: str = Query(default="all")):
 
 @router.get("/api/practice/{topic}/problems/random")
 async def random_problem(topic: str, difficulty: str = Query(default="all")):
-    """Return a random problem with full details (including solution)."""
+    """Return a random problem WITHOUT solution (API-facing)."""
     p = problem_bank.get_random_problem(topic, difficulty=None if difficulty == "all" else difficulty)
     if not p:
         raise HTTPException(status_code=404, detail="No problems found")
+    p = dict(p)
+    p.pop("solution", None)
+    p.pop("grading_rubric", None)
     return {"problem": p}
 
 

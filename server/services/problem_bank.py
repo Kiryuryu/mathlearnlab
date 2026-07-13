@@ -14,12 +14,27 @@ DATA_DIR = BASE_DIR / "data"
 PROBLEM_BANK_DIR = DATA_DIR / "problem_bank"
 
 
+DIFFICULTY_MAP = {
+    "easy": "basic", "medium": "exam", "hard": "graduate",
+    "basic": "basic", "advanced": "advanced", "exam": "exam",
+    "graduate": "graduate", "phd": "phd",
+}
+
+def _normalize_difficulty(diff: str) -> str:
+    return DIFFICULTY_MAP.get(diff, diff)
+
+
 def _load_json(filename: str) -> dict:
     filepath = PROBLEM_BANK_DIR / filename
     if not filepath.exists():
         return {"problems": []}
     with open(filepath, "r", encoding="utf-8") as f:
-        return json.load(f)
+        data = json.load(f)
+    # Normalize difficulty labels from old system (easy/medium/hard) to new
+    for p in data.get("problems", []):
+        if "difficulty" in p:
+            p["difficulty"] = _normalize_difficulty(p["difficulty"])
+    return data
 
 
 def load_problems(topic_key: str) -> list[dict]:

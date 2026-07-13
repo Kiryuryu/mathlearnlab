@@ -121,7 +121,8 @@ function fractalRedraw() {
 }
 
 var canvas = document.getElementById('fractalCanvas');
-if (!canvas) return;
+if (!canvas) { console.warn('fractal canvas missing'); } else {
+var wheelTimer = null;
 canvas.addEventListener('wheel', function(e) {
   e.preventDefault();
   var rect = canvas.getBoundingClientRect();
@@ -131,10 +132,11 @@ canvas.addEventListener('wheel', function(e) {
   range *= zoom;
   cx = mx + (cx - mx) * zoom;
   cy = my + (cy - my) * zoom;
-  fractalRedraw();
+  clearTimeout(wheelTimer);
+  wheelTimer = setTimeout(function(){ fractalRedraw(); }, 60);
 });
 
-var dragging = false, dragX, dragY;
+var dragging = false, dragX, dragY, needsRedraw = false;
 canvas.addEventListener('mousedown', function(e) { dragging = true; dragX = e.clientX; dragY = e.clientY; });
 canvas.addEventListener('mousemove', function(e) {
   if (!dragging) return;
@@ -142,7 +144,7 @@ canvas.addEventListener('mousemove', function(e) {
   var dy = (e.clientY - dragY) / canvas.clientHeight * range;
   cx -= dx; cy -= dy;
   dragX = e.clientX; dragY = e.clientY;
-  fractalRedraw();
+  if (!needsRedraw) { needsRedraw = true; requestAnimationFrame(function(){ fractalRedraw(); needsRedraw = false; }); }
 });
 canvas.addEventListener('mouseup', function() { dragging = false; });
 canvas.addEventListener('click', function(e) {

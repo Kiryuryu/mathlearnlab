@@ -297,30 +297,31 @@ function escapeHtml(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-// 1D evaluator
+// 1D evaluator - safe, no eval
 function evaluate1D(expr, x) {
   expr = expr.replace(/\^/g, '**');
+  // Validate: only allow math chars, numbers, x
+  if (!/^[\d\sx\+\-\*\/\.\(\)\^eEpiPI]*$/.test(expr.replace(/sin|cos|tan|exp|log|sqrt|abs|Math\.PI|Math\.E/g,''))) {
+    throw new Error('表达式包含非法字符');
+  }
   var safe = expr
-    .replace(/sin\(/g, '__sin(').replace(/cos\(/g, '__cos(').replace(/tan\(/g, '__tan(')
-    .replace(/exp\(/g, '__exp(').replace(/log\(/g, '__log(').replace(/sqrt\(/g, '__sqrt(')
-    .replace(/abs\(/g, '__abs(').replace(/pi/gi, '__PI').replace(/e(?![xp\(])/gi, '__E');
-  safe = safe.replace(/__sin/g,'Math.sin').replace(/__cos/g,'Math.cos').replace(/__tan/g,'Math.tan')
-    .replace(/__exp/g,'Math.exp').replace(/__log/g,'Math.log').replace(/__sqrt/g,'Math.sqrt')
-    .replace(/__abs/g,'Math.abs').replace(/__PI/g,'Math.PI').replace(/__E/g,'Math.E');
-  return eval(safe);
+    .replace(/sin\(/g, 'Math.sin(').replace(/cos\(/g, 'Math.cos(').replace(/tan\(/g, 'Math.tan(')
+    .replace(/exp\(/g, 'Math.exp(').replace(/log\(/g, 'Math.log(').replace(/sqrt\(/g, 'Math.sqrt(')
+    .replace(/abs\(/g, 'Math.abs(').replace(/pi/gi, 'Math.PI').replace(/\be\b/gi, 'Math.E');
+  return new Function('x', 'return ' + safe)(x);
 }
 
-// 2D evaluator (for 3D surfaces)
+// 2D evaluator (for 3D surfaces) - safe, no eval
 function evaluate2D(expr, x, y) {
   expr = expr.replace(/\^/g, '**');
+  if (!/^[\d\sxy\+\-\*\/\.\(\)\^eEpiPI]*$/.test(expr.replace(/sin|cos|exp|log|sqrt|abs|Math\.PI|Math\.E/g,''))) {
+    throw new Error('表达式包含非法字符');
+  }
   var safe = expr
-    .replace(/sin\(/g, '__sin(').replace(/cos\(/g, '__cos(')
-    .replace(/exp\(/g, '__exp(').replace(/sqrt\(/g, '__sqrt(')
-    .replace(/abs\(/g, '__abs(').replace(/pi/gi, '__PI');
-  safe = safe.replace(/__sin/g,'Math.sin').replace(/__cos/g,'Math.cos')
-    .replace(/__exp/g,'Math.exp').replace(/__sqrt/g,'Math.sqrt')
-    .replace(/__abs/g,'Math.abs').replace(/__PI/g,'Math.PI');
-  return eval(safe);
+    .replace(/sin\(/g, 'Math.sin(').replace(/cos\(/g, 'Math.cos(')
+    .replace(/exp\(/g, 'Math.exp(').replace(/sqrt\(/g, 'Math.sqrt(')
+    .replace(/abs\(/g, 'Math.abs(').replace(/pi/gi, 'Math.PI');
+  return new Function('x','y', 'return ' + safe)(x, y);
 }
 
 // Enter key triggers plot
