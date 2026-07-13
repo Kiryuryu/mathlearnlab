@@ -2,25 +2,25 @@
 
 /* ── Custom Properties ── */
 :root {
-  /* Warm paper palette */
-  --bg-page:        #faf8f5;
+  /* Cool scholarly palette — clean, intellectual, not warm-craft */
+  --bg-page:        #f7f8f9;
   --bg-card:        #ffffff;
-  --bg-nav:         #f5f0e8;
-  --bg-chat:        #fdfcf9;
-  --bg-input:       #faf8f5;
-  --text-primary:   #2c2c2c;
-  --text-secondary: #5c5c5c;
-  --text-muted:     #8c8c8c;
-  --accent:         #5b7b94;
-  --accent-warm:    #8b7355;
-  --accent-correct: #4a7c59;
-  --accent-error:   #b55a5a;
-  --border:         #e8e0d5;
-  --border-focus:   #c4b9a8;
-  --radius:         4px;
-  --radius-lg:      8px;
-  --shadow-card:    0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
-  --shadow-elevated: 0 4px 12px rgba(0,0,0,0.06);
+  --bg-nav:         #f0f2f4;
+  --bg-chat:        #f9fafa;
+  --bg-input:       #f7f8f9;
+  --text-primary:   #1a1d22;
+  --text-secondary: #505560;
+  --text-muted:     #889098;
+  --accent:         #4a6a8a;
+  --accent-warm:    #6b5e4a;
+  --accent-correct: #3d6b4f;
+  --accent-error:   #a45050;
+  --border:         #e2e5e8;
+  --border-focus:   #c0c5cc;
+  --radius:         6px;
+  --radius-lg:      10px;
+  --shadow-card:    0 1px 2px rgba(26,29,34,0.03), 0 1px 2px rgba(26,29,34,0.04);
+  --shadow-elevated: 0 4px 10px rgba(26,29,34,0.05);
 
   /* Typography */
   --font-heading:   'Noto Serif SC', 'Songti SC', 'SimSun', Georgia, serif;
@@ -29,24 +29,24 @@
   --line-height:    1.75;
 }
 
-/* Dark mode — reading by lamplight */
+/* Dark mode — cool study at night */
 [data-theme="dark"] {
-  --bg-page:        #1a1814;
-  --bg-card:        #24211c;
-  --bg-nav:         #1e1c17;
-  --bg-chat:        #221f1a;
-  --bg-input:       #2a2722;
-  --text-primary:   #e8e0d0;
-  --text-secondary: #b0a898;
-  --text-muted:     #7a7262;
-  --accent:         #7a9eb3;
-  --accent-warm:    #c4a97a;
-  --accent-correct: #6a9e7a;
-  --accent-error:   #c47a7a;
-  --border:         #3a3530;
-  --border-focus:   #5a5248;
-  --shadow-card:    0 1px 3px rgba(0,0,0,0.2);
-  --shadow-elevated: 0 4px 12px rgba(0,0,0,0.3);
+  --bg-page:        #14161a;
+  --bg-card:        #1d2025;
+  --bg-nav:         #181a1f;
+  --bg-chat:        #1c1e23;
+  --bg-input:       #22252a;
+  --text-primary:   #e4e6ea;
+  --text-secondary: #a0a5ae;
+  --text-muted:     #6e7278;
+  --accent:         #6a9abc;
+  --accent-warm:    #b8a88a;
+  --accent-correct: #5a8a64;
+  --accent-error:   #c06060;
+  --border:         #2a2d32;
+  --border-focus:   #3a3e44;
+  --shadow-card:    0 1px 2px rgba(0,0,0,0.15);
+  --shadow-elevated: 0 4px 10px rgba(0,0,0,0.2);
 }
 
 /* ── Reset ── */
