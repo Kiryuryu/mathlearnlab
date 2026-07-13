@@ -41,7 +41,6 @@
     </div>
     <p id="practiceStatus" style="text-align:center;color:var(--accent);font-size:13px;margin:8px 0;"></p>
     <div id="problemList" class="practice-problem-list"></div>
-    <select id="diffFilter" style="display:none;"><option value="all">全部</option><option value="basic">基础</option><option value="advanced">进阶</option><option value="exam">考研</option><option value="graduate">研究生</option><option value="phd">博士</option></select>
   </div>
 
   <!-- Phase 2: Solve -->
@@ -54,6 +53,8 @@
     <div id="resultsContent"></div>
   </div>
 </div>
+
+<select id="diffFilter" hidden><option value="all">全部</option><option value="basic">基础</option><option value="advanced">进阶</option><option value="exam">考研</option><option value="graduate">研究生</option><option value="phd">博士</option></select>
 
 <script>
 PracticeV2.init('{{ topic_key }}');
