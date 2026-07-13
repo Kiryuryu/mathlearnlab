@@ -87,16 +87,27 @@ async def error_log_page(request: Request):
 
 
 @router.get("/exhibit/{topic}", response_class=HTMLResponse)
-async def exhibit_page(request: Request, topic: str):
+async def exhibit_page(request: Request, topic: str, tab: str = "concept"):
     exhibit_info = settings.exhibits.get(topic, {})
     if not exhibit_info:
         return templates.TemplateResponse("pages/content.html", _ctx(request,
             content_html=f"<p class=\"content-error\">展厅未找到: {topic}</p>", title="未知展厅"))
-    filepath = f"notebooks/{exhibit_info['notebook']}.md"
-    content_html = await _read_md(filepath)
+
+    # Load main content
+    filepath = f"notebooks/{exhibit_info['notebook']}.md" if 'notebook' in exhibit_info else None
+    content_html = await _read_md(filepath) if filepath else ""
+
+    # Load tabbed content
+    tab_content = {}
+    tab_dir = CONTENT_DIR / "exhibits" / topic
+    for tab_name in ["applications", "history", "beauty", "explore"]:
+        tab_file = tab_dir / f"{tab_name}.md"
+        if tab_file.exists():
+            tab_content[tab_name] = await _read_md(str(tab_file.relative_to(CONTENT_DIR)))
+
     return templates.TemplateResponse("pages/exhibit.html", _ctx(request,
         content_html=content_html, title=exhibit_info.get("zh", topic),
-        exhibit=exhibit_info, topic_key=topic))
+        exhibit=exhibit_info, topic_key=topic, tab=tab, tab_content=tab_content))
 
 
 @router.get("/mathematicians", response_class=HTMLResponse)

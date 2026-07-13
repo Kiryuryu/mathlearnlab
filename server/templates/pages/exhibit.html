@@ -4,14 +4,27 @@
 <!-- Hero -->
 <div class="exhibit-hero {{ topic_key }}-bg">
   <h1>{{ exhibit.icon }} {{ exhibit.zh }}</h1>
-  <p class="big-question">❓ {{ exhibit.big_question }}</p>
+  <p class="big-question">{{ exhibit.big_question }}</p>
   <p class="historian-line">关键人物：{{ exhibit.historian }}</p>
   <p class="beauty-moment">{{ exhibit.beauty }}</p>
 </div>
 
-<!-- Content -->
-<div class="exhibit-content">
-  {{ content_html | safe }}
+<!-- Tab Navigation -->
+<nav class="exhibit-tabs">
+  <a href="?tab=concept" class="exhibit-tab {% if tab == 'concept' %}active{% endif %}">核心概念</a>
+  <a href="?tab=applications" class="exhibit-tab {% if tab == 'applications' %}active{% endif %}">应用案例</a>
+  <a href="?tab=history" class="exhibit-tab {% if tab == 'history' %}active{% endif %}">思想脉络</a>
+  <a href="?tab=beauty" class="exhibit-tab {% if tab == 'beauty' %}active{% endif %}">数学之美</a>
+  <a href="?tab=explore" class="exhibit-tab {% if tab == 'explore' %}active{% endif %}">探索</a>
+</nav>
+
+<!-- Tab Content -->
+<div class="exhibit-tab-content">
+  {% if tab == 'concept' %}
+    {{ content_html | safe }}
+  {% elif tab in tab_content %}
+    {{ tab_content[tab] | safe }}
+  {% endif %}
 
   <!-- Interactive Visualization Area -->
   <div class="viz-container" id="vizContainer">
@@ -23,14 +36,14 @@
   <!-- Thought Experiments -->
   <div class="te-section" id="thoughtExperiments">
     <h3 style="margin:32px 0 16px;">思想实验</h3>
-    <p style="color:var(--text-secondary);font-size:14px;margin-bottom:16px;">不要急着看答案。先动手探索，自己发现——这才是数学真正的乐趣。</p>
+    <p style="color:var(--text-secondary);font-size:14px;margin-bottom:16px;">不要急着看答案。先动手探索，自己发现。</p>
     <div id="teContainer"></div>
   </div>
 </div>
 
 <!-- Actions -->
 <div class="exhibit-actions">
-  <a href="/practice/{{ topic_key }}" class="btn btn-primary" style="padding:12px 32px;font-size:15px;">进入动手实验室</a>
+  <a href="/practice/{{ topic_key }}" class="btn btn-primary" style="padding:12px 32px;font-size:15px;">进入练习</a>
 </div>
 {% endblock %}
 
