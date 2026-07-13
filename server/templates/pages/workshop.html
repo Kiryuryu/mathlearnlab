@@ -252,6 +252,7 @@ function plot3D(funcs, plotArea) {
 }
 
 async function plotAI(desc, plotArea, loading, explanation) {
+  if (window.requireAuth && !window.requireAuth()) return;
   loading.style.display = 'block';
   plotArea.innerHTML = '';
 

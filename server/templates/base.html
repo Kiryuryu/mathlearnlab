@@ -199,7 +199,8 @@
     var k = document.getElementById('apiKeyInput').value.trim();
     try { localStorage.setItem('mathlearnlab:apikey', k); } catch(e) {}
     document.getElementById('apiKeyModal').hidden = true;
-  updateApiKeyStatus();
+    updateApiKeyStatus();
+  }
   // Auth
   var authToken = localStorage.getItem('mathlearnlab:token') || '';
   var authUser = null;
@@ -264,8 +265,15 @@
     } catch(e) { msg.textContent = e.message; msg.style.display=''; }
   }
   updateUserUI();
+  // Export helpers for other scripts
+  function requireAuth() {
+    if (authToken) return true;
+    document.getElementById('authModal').hidden = false;
+    return false;
   }
-  function updateApiKeyStatus() {
+  window.requireAuth = requireAuth;
+  window.getAuthToken = function() { return authToken; };
+  </script>
     var k = localStorage.getItem('mathlearnlab:apikey') || '';
     var dot = document.getElementById('apiKeyStatus');
     dot.style.background = k ? 'var(--accent-correct)' : 'var(--accent-error)';
