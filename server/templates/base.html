@@ -32,7 +32,9 @@
       <span class="app-subtitle">知其然，知其所以然</span>
     </div>
     <div class="header-right">
-      <span id="apiStatus" style="width:8px;height:8px;border-radius:50%;background:var(--text-muted);display:inline-block;margin-right:4px;" title="API 状态"></span>
+      <button class="header-btn" id="apiKeyBtn" title="设置 API Key" onclick="toggleApiKeyModal()">
+        <span id="apiKeyStatus" style="width:7px;height:7px;border-radius:50%;display:inline-block;background:var(--accent-error);"></span>
+      </button>
       <div class="search-container" id="searchContainer">
         <button class="search-btn" onclick="toggleSearch()" title="搜索">🔍</button>
         <input type="text" id="searchInput" placeholder="搜索概念、人物、公式..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
@@ -100,11 +102,12 @@
   <!-- API Key Modal -->
   <div class="modal-overlay" id="apiKeyModal" hidden>
     <div class="modal">
-      <h3>设置 Anthropic API Key</h3>
-      <p class="modal-hint">你的 Key 仅存于浏览器本地，不经过服务器存储。</p>
+      <h3>配置 API Key</h3>
+      <p class="modal-hint">使用 AI 功能（聊天、出题、批改、函数生成）需要你自己的 Anthropic API Key。</p>
+      <p class="modal-hint" style="font-size:11px;color:var(--accent-warm);">Key 仅存储在浏览器本地，不会上传到服务器。获取 Key：<a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></p>
       <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." class="input-full">
       <div class="modal-actions">
-        <button class="btn btn-primary" onclick="var k=document.getElementById('apiKeyInput').value.trim();try{localStorage.setItem('mathlearnlab:apikey',k)}catch(e){};document.getElementById('apiKeyModal').hidden=true;">保存</button>
+        <button class="btn btn-primary" onclick="saveApiKey()">保存</button>
         <button class="btn" onclick="document.getElementById('apiKeyModal').hidden=true;">取消</button>
       </div>
     </div>
@@ -158,14 +161,26 @@
   document.addEventListener('click', function(e) {
     if (!e.target.closest('.search-container')) closeSearch();
   });
-  // API status indicator
-  fetch('/api/health').then(function(r){ return r.json(); }).then(function(d){
-    document.getElementById('apiStatus').style.background = 'var(--accent-correct)';
-    document.getElementById('apiStatus').title = '服务正常';
-  }).catch(function(){
-    document.getElementById('apiStatus').style.background = 'var(--accent-error)';
-    document.getElementById('apiStatus').title = '服务异常';
-  });
+  // API Key management
+  function toggleApiKeyModal() {
+    var m = document.getElementById('apiKeyModal');
+    var k = localStorage.getItem('mathlearnlab:apikey') || '';
+    document.getElementById('apiKeyInput').value = k;
+    m.hidden = !m.hidden;
+  }
+  function saveApiKey() {
+    var k = document.getElementById('apiKeyInput').value.trim();
+    try { localStorage.setItem('mathlearnlab:apikey', k); } catch(e) {}
+    document.getElementById('apiKeyModal').hidden = true;
+    updateApiKeyStatus();
+  }
+  function updateApiKeyStatus() {
+    var k = localStorage.getItem('mathlearnlab:apikey') || '';
+    var dot = document.getElementById('apiKeyStatus');
+    dot.style.background = k ? 'var(--accent-correct)' : 'var(--accent-error)';
+    document.getElementById('apiKeyBtn').title = k ? '已配置 Key' : '未配置 Key，点击设置';
+  }
+  updateApiKeyStatus();
   </script>
 
   {% block scripts %}{% endblock %}
