@@ -5,6 +5,7 @@ Run:
     uvicorn server.main:app --reload
 """
 
+from contextlib import asynccontextmanager
 from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
@@ -18,7 +19,14 @@ CONTENT_DIR = BASE_DIR / settings.content_dir
 DATA_DIR = BASE_DIR / settings.data_dir
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
-app = FastAPI(title=settings.app_name, version="3.0.0")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
+
+
+app = FastAPI(title=settings.app_name, version="3.0.0", lifespan=lifespan)
 
 # ── CORS ──
 app.add_middleware(
@@ -32,11 +40,6 @@ app.add_middleware(
 # ── Mount static files ──
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 app.mount("/data", StaticFiles(directory=str(DATA_DIR)), name="data")
-
-# ── Init database on startup ──
-@app.on_event("startup")
-async def startup():
-    init_db()
 
 # ── Health check ──
 @app.get("/api/health")

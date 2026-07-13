@@ -404,6 +404,61 @@ var ThoughtExperiments = (function() {
           },
           explanation: '<p><strong>这可能是数学史上最重要的一段话</strong>——柯西在1821年写道：</p><blockquote style=\"font-size:13px;\">\"当变量依次取的值无限趋近一个固定值，使得它们之间的差变得任意小——这时我们说该变量有极限。\"</blockquote><p>魏尔斯特拉斯后来用更精确的 ε-δ 语言表达：</p><blockquote style=\"font-size:13px;\">\"对任意 ε>0，存在 δ>0，使得当 0<|x-x₀|<δ 时，|f(x)-L|<ε。\"</blockquote><p>这56个符号，终结了200年来关于\"无穷小\"的争论。微积分终于不再依赖\"直觉\"，而是建立在严密的逻辑之上。</p>'
         }
+      ],
+      'gauss': [
+        {
+          id: 'gauss_normal',
+          title: '正态分布 — 高斯如何发现"误差的规律"',
+          prompt: '高斯在研究天文观测误差时发现了一个惊人的事实：无论误差的来源是什么，大量误差的分布总是呈现出同样的钟形曲线。拖动 μ 和 σ，观察正态分布的形状如何变化。',
+          controls: [
+            { type: 'slider', id: 'mu', min: -2, max: 2, step: 0.1, value: 0, label: 'μ (均值)' },
+            { type: 'slider', id: 'sigma', min: 0.3, max: 2, step: 0.1, value: 1, label: 'σ (标准差)' }
+          ],
+          plot: function(el, s) {
+            var mu = s.mu, sigma = s.sigma, xs = [], ys = [];
+            for (var i = 0; i <= 300; i++) {
+              var x = mu - 4*sigma + 8*sigma*i/300;
+              xs.push(x);
+              ys.push(1/(sigma*Math.sqrt(2*Math.PI)) * Math.exp(-0.5*Math.pow((x-mu)/sigma, 2)));
+            }
+            return {
+              traces: [
+                { x: xs, y: ys, type: 'scatter', mode: 'lines', fill:'tozeroy', fillcolor:'rgba(91,123,148,0.15)', name: 'N('+mu.toFixed(1)+','+sigma.toFixed(1)+'²)', line:{color:'#5b7b94',width:2} },
+                { x: [mu,mu], y: [0, 1/(sigma*Math.sqrt(2*Math.PI))], type: 'scatter', mode: 'lines+markers', name: 'μ', line:{color:'#b55a5a',width:1,dash:'dash'}, marker:{size:6,color:'#b55a5a'} }
+              ],
+              layout: { title: '正态分布 N('+mu.toFixed(1)+','+sigma.toFixed(1)+'²)', margin:{t:40,r:20,b:40,l:40}, paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)', showlegend:false }
+            };
+          },
+          explanation: '<p>高斯24岁时发明了<strong>最小二乘法</strong>来拟合观测数据。他发现，如果误差遵循正态分布，那么最小二乘估计就是<strong>最优</strong>的。</p><p>正态分布之所以无处不在，是因为<strong>中心极限定理</strong>：大量独立随机变量的和（无论它们各自的分布是什么）总是趋近于正态分布。这就是为什么身高、体重、测量误差都呈钟形曲线——它们是无数微小因素叠加的结果。</p><p>德国10马克纸币上印着高斯头像和正态分布曲线——这是对一个数学家最高级别的致敬。</p>'
+        }
+      ],
+      'ramanujan': [
+        {
+          id: 'ramanujan_pi',
+          title: '拉马努金的直觉 — 一个"从梦里来的"公式',
+          prompt: '1914年，拉马努金宣称他梦见一个女神告诉了他这个计算 π 的公式：1/π = √8/9801 × Σ (4n)!(1103+26390n)/(n!⁴·396^(4n))。当 n=0 时，这个公式给出了 π≈3.1415927... 已经精确到 6 位小数。拖动 n 看看收敛有多快。',
+          controls: [
+            { type: 'slider', id: 'terms', min: 0, max: 3, step: 1, value: 0, label: '项数 n' }
+          ],
+          plot: function(el, s) {
+            var N = s.terms;
+            // Simplified: show an approximation
+            var fact = function(k) { var r=1; for(var i=2;i<=k;i++) r*=i; return r; };
+            var sum = 0;
+            for (var n = 0; n <= N; n++) {
+              sum += fact(4*n)*(1103+26390*n)/(Math.pow(fact(n),4)*Math.pow(396,4*n));
+            }
+            var piEst = 1/(sum*Math.sqrt(8)/9801);
+            // Show as bar comparison
+            return {
+              traces: [
+                { x: ['π (真值)','拉马努金 N='+N], y: [Math.PI, piEst], type: 'bar', marker:{color:['#5b7b94','#b55a5a']}, text: [Math.PI.toFixed(10), piEst.toFixed(10)], textposition:'auto' }
+              ],
+              layout: { title: 'π 近似对比: 误差 = '+Math.abs(Math.PI-piEst).toExponential(3), margin:{t:40,r:20,b:40,l:40}, paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)', showlegend:false }
+            };
+          },
+          explanation: '<p>拉马努金说他在梦中被女神 Namagiri 告知这些公式。英国数学家哈代看到他的笔记后说：<em>\"这些公式一定是对的，因为没有人能编造出这么复杂的东西。\"</em></p><p>这个 π 公式最惊人的地方是它的<strong>收敛速度</strong>：每加一项，就多出约 8 位精确小数。N=1 时已有 15 位精度，N=2 时超过 23 位。在计算机出现之前，这已经是人类算 π 最有效的方法。</p><p>拉马努金只活了32岁，留下了近4000个公式。直到今天，数学家们仍在研究和验证他的笔记本。他的天才不在于能证明——而在于能看到别人看不见的数学真相。</p>'
+        }
       ]
     };
 
