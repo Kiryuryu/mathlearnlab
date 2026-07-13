@@ -136,8 +136,8 @@ var ThoughtExperiments = (function() {
           }
           return {
             traces: [
-              { x: xs, y: ys, type: 'scatter', mode: 'lines', name: 'sin(x)/x', line: {color:'#5b7b94',width:2} },
-              { x: [xv], y: [Math.sin(xv)/xv], type: 'scatter', mode: 'markers', marker: {color:'#b55a5a',size:12}, name: 'x='+xv.toFixed(2)+', y='+(Math.sin(xv)/xv).toFixed(4) }
+              { x: xs, y: ys, type: 'scatter', mode: 'lines', name: 'sin(x)/x', line: {color:'#4a6a8a',width:2} },
+              { x: [xv], y: [Math.sin(xv)/xv], type: 'scatter', mode: 'markers', marker: {color:'#a45050',size:12}, name: 'x='+xv.toFixed(2)+', y='+(Math.sin(xv)/xv).toFixed(4) }
             ],
             layout: { title: 'sin(x)/x, 当前值: '+(Math.sin(xv)/xv).toFixed(4), margin:{t:40,r:20,b:40,l:40}, paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)', showlegend:false }
           };
@@ -171,8 +171,8 @@ var ThoughtExperiments = (function() {
           }
           return {
             traces: [
-              { x: xs, y: ys_sin, type: 'scatter', mode: 'lines', name: 'sin(x)', line: {color:'#5b7b94',width:2} },
-              { x: xs, y: ys_poly, type: 'scatter', mode: 'lines', name: 'N='+n, line: {color:'#b55a5a',width:2,dash:'dash'} }
+              { x: xs, y: ys_sin, type: 'scatter', mode: 'lines', name: 'sin(x)', line: {color:'#4a6a8a',width:2} },
+              { x: xs, y: ys_poly, type: 'scatter', mode: 'lines', name: 'N='+n, line: {color:'#a45050',width:2,dash:'dash'} }
             ],
             layout: { title: 'sin(x) ≈ x - x³/3! + x⁵/5! - ... (到x^'+ (2*n+1) +')', margin:{t:40,r:20,b:40,l:40}, paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)' }
           };
@@ -201,11 +201,11 @@ var ThoughtExperiments = (function() {
           }
           return {
             traces: [
-              { x: xs, y: ys_sin, type: 'scatter', mode: 'lines', name: 'f(x)=sin(x)', line: {color:'#5b7b94',width:2} },
-              { x: xs, y: ys_int, type: 'scatter', mode: 'lines', name: 'F(x)=∫₀ˣ sin(t)dt', line: {color:'#8b7355',width:2} },
-              { x: [xp,xp], y: [-2,2], type: 'scatter', mode: 'lines', line: {color:'#b55a5a',width:1,dash:'dot'} },
-              { x: [xp], y: [Math.sin(xp)], type: 'scatter', mode: 'markers', marker: {color:'#5b7b94',size:10} },
-              { x: [xp], y: [-Math.cos(xp)+1], type: 'scatter', mode: 'markers', marker: {color:'#8b7355',size:10} }
+              { x: xs, y: ys_sin, type: 'scatter', mode: 'lines', name: 'f(x)=sin(x)', line: {color:'#4a6a8a',width:2} },
+              { x: xs, y: ys_int, type: 'scatter', mode: 'lines', name: 'F(x)=∫₀ˣ sin(t)dt', line: {color:'#6b5e4a',width:2} },
+              { x: [xp,xp], y: [-2,2], type: 'scatter', mode: 'lines', line: {color:'#a45050',width:1,dash:'dot'} },
+              { x: [xp], y: [Math.sin(xp)], type: 'scatter', mode: 'markers', marker: {color:'#4a6a8a',size:10} },
+              { x: [xp], y: [-Math.cos(xp)+1], type: 'scatter', mode: 'markers', marker: {color:'#6b5e4a',size:10} }
             ],
             layout: { title: 'F\'(x) = f(x)! F\'('+xp.toFixed(1)+')='+Math.sin(xp).toFixed(3)+', f('+xp.toFixed(1)+')='+Math.sin(xp).toFixed(3), margin:{t:40,r:20,b:40,l:40}, paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)', showlegend:true, legend:{font:{size:11}} }
           };
@@ -227,7 +227,7 @@ var ThoughtExperiments = (function() {
           var N = s.terms, sums = [], partial = 0;
           for (var k = 1; k <= N; k++) { partial += 1/k; sums.push(partial); }
           return {
-            traces: [{ y: sums, type: 'scatter', mode: 'lines', name: '调和级数部分和', fill:'tozeroy', fillcolor:'rgba(91,123,148,0.08)', line:{color:'#5b7b94',width:2}, marker:{size:3} }],
+            traces: [{ y: sums, type: 'scatter', mode: 'lines', name: '调和级数部分和', fill:'tozeroy', fillcolor:'rgba(74,106,138,0.08)', line:{color:'#4a6a8a',width:2}, marker:{size:3} }],
             layout: { title: '调和级数前'+N+'项和 = '+partial.toFixed(3)+' (还在涨...)', xaxis:{title:'项数'}, yaxis:{title:'部分和'}, margin:{t:40,r:20,b:40,l:40}, paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)', showlegend:false }
           };
         },
@@ -257,7 +257,7 @@ var ThoughtExperiments = (function() {
           return {
             traces: [
               { x: xs, y: ys, z: zGrid, type: 'surface', colorscale: 'YlGnBu', opacity: 0.7, showscale: false },
-              { x: [px], y: [py], z: [px*px+2*py*py+0.5], type: 'scatter3d', mode: 'markers', marker: {color:'#b55a5a',size:8} }
+              { x: [px], y: [py], z: [px*px+2*py*py+0.5], type: 'scatter3d', mode: 'markers', marker: {color:'#a45050',size:8} }
             ],
             layout: { title: 'f('+px.toFixed(1)+','+py.toFixed(1)+') = '+(px*px+2*py*py).toFixed(2), scene:{xaxis:{title:'x'},yaxis:{title:'y'},zaxis:{title:'f'}}, margin:{t:40,r:20,b:40,l:40}, paper_bgcolor:'rgba(0,0,0,0)' }
           };
@@ -286,9 +286,9 @@ var ThoughtExperiments = (function() {
             var ty = [x0*x0 + 2*x0*(-1.2), x0*x0 + 2*x0*(1.2)];
             return {
               traces: [
-                { x: xs, y: ys, type: 'scatter', mode: 'lines', name: 'f(x)=x²', line: { color: '#5b7b94', width: 2 } },
-                { x: tx, y: ty, type: 'scatter', mode: 'lines', name: '切线', line: { color: '#b55a5a', width: 2, dash: 'dash' } },
-                { x: [x0], y: [x0*x0], type: 'scatter', mode: 'markers', marker: { size: 8, color: '#b55a5a' } }
+                { x: xs, y: ys, type: 'scatter', mode: 'lines', name: 'f(x)=x²', line: { color: '#4a6a8a', width: 2 } },
+                { x: tx, y: ty, type: 'scatter', mode: 'lines', name: '切线', line: { color: '#a45050', width: 2, dash: 'dash' } },
+                { x: [x0], y: [x0*x0], type: 'scatter', mode: 'markers', marker: { size: 8, color: '#a45050' } }
               ],
               layout: { title: 'f(x)=x², 切点 x=' + x0.toFixed(1) + ', 斜率=' + (2*x0).toFixed(1), margin: { t:40,r:20,b:40,l:40 }, paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)' }
             };
@@ -319,8 +319,8 @@ var ThoughtExperiments = (function() {
             }
             return {
               traces: [
-                { x: xs, y: ys, type: 'scatter', mode: 'lines', fill:'tozeroy', fillcolor:'rgba(91,123,148,0.08)', line:{color:'#5b7b94',width:2} },
-                { x: rx, y: ry, type: 'scatter', mode: 'lines', fill:'toself', fillcolor:'rgba(139,115,85,0.25)', line:{color:'#8b7355',width:1} }
+                { x: xs, y: ys, type: 'scatter', mode: 'lines', fill:'tozeroy', fillcolor:'rgba(74,106,138,0.08)', line:{color:'#4a6a8a',width:2} },
+                { x: rx, y: ry, type: 'scatter', mode: 'lines', fill:'toself', fillcolor:'rgba(107,94,74,0.25)', line:{color:'#6b5e4a',width:1} }
               ],
               layout: { title: '∫₀² x² dx ≈ '+area.toFixed(3)+' (精确: '+(8/3).toFixed(3)+')', margin:{t:40,r:20,b:40,l:40}, paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)', showlegend: false }
             };
@@ -343,8 +343,8 @@ var ThoughtExperiments = (function() {
             var line = Array(N).fill(target);
             return {
               traces: [
-                { y: sums, type: 'scatter', mode: 'lines+markers', name: '部分和', line: {color:'#5b7b94',width:2}, marker:{size:4} },
-                { y: line, type: 'scatter', mode: 'lines', name: 'π²/6 ≈ '+target.toFixed(4), line: {color:'#b55a5a',width:1,dash:'dash'} }
+                { y: sums, type: 'scatter', mode: 'lines+markers', name: '部分和', line: {color:'#4a6a8a',width:2}, marker:{size:4} },
+                { y: line, type: 'scatter', mode: 'lines', name: 'π²/6 ≈ '+target.toFixed(4), line: {color:'#a45050',width:1,dash:'dash'} }
               ],
               layout: { title: '前N项和 → π²/6 = '+target.toFixed(4), xaxis:{title:'项数'}, yaxis:{title:'部分和'}, margin:{t:40,r:20,b:40,l:40}, paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)' }
             };
@@ -370,7 +370,7 @@ var ThoughtExperiments = (function() {
               ys.push(4/Math.PI * val);
             }
             return {
-              traces: [{ x: xs, y: ys, type: 'scatter', mode: 'lines', name: 'N='+N, line: {color:'#5b7b94',width:2} }],
+              traces: [{ x: xs, y: ys, type: 'scatter', mode: 'lines', name: 'N='+N, line: {color:'#4a6a8a',width:2} }],
               layout: { title: '方波的傅里叶级数逼近 (N='+N+')', xaxis:{title:'x'}, yaxis:{range:[-1.8,1.8]}, margin:{t:40,r:20,b:40,l:40}, paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)', showlegend:false }
             };
           },
@@ -392,12 +392,12 @@ var ThoughtExperiments = (function() {
             for (var i = 0; i <= 200; i++) { var x = x0-margin+2*margin*i/200; xs.push(x); fxs.push(x===x0 ? null : x+1); }
             return {
               traces: [
-                { x: xs, y: fxs, type: 'scatter', mode: 'lines', name: 'f(x)', line: {color:'#5b7b94',width:2} },
-                { x: [x0], y: [L], type: 'scatter', mode: 'markers', marker: {color:'#b55a5a',size:10,symbol:'x'} },
+                { x: xs, y: fxs, type: 'scatter', mode: 'lines', name: 'f(x)', line: {color:'#4a6a8a',width:2} },
+                { x: [x0], y: [L], type: 'scatter', mode: 'markers', marker: {color:'#a45050',size:10,symbol:'x'} },
                 { x: [x0-margin,x0+margin], y: [L+eps,L+eps], type: 'scatter', mode: 'lines', line: {color:'rgba(74,124,89,0.4)',dash:'dash'} },
                 { x: [x0-margin,x0+margin], y: [L-eps,L-eps], type: 'scatter', mode: 'lines', line: {color:'rgba(74,124,89,0.4)',dash:'dash'} },
-                { x: [x0-delta,x0-delta], y: [L-eps-0.5,L+eps+0.5], type: 'scatter', mode: 'lines', line: {color:'rgba(139,115,85,0.4)',dash:'dot'} },
-                { x: [x0+delta,x0+delta], y: [L-eps-0.5,L+eps+0.5], type: 'scatter', mode: 'lines', line: {color:'rgba(139,115,85,0.4)',dash:'dot'} }
+                { x: [x0-delta,x0-delta], y: [L-eps-0.5,L+eps+0.5], type: 'scatter', mode: 'lines', line: {color:'rgba(107,94,74,0.4)',dash:'dot'} },
+                { x: [x0+delta,x0+delta], y: [L-eps-0.5,L+eps+0.5], type: 'scatter', mode: 'lines', line: {color:'rgba(107,94,74,0.4)',dash:'dot'} }
               ],
               layout: { title: 'ε='+eps.toFixed(2)+' → δ='+delta.toFixed(2), margin:{t:40,r:20,b:40,l:40}, paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)', showlegend: false }
             };
@@ -423,8 +423,8 @@ var ThoughtExperiments = (function() {
             }
             return {
               traces: [
-                { x: xs, y: ys, type: 'scatter', mode: 'lines', fill:'tozeroy', fillcolor:'rgba(91,123,148,0.15)', name: 'N('+mu.toFixed(1)+','+sigma.toFixed(1)+'²)', line:{color:'#5b7b94',width:2} },
-                { x: [mu,mu], y: [0, 1/(sigma*Math.sqrt(2*Math.PI))], type: 'scatter', mode: 'lines+markers', name: 'μ', line:{color:'#b55a5a',width:1,dash:'dash'}, marker:{size:6,color:'#b55a5a'} }
+                { x: xs, y: ys, type: 'scatter', mode: 'lines', fill:'tozeroy', fillcolor:'rgba(74,106,138,0.15)', name: 'N('+mu.toFixed(1)+','+sigma.toFixed(1)+'²)', line:{color:'#4a6a8a',width:2} },
+                { x: [mu,mu], y: [0, 1/(sigma*Math.sqrt(2*Math.PI))], type: 'scatter', mode: 'lines+markers', name: 'μ', line:{color:'#a45050',width:1,dash:'dash'}, marker:{size:6,color:'#a45050'} }
               ],
               layout: { title: '正态分布 N('+mu.toFixed(1)+','+sigma.toFixed(1)+'²)', margin:{t:40,r:20,b:40,l:40}, paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)', showlegend:false }
             };
@@ -452,7 +452,7 @@ var ThoughtExperiments = (function() {
             // Show as bar comparison
             return {
               traces: [
-                { x: ['π (真值)','拉马努金 N='+N], y: [Math.PI, piEst], type: 'bar', marker:{color:['#5b7b94','#b55a5a']}, text: [Math.PI.toFixed(10), piEst.toFixed(10)], textposition:'auto' }
+                { x: ['π (真值)','拉马努金 N='+N], y: [Math.PI, piEst], type: 'bar', marker:{color:['#4a6a8a','#a45050']}, text: [Math.PI.toFixed(10), piEst.toFixed(10)], textposition:'auto' }
               ],
               layout: { title: 'π 近似对比: 误差 = '+Math.abs(Math.PI-piEst).toExponential(3), margin:{t:40,r:20,b:40,l:40}, paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)', showlegend:false }
             };

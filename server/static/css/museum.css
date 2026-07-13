@@ -214,7 +214,7 @@
 }
 @keyframes pulse {
   0%, 100% { box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
-  50% { box-shadow: 0 4px 24px rgba(91,123,148,0.5); }
+  50% { box-shadow: 0 4px 24px rgba(74,106,138,0.5); }
 }
 
 /* ── Chat Popup ── */
