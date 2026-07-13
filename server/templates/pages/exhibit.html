@@ -6,7 +6,7 @@
   <h1>{{ exhibit.icon }} {{ exhibit.zh }}</h1>
   <p class="big-question">❓ {{ exhibit.big_question }}</p>
   <p class="historian-line">关键人物：{{ exhibit.historian }}</p>
-  <p class="beauty-moment">✨ {{ exhibit.beauty }}</p>
+  <p class="beauty-moment">{{ exhibit.beauty }}</p>
 </div>
 
 <!-- Content -->
@@ -15,14 +15,14 @@
 
   <!-- Interactive Visualization Area -->
   <div class="viz-container" id="vizContainer">
-    <h4>🎨 交互探索</h4>
+    <h4>交互探索</h4>
     <div id="vizPlot" style="min-height:400px;"></div>
     <div id="vizControls" style="text-align:center;margin-top:8px;"></div>
   </div>
 
   <!-- Thought Experiments -->
   <div class="te-section" id="thoughtExperiments">
-    <h3 style="margin:32px 0 16px;">🧠 思想实验</h3>
+    <h3 style="margin:32px 0 16px;">思想实验</h3>
     <p style="color:var(--text-secondary);font-size:14px;margin-bottom:16px;">不要急着看答案。先动手探索，自己发现——这才是数学真正的乐趣。</p>
     <div id="teContainer"></div>
   </div>
@@ -30,14 +30,20 @@
 
 <!-- Actions -->
 <div class="exhibit-actions">
-  <a href="/practice/{{ topic_key }}" class="btn btn-primary" style="padding:12px 32px;font-size:15px;">🧪 进入动手实验室</a>
+  <a href="/practice/{{ topic_key }}" class="btn btn-primary" style="padding:12px 32px;font-size:15px;">进入动手实验室</a>
 </div>
+{% endblock %}
 
+{% block scripts %}
+<script src="/static/js/museum_viz.js"></script>
+<script src="/static/js/thought_experiments.js"></script>
 <script>
 (function() {
   var topic = '{{ topic_key }}';
+  if (!window.Plotly) return;
+
   var container = document.getElementById('vizPlot');
-  if (container && window.Plotly) {
+  if (container) {
     if (topic === 'limits') {
       MuseumViz.epsilonDelta(container);
     } else if (topic === 'derivatives') {
@@ -51,16 +57,10 @@
     }
   }
 
-  // Load thought experiments
   var teContainer = document.getElementById('teContainer');
   if (teContainer && window.ThoughtExperiments) {
     ThoughtExperiments.render(topic, teContainer);
   }
 })();
 </script>
-{% endblock %}
-
-{% block scripts %}
-<script src="/static/js/museum_viz.js"></script>
-<script src="/static/js/thought_experiments.js"></script>
 {% endblock %}

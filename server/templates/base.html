@@ -43,14 +43,14 @@
 
   <!-- Top Museum Nav -->
   <nav class="museum-nav" id="museumNav">
-    <a href="/" class="{% if request.url.path == '/' %}active{% endif %}">🏛 大厅</a>
+    <a href="/" class="{% if request.url.path == '/' %}active{% endif %}">大厅</a>
     <span class="nav-sep">|</span>
-    <a href="/gaoshu" class="{% if request.url.path.startswith('/gaoshu') or request.url.path.startswith('/exhibit/') %}active{% endif %}">📐 高等数学</a>
+    <a href="/gaoshu" class="{% if request.url.path.startswith('/gaoshu') or request.url.path.startswith('/exhibit/') %}active{% endif %}">高等数学</a>
     <span class="nav-sep">|</span>
-    <a href="/mathematicians" class="{% if request.url.path.startswith('/mathematicians') %}active{% endif %}">🧑‍🔬 数学家长廊</a>
-    <a href="/workshop" class="{% if request.url.path.startswith('/workshop') %}active{% endif %}">🎨 函数工坊</a>
-    <a href="/practice/limits" class="{% if request.url.path.startswith('/practice') %}active{% endif %}">🧪 实验室</a>
-    <a href="/error-log" class="{% if request.url.path.startswith('/error-log') %}active{% endif %}">📋 错题本</a>
+    <a href="/mathematicians" class="{% if request.url.path.startswith('/mathematicians') %}active{% endif %}">数学家长廊</a>
+    <a href="/workshop" class="{% if request.url.path.startswith('/workshop') %}active{% endif %}">函数工坊</a>
+    <a href="/practice/limits" class="{% if request.url.path.startswith('/practice') %}active{% endif %}">实验室</a>
+    <a href="/error-log" class="{% if request.url.path.startswith('/error-log') %}active{% endif %}">错题本</a>
   </nav>
 
   <!-- Body -->

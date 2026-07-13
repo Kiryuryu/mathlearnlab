@@ -61,7 +61,6 @@ x, n = sp.symbols('x n', real=True)
 print("✅ 环境就绪！")
 ```
 
-
 ---
 ## 1.1 ε-δ 极限定义
 
@@ -82,7 +81,6 @@ print("lim_{x→1} f(x) =", sp.limit(f_expr, x, 1))
 print("说明：虽然 f(1) 无定义，但极限存在且等于 2")
 print("实际上 f(x) = x + 1 (x ≠ 1)，是去掉了一个可去间断点")
 ```
-
 
 ```python
 # === 交互式 ε-δ 可视化 ===
@@ -138,10 +136,7 @@ interact(plot_epsilon_delta,
                             description='ε', continuous_update=False));
 ```
 
-
 **💡 关键观察**：无论你把 ε 调到多小，对应的 δ 都会使函数值落在 ε-带内。这就是极限存在的几何意义。
-
-> 🔑 **考研要点**：ε-δ 定义主要在数学一中考察证明题。数学二/三理解含义即可，重点是用极限运算法则和两个重要极限求极限。
 
 ---
 ## 1.2 左右极限与极限存在性
@@ -165,7 +160,6 @@ print(f"右极限 lim_{x→0⁺} sin(x)/x = {sp.limit(expr1, x, 0, dir='+')}")
 print(f"→ 左右极限相等，所以极限存在且等于 1")
 print(f"→ 且 f(0)=1 = 极限值，所以函数在 x=0 连续 ✓")
 ```
-
 
 ```python
 # === 左右极限可视化：对比左右趋近过程 ===
@@ -233,11 +227,6 @@ def plot_left_right_limits(target=0):
 plot_left_right_limits()
 ```
 
-
-> 🔑 **考研要点**：
-> - 含绝对值的分段函数、含 $[x]$（取整）的函数，务必检查左右极限
-> - $x\to \infty$ 时也要区分 $+\infty$ 和 $-\infty$（如 $\arctan x$）
-
 ---
 ## 1.3 连续与可导的关系
 
@@ -262,7 +251,6 @@ print("→ 但 lim_{x→0} |x| = 0 = f(0)，所以连续 ✓")
 fp = sp.diff(f, x)
 print(f"\nf'(x) = {fp}  (sign 函数在 x=0 无定义)")
 ```
-
 
 ```python
 # === 切线程动画：展示在角点附近切线的行为 ===
@@ -316,11 +304,6 @@ interact(plot_tangent_at_corner,
                        description='|h|', continuous_update=False));
 ```
 
-
-> 🔑 **考研要点**：
-> - 选择题常考「$f(x)$ 在 $x_0$ 可导的充要条件是左右导数存在且相等」
-> - 常见不可导点：角点（|x|）、尖点（$x^{2/3}$ 在 0）、垂直切线（$\sqrt[3]{x}$ 在 0）、间断点
-
 ---
 ## 1.4 微分中值定理
 
@@ -343,7 +326,6 @@ def f_mvt(x):
     """示例函数：多项式，在 [-1, 1.5] 上连续可导"""
     return x**3 - 2*x**2 + 0.5*x + 1.5
 
-
 def find_mvt_point(f, a, b):
     """用 SymPy 数值求解 f'(ξ) = (f(b)-f(a))/(b-a)"""
     x = sp.symbols('x', real=True)
@@ -353,7 +335,6 @@ def find_mvt_point(f, a, b):
     eq = sp.Eq(fp_sym, secant_slope)
     solutions = sp.nsolve(eq, 0.5)  # 数值解
     return float(solutions), float(secant_slope)
-
 
 def plot_lagrange_mvt():
     a, b = -1.0, 1.5
@@ -404,12 +385,6 @@ def plot_lagrange_mvt():
 plot_lagrange_mvt()
 ```
 
-
-> 🔑 **考研要点**：
-> - 中值定理主要用于证明题（存在性证明、不等式证明）
-> - Rolle 定理是证明中值定理相关题目的起点
-> - 辅助函数构造法是关键技巧
-
 ---
 ## 1.5 泰勒展开
 
@@ -437,7 +412,6 @@ for name, f_sym in functions.items():
     print()
 ```
 
-
 ```python
 # === 泰勒逼近动画：逐项加项，看多项式如何逼近原函数 ===
 
@@ -456,7 +430,6 @@ def sin_taylor(x, order):
             coeff = -coeff
         result += coeff * x**n
     return result
-
 
 def plot_taylor_sin(max_order=5):
     """展示不同阶数的泰勒多项式对 sin(x) 的逼近"""
@@ -500,19 +473,16 @@ def plot_taylor_sin(max_order=5):
     plt.tight_layout()
     plt.show()
 
-
 interact(plot_taylor_sin,
          max_order=IntSlider(min=1, max=10, step=1, value=5,
                             description='最高阶数', continuous_update=False));
 ```
-
 
 **💡 关键观察**：
 - 在 $x=0$ 附近，低阶逼近就已经非常精确
 - 远离展开点，需要更多项才能逼近好
 - 高阶项的加入显著扩展了逼近的有效范围
 
-> 🔑 **考研要点**：记住常见函数的 Maclaurin 展开式（$e^x$、$\sin x$、$\cos x$、$\ln(1+x)$、$(1+x)^\alpha$），
 > 它们是求极限和证明题的重要工具。**展开到足够高阶**是解题成功的关键。
 
 ---
@@ -546,7 +516,6 @@ for name, num, den, pt in examples:
     print(f"  一致: {limit_val == lhopital_val}")
     print()
 ```
-
 
 ```python
 # === 可视化：原函数比值 vs 导数比值的趋近过程 ===
@@ -594,13 +563,6 @@ def plot_lhopital_comparison():
 
 plot_lhopital_comparison()
 ```
-
-
-> 🔑 **考研要点**：
-> - 洛必达法则对 $0/0$ 和 $\infty/\infty$ 型有效
-> - $0 \cdot \infty$、$\infty - \infty$、$1^\infty$、$0^0$、$\infty^0$ 型需要先转化为 $0/0$ 或 $\infty/\infty$
-> - **并非所有情况都能用洛必达**（如 $\lim_{x\to\infty}\frac{x+\sin x}{x}$ 用洛必达会陷入循环）
-> - 考研中，**泰勒展开往往比反复使用洛必达更高效**
 
 ---
 ## 📋 本章小结
