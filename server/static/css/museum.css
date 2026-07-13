@@ -571,6 +571,21 @@ p.pointer { color: #fff; font-family: var(--font-mono); }
   color: #fff;
   font-weight: 600;
 }
+/* Auth tab variant */
+.auth-tab-btn {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 14px;
+  border: none;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: all 0.15s;
+  border-bottom: 2px solid transparent;
+}
+.auth-tab-btn:hover { color: var(--accent); }
+.auth-tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
 /* Preset groups */
 .ws-preset-group { margin-bottom: 10px; }
 .ws-preset-btn {

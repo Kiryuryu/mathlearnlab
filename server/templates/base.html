@@ -41,6 +41,7 @@
         <div class="search-results" id="searchResults"></div>
       </div>
       <button class="header-btn" id="themeToggle" title="切换明暗" aria-label="切换深色/浅色模式">◐</button>
+      <button class="header-btn" id="userBtn" onclick="toggleAuthModal()" title="登录" style="font-size:13px;width:auto;padding:4px 10px;">登录</button>
     </div>
   </header>
 
@@ -53,7 +54,6 @@
     <a href="/mathematicians" class="{% if request.url.path.startswith('/mathematicians') %}active{% endif %}">数学家长廊</a>
     <a href="/workshop" class="{% if request.url.path.startswith('/workshop') %}active{% endif %}">函数工坊</a>
     <a href="/practice" class="{% if request.url.path.startswith('/practice') %}active{% endif %}">练习</a>
-    <a href="/error-log" class="{% if request.url.path.startswith('/error-log') %}active{% endif %}">错题本</a>
   </nav>
 
   <!-- Body -->
@@ -109,6 +109,33 @@
       <div class="modal-actions">
         <button class="btn btn-primary" onclick="saveApiKey()">保存</button>
         <button class="btn" onclick="document.getElementById('apiKeyModal').hidden=true;">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Auth Modal -->
+  <div class="modal-overlay" id="authModal" hidden>
+    <div class="modal">
+      <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px;">
+        <button class="auth-tab-btn active" id="authTabLogin" onclick="switchAuthTab('login')">登录</button>
+        <button class="auth-tab-btn" id="authTabRegister" onclick="switchAuthTab('register')">注册</button>
+      </div>
+      <div id="authFormLogin">
+        <input type="text" id="loginUsername" placeholder="用户名" class="input-full">
+        <input type="password" id="loginPassword" placeholder="密码" class="input-full" onkeydown="if(event.key==='Enter')doLogin()">
+        <p id="authMsg" style="font-size:12px;color:var(--accent-error);display:none;margin:4px 0;"></p>
+        <div class="modal-actions">
+          <button class="btn btn-primary" onclick="doLogin()">登录</button>
+        </div>
+      </div>
+      <div id="authFormRegister" style="display:none;">
+        <input type="text" id="regUsername" placeholder="用户名（至少3位）" class="input-full">
+        <input type="email" id="regEmail" placeholder="邮箱（选填）" class="input-full">
+        <input type="password" id="regPassword" placeholder="密码（至少6位）" class="input-full" onkeydown="if(event.key==='Enter')doRegister()">
+        <p id="regMsg" style="font-size:12px;color:var(--accent-error);display:none;margin:4px 0;"></p>
+        <div class="modal-actions">
+          <button class="btn btn-primary" onclick="doRegister()">注册</button>
+        </div>
       </div>
     </div>
   </div>
@@ -172,7 +199,71 @@
     var k = document.getElementById('apiKeyInput').value.trim();
     try { localStorage.setItem('mathlearnlab:apikey', k); } catch(e) {}
     document.getElementById('apiKeyModal').hidden = true;
-    updateApiKeyStatus();
+  updateApiKeyStatus();
+  // Auth
+  var authToken = localStorage.getItem('mathlearnlab:token') || '';
+  var authUser = null;
+  try { authUser = JSON.parse(localStorage.getItem('mathlearnlab:user') || 'null'); } catch(e) {}
+  function updateUserUI() {
+    var btn = document.getElementById('userBtn');
+    if (authUser) {
+      btn.textContent = authUser.username;
+      btn.title = '点击退出登录';
+      btn.onclick = function() { localStorage.removeItem('mathlearnlab:token'); localStorage.removeItem('mathlearnlab:user'); authToken=''; authUser=null; updateUserUI(); };
+    } else {
+      btn.textContent = '登录';
+      btn.title = '登录';
+      btn.onclick = toggleAuthModal;
+    }
+  }
+  function toggleAuthModal() {
+    if (authUser) return;
+    document.getElementById('authModal').hidden = !document.getElementById('authModal').hidden;
+  }
+  function switchAuthTab(tab) {
+    document.getElementById('authTabLogin').classList.toggle('active', tab==='login');
+    document.getElementById('authTabRegister').classList.toggle('active', tab==='register');
+    document.getElementById('authFormLogin').style.display = tab==='login' ? '' : 'none';
+    document.getElementById('authFormRegister').style.display = tab==='register' ? '' : 'none';
+  }
+  async function doLogin() {
+    var u = document.getElementById('loginUsername').value.trim();
+    var p = document.getElementById('loginPassword').value;
+    var msg = document.getElementById('authMsg');
+    if (!u || !p) { msg.textContent = '请填写用户名和密码'; msg.style.display=''; return; }
+    msg.style.display = 'none';
+    try {
+      var r = await fetch('/api/auth/login', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
+      var d = await r.json();
+      if (!r.ok) throw new Error(d.detail||'登录失败');
+      authToken = d.token; authUser = d.user;
+      localStorage.setItem('mathlearnlab:token', authToken);
+      localStorage.setItem('mathlearnlab:user', JSON.stringify(authUser));
+      document.getElementById('authModal').hidden = true;
+      updateUserUI();
+    } catch(e) { msg.textContent = e.message; msg.style.display=''; }
+  }
+  async function doRegister() {
+    var u = document.getElementById('regUsername').value.trim();
+    var e = document.getElementById('regEmail').value.trim();
+    var p = document.getElementById('regPassword').value;
+    var msg = document.getElementById('regMsg');
+    if (!u || !p) { msg.textContent = '请填写用户名和密码'; msg.style.display=''; return; }
+    if (u.length < 3) { msg.textContent = '用户名至少3位'; msg.style.display=''; return; }
+    if (p.length < 6) { msg.textContent = '密码至少6位'; msg.style.display=''; return; }
+    msg.style.display = 'none';
+    try {
+      var r = await fetch('/api/auth/register', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p,email:e})});
+      var d = await r.json();
+      if (!r.ok) throw new Error(d.detail||'注册失败');
+      authToken = d.token; authUser = d.user;
+      localStorage.setItem('mathlearnlab:token', authToken);
+      localStorage.setItem('mathlearnlab:user', JSON.stringify(authUser));
+      document.getElementById('authModal').hidden = true;
+      updateUserUI();
+    } catch(e) { msg.textContent = e.message; msg.style.display=''; }
+  }
+  updateUserUI();
   }
   function updateApiKeyStatus() {
     var k = localStorage.getItem('mathlearnlab:apikey') || '';
