@@ -603,7 +603,7 @@ p.pointer { color: #fff; font-family: var(--font-mono); }
   z-index: 200;
   animation: authSlideIn 0.25s ease;
 }
-.auth-dialog:not([hidden]) { display: flex; }
+.auth-dialog.show { display: flex; }
 .auth-close {
   position: absolute;
   top: 12px;
