@@ -67,7 +67,36 @@ class Settings(BaseSettings):
                           "big_question": "如何在多维世界中理解变化、极值和流动？",
                           "beauty": "梯度下降：沿着最陡峭的方向下山——这个概念今天驱动着所有AI的学习",
                           "notebook": "01-gaoshu/04-multivariable-calculus"},
+        "fractal":       {"zh": "分形 — 无限自相似的宇宙", "icon": "❖",
+                          "historian": "曼德尔布罗特、朱利亚",
+                          "big_question": "有限的面积可以有无限的周长吗？",
+                          "beauty": "Mandelbrot 集：一个最简单的迭代公式 z→z²+c 能生成宇宙中最复杂的图形之一"},
+        "linear-algebra":{"zh": "线性代数 — 空间的变换", "icon": "⊕",
+                          "historian": "凯莱、哈密顿、格拉斯曼",
+                          "big_question": "一个矩阵乘以一个向量，到底在做一件什么事？",
+                          "beauty": "特征向量是矩阵变换下\"方向不变\"的向量——它们揭示了系统的本质"},
     }
+
+    # ── Math Quotes ──
+    quotes: list[str] = [
+        "数学是上帝书写宇宙的语言。 — 伽利略",
+        "数学的本质不在于数字，而在于严密的逻辑推理。 — 魏尔斯特拉斯",
+        "一个好的符号就像一个设备正确的天平——它们替我们思考。 — 莱布尼茨",
+        "如果我看得更远，那是因为我站在巨人的肩膀上。 — 牛顿",
+        "数学是科学的皇后，数论是数学的皇后。 — 高斯",
+        "对自然的深入研究是数学发现最肥沃的土壤。 — 傅里叶",
+        "一个方程对我没有意义，除非它表达的是上帝的思想。 — 拉马努金",
+        "纯数学是逻辑思想的诗集。 — 爱因斯坦",
+        "在数学中，你不理解事物，你只是习惯它们。 — 冯·诺依曼",
+        "数学是唯一的人类活动可以无限延续到未来而不会失去意义的。 — 哈代",
+        "学习的唯一方式是通过发现。 — 费曼",
+        "数学不是关于方程式的，它是关于思想之间的关系的。 — 威廉·瑟斯顿",
+        "问题是数学的心脏。 — 哈尔莫斯",
+        "在数学中，技巧比力量更重要。 — 卡尔达诺",
+        "你必须理解数学。这不是可选的。 — 埃里克·韦恩斯坦",
+        "数学是你在黑暗中摸索时照亮道路的光。 — 纳皮尔",
+        "如果我有一个小时来解决一个问题，我会花 55 分钟思考问题，5 分钟思考解决方案。 — 爱因斯坦",
+    ]
 
     difficulty: dict = {
         "easy":   {"zh": "简单", "stars": "★"},
@@ -154,7 +183,7 @@ class Settings(BaseSettings):
         {
             "section": "序幕",
             "entries": [
-                {"label": "序幕大厅", "route": "/"},
+                {"label": "首页", "route": "/"},
             ],
         },
         {
@@ -180,10 +209,19 @@ class Settings(BaseSettings):
             ],
         },
         {
+            "section": "展区",
+            "entries": [
+                {"label": "数学之美", "route": "/gallery"},
+                {"label": "函数工坊", "route": "/workshop"},
+                {"label": "分形探索", "route": "/fractal"},
+                {"label": "线性代数", "route": "/exhibit/linear-algebra"},
+            ],
+        },
+        {
             "section": "工具",
             "entries": [
-                {"label": "🎨 函数工坊", "route": "/workshop"},
-                {"label": "🧪 动手实验室", "route": "/practice/integrals"},
+                {"label": "练习", "route": "/practice/limits"},
+                {"label": "错题本", "route": "/error-log"},
             ],
         },
     ]

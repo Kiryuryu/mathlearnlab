@@ -129,6 +129,16 @@ async def workshop_page(request: Request):
     return templates.TemplateResponse("pages/workshop.html", _ctx(request))
 
 
+@router.get("/gallery", response_class=HTMLResponse)
+async def gallery_page(request: Request):
+    return templates.TemplateResponse("pages/gallery.html", _ctx(request))
+
+
+@router.get("/fractal", response_class=HTMLResponse)
+async def fractal_page(request: Request):
+    return templates.TemplateResponse("pages/fractal.html", _ctx(request))
+
+
 @router.get("/practice/{topic}", response_class=HTMLResponse)
 async def practice_page(request: Request, topic: str):
     exhibit_info = settings.exhibits.get(topic, {})
