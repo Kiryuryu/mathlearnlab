@@ -66,6 +66,80 @@ class Settings(BaseSettings):
         "hard":   {"zh": "困难", "stars": "★★★"},
     }
 
+    # ── Mathematicians ──
+    mathematicians: dict = {
+        "newton": {
+            "name": "艾萨克·牛顿",
+            "name_en": "Isaac Newton",
+            "years": "1643–1727",
+            "icon": "🍎",
+            "contributions": "微积分、万有引力定律、光学",
+            "story": "1665年，剑桥因瘟疫关闭，23岁的牛顿回到乡下。在18个月里，他发明了微积分（他称之为\"流数法\"）——这可以计算任意瞬间的变化率。他还发现了万有引力定律，并证明白光由多种颜色组成。这18个月被称为科学史上最富有成果的\"奇迹年\"。",
+            "quote": "如果说我看得比别人更远，那是因为我站在巨人的肩膀上。",
+            "exhibits": ["derivatives", "integrals"],
+        },
+        "leibniz": {
+            "name": "戈特弗里德·莱布尼茨",
+            "name_en": "Gottfried Leibniz",
+            "years": "1646–1716",
+            "icon": "∫",
+            "contributions": "微积分符号系统（∫, d/dx）、二进制、哲学",
+            "story": "莱布尼茨独立于牛顿发明了微积分，但他设计的符号系统——∫ 表示积分、d/dx 表示微分——比牛顿的\"流数法\"符号优雅得多，至今仍在被全世界使用。这引发了一场关于\"谁先发明微积分\"的激烈争论，延续了数十年。历史对两个人的贡献都给予了高度认可。",
+            "quote": "∫ 是一个最美的字母，它把无穷细小的部分加总成完整的整体。",
+            "exhibits": ["derivatives", "integrals", "series"],
+        },
+        "euler": {
+            "name": "莱昂哈德·欧拉",
+            "name_en": "Leonhard Euler",
+            "years": "1707–1783",
+            "icon": "✨",
+            "contributions": "e^(iπ)+1=0、图论、流体力学、分析学",
+            "story": "欧拉是历史上最高产的数学家——他发表了超过850篇论文和著作。即使在双目失明的最后17年，他依然以惊人的速度产出数学成果。他发现了最美公式 e^(iπ)+1=0，将五个最重要的数学常数统一在一个方程中。他还解决了著名的巴塞尔问题：1+1/4+1/9+1/16+... = π²/6。",
+            "quote": "数学是真实世界的语言，上帝用它书写了宇宙。",
+            "exhibits": ["series", "integrals", "multivariable"],
+        },
+        "gauss": {
+            "name": "卡尔·弗里德里希·高斯",
+            "name_en": "Carl Friedrich Gauss",
+            "years": "1777–1855",
+            "icon": "🔢",
+            "contributions": "数论、正态分布、最小二乘法、曲面理论",
+            "story": "高斯3岁时就能纠正父亲的算术错误；10岁时，老师让全班算1+2+...+100，他几秒内就发现了配对法(1+100)×50=5050。成年后，他几乎在所有数学分支都做出了深远贡献。他发明的\"最小二乘法\"至今是数据拟合的基石；他的曲面理论为后来的爱因斯坦广义相对论铺平了道路。",
+            "quote": "数学是科学的皇后，数论是数学的皇后。",
+            "exhibits": ["integrals", "multivariable", "series"],
+        },
+        "fourier": {
+            "name": "约瑟夫·傅里叶",
+            "name_en": "Joseph Fourier",
+            "years": "1768–1830",
+            "icon": "🌊",
+            "contributions": "傅里叶级数、傅里叶变换、热传导方程",
+            "story": "傅里叶在研究热传导时提出了一个疯狂的想法：任何周期函数都可以表示成正弦波和余弦波的无穷和。当时绝大多数数学家认为这不可能，但他坚持了自己的发现。今天，傅里叶变换是现代世界最重要的数学工具之一——MP3音频压缩、JPEG图片、5G通信、量子力学都依赖它。",
+            "quote": "对自然的深入研究是数学发现最肥沃的土壤。",
+            "exhibits": ["series", "derivatives"],
+        },
+        "ramanujan": {
+            "name": "斯里尼瓦瑟·拉马努金",
+            "name_en": "Srinivasa Ramanujan",
+            "years": "1887–1920",
+            "icon": "🌸",
+            "contributions": "无穷级数、整数分拆、模形式、π的公式",
+            "story": "拉马努金出身于印度贫困家庭，几乎完全靠自学。他用粉笔在石板上计算，在笔记本上记录了近4000个惊人的公式——没有任何证明，但他声称\"女神在梦中告诉他这些结果\"。1913年他写信给英国数学家哈代，哈代看后大惊失色，说\"这些公式一定是对的，因为没有人能编造出这么复杂的东西\"。他32岁英年早逝，但他的笔记至今仍然在被研究。",
+            "quote": "一个方程对我没有意义，除非它表达的是上帝的思想。",
+            "exhibits": ["series", "integrals"],
+        },
+        "cauchy_weierstrass": {
+            "name": "柯西 & 魏尔斯特拉斯",
+            "name_en": "Cauchy & Weierstrass",
+            "years": "1789–1857 / 1815–1897",
+            "icon": "🔬",
+            "contributions": "ε-δ极限定义、分析严密化、复分析",
+            "story": "牛顿和莱布尼茨发明微积分后，\"无穷小量\"到底是不是零这个问题困扰了数学家们近200年。柯西率先用不等式而非模糊的\"无穷小\"来定义极限。魏尔斯特拉斯进一步完善了这个方法，发明了著名的 ε-δ 定义。从此，微积分终于有了牢不可破的逻辑基础——数学分析诞生了。",
+            "quote": "数学的本质不在于数字，而在于严密的逻辑推理。 — 魏尔斯特拉斯",
+            "exhibits": ["limits"],
+        },
+    }
+
     # ── Navigation tree — Museum floor plan ──
     nav_tree: list[dict] = [
         {
@@ -75,23 +149,31 @@ class Settings(BaseSettings):
             ],
         },
         {
-            "section": "展厅",
+            "section": "高等数学",
             "entries": [
-                {"label": "第一展厅：极限", "route": "/exhibit/limits"},
-                {"label": "第二展厅：导数", "route": "/exhibit/derivatives"},
-                {"label": "第三展厅：积分", "route": "/exhibit/integrals"},
-                {"label": "第四展厅：无穷级数", "route": "/exhibit/series"},
-                {"label": "第五展厅：多元微积分", "route": "/exhibit/multivariable"},
+                {"label": "极限 — 无限逼近", "route": "/exhibit/limits"},
+                {"label": "导数 — 瞬间变化率", "route": "/exhibit/derivatives"},
+                {"label": "积分 — 和的极限", "route": "/exhibit/integrals"},
+                {"label": "无穷级数 — 无限拼图", "route": "/exhibit/series"},
+                {"label": "多元微积分 — 从平面到空间", "route": "/exhibit/multivariable"},
             ],
         },
         {
-            "section": "动手实验室",
+            "section": "数学家长廊",
             "entries": [
-                {"label": "极限与连续", "route": "/practice/limits"},
-                {"label": "微分学", "route": "/practice/derivatives"},
-                {"label": "积分学", "route": "/practice/integrals"},
-                {"label": "无穷级数", "route": "/practice/series"},
-                {"label": "多元微积分", "route": "/practice/multivariable"},
+                {"label": "牛顿 & 莱布尼茨", "route": "/mathematicians/newton"},
+                {"label": "欧拉", "route": "/mathematicians/euler"},
+                {"label": "高斯", "route": "/mathematicians/gauss"},
+                {"label": "傅里叶", "route": "/mathematicians/fourier"},
+                {"label": "柯西 & 魏尔斯特拉斯", "route": "/mathematicians/cauchy_weierstrass"},
+                {"label": "拉马努金", "route": "/mathematicians/ramanujan"},
+            ],
+        },
+        {
+            "section": "工具",
+            "entries": [
+                {"label": "🎨 函數工坊", "route": "/workshop"},
+                {"label": "🧪 动手实验室", "route": "/practice/integrals"},
             ],
         },
     ]

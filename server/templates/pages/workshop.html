@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}函数工坊{% endblock %}
+{% block content %}
+<div style="max-width:1200px;margin:0 auto;padding:32px 20px;">
+  <h1>🎨 函数工坊</h1>
+  <p style="color:var(--text-secondary);">输入函数表达式，AI 帮你生成图像。支持 2D 曲线和 3D 曲面。</p>
+
+  <!-- Mode selector -->
+  <div style="display:flex;gap:8px;margin:16px 0;align-items:center;flex-wrap:wrap;">
+    <button class="btn btn-sm" id="btn2D" onclick="Workshop.setMode('2d')" style="background:var(--accent);color:#fff;">2D 模式</button>
+    <button class="btn btn-sm" id="btn3D" onclick="Workshop.setMode('3d')">3D 模式</button>
+    <button class="btn btn-sm" id="btnAI" onclick="Workshop.setMode('ai')">🤖 AI 增强</button>
+    <span style="font-size:12px;color:var(--text-muted);margin-left:8px;" id="modeHint">2D：输入 y = f(x)，如 sin(x), x^2</span>
+  </div>
+
+  <!-- Input area -->
+  <div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap;">
+    <textarea id="funcInput" placeholder="输入函数，每行一个，例如：
+sin(x)
+x^2
+1/x" rows="3" style="flex:1;min-width:250px;padding:10px;border:1px solid var(--border);border-radius:8px;font-family:var(--font-mono);font-size:14px;resize:vertical;"></textarea>
+    <div id="aiInput" style="display:none;flex:1;min-width:250px;">
+      <textarea id="aiDesc" placeholder="用自然语言描述你想画的图，例如：
+画出函数 f(x) = sin(x) + 1/3 sin(3x) + 1/5 sin(5x) 的图像，x从-2π到2π" rows="3" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:14px;resize:vertical;"></textarea>
+    </div>
+    <button class="btn btn-primary" onclick="Workshop.plot()" style="padding:10px 24px;font-size:15px;">🎨 绘制</button>
+  </div>
+
+  <!-- Presets -->
+  <div style="margin:8px 0;display:flex;gap:8px;flex-wrap:wrap;" id="presets">
+    <button class="btn btn-sm" onclick="Workshop.preset('sin(x)')">sin(x)</button>
+    <button class="btn btn-sm" onclick="Workshop.preset('x^2')">x²</button>
+    <button class="btn btn-sm" onclick="Workshop.preset('1/x')">1/x</button>
+    <button class="btn btn-sm" onclick="Workshop.preset('exp(x)')">eˣ</button>
+    <button class="btn btn-sm" onclick="Workshop.preset('abs(x)')">|x|</button>
+    <button class="btn btn-sm" onclick="Workshop.preset('x*sin(1/x)')">x·sin(1/x)</button>
+    <button class="btn btn-sm" onclick="Workshop.preset('x^3 - 3*x')">x³-3x</button>
+    <button class="btn btn-sm" onclick="Workshop.preset('sin(x)\nx^2\n0.5*x')">多函数对比</button>
+  </div>
+
+  <!-- Plot area -->
+  <div id="plotArea" style="width:100%;min-height:500px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;margin:12px 0;display:flex;align-items:center;justify-content:center;color:var(--text-muted);">
+    <p>输入函数后点击「绘制」</p>
+  </div>
+
+  <!-- Loading indicator -->
+  <div id="plotLoading" style="display:none;text-align:center;padding:12px;color:var(--accent);">
+    <p>⏳ AI 正在生成图像...</p>
+  </div>
+
+  <!-- Explanation (for AI mode) -->
+  <div id="aiExplanation" style="display:none;background:var(--bg-nav);border:1px solid var(--border);border-radius:8px;padding:16px;margin:12px 0;font-size:14px;"></div>
+</div>
+
+<script>
+var Workshop = (function() {
+  var mode = '2d';
+
+  function setMode(m) {
+    mode = m;
+    document.getElementById('btn2D').style.background = m === '2d' ? 'var(--accent)' : '';
+    document.getElementById('btn3D').style.background = m === '3d' ? 'var(--accent)' : '';
+    document.getElementById('btnAI').style.background = m === 'ai' ? 'var(--accent)' : '';
+    document.getElementById('btn2D').style.color = m === '2d' ? '#fff' : '';
+    document.getElementById('btn3D').style.color = m === '3d' ? '#fff' : '';
+    document.getElementById('btnAI').style.color = m === 'ai' ? '#fff' : '';
+    document.getElementById('aiInput').style.display = m === 'ai' ? '' : 'none';
+    document.getElementById('funcInput').style.display = m === 'ai' ? 'none' : '';
+    var hints = {'2d':'2D：输入 y = f(x)，如 sin(x), x^2','3d':'3D：输入 z = f(x,y)，如 x^2 + y^2, sin(sqrt(x^2+y^2))','ai':'AI：用自然语言描述，如 \\"画出傅里叶级数逼近方波\\"'};
+    document.getElementById('modeHint').textContent = hints[m];
+  }
+
+  function preset(func) {
+    document.getElementById('funcInput').value = func;
+    plot();
+  }
+
+  function plot() {
+    var plotArea = document.getElementById('plotArea');
+    var funcText = mode === 'ai' ? document.getElementById('aiDesc').value.trim() : document.getElementById('funcInput').value.trim();
+    if (!funcText) { alert('请输入函数'); return; }
+
+    if (mode === 'ai') {
+      plotAI(funcText);
+    } else if (mode === '2d') {
+      plot2D(funcText);
+    } else {
+      plot3D(funcText);
+    }
+  }
+
+  function plot2D(funcText) {
+    var xRange = [-6, 6];
+    var x = [], traces = [];
+    var N = 500;
+
+    var funcs = funcText.split('\n').filter(function(f) { return f.trim(); });
+    funcs.forEach(function(func, idx) {
+      var xs = [], ys = [];
+      for (var i = 0; i <= N; i++) {
+        var xv = xRange[0] + (xRange[1] - xRange[0]) * i / N;
+        xs.push(xv);
+        try {
+          var yv = evaluate(func, xv);
+          if (isNaN(yv) || !isFinite(yv)) { ys.push(null); }
+          else { ys.push(yv); }
+        } catch(e) { ys.push(null); }
+      }
+      traces.push({ x: xs, y: ys, type: 'scatter', mode: 'lines', name: func.trim(), line: { width: 2 } });
+    });
+    var layout = { title: funcs.join(', '), xaxis: { title: 'x', zeroline: true }, yaxis: { title: 'y', zeroline: true }, paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)', margin: { t: 40, r: 20, b: 40, l: 40 } };
+    Plotly.newPlot(plotArea, traces, layout, { responsive: true });
+  }
+
+  function plot3D(funcText) {
+    var funcs = funcText.split('\n').filter(function(f) { return f.trim(); });
+    var N = 80, xs = [], ys = [];
+    for (var i = 0; i < N; i++) { xs.push(-5 + 10 * i / (N-1)); ys.push(-5 + 10 * i / (N-1)); }
+    var traces = [];
+    funcs.forEach(function(func, idx) {
+      var zs = [];
+      for (var i = 0; i < N; i++) {
+        var row = [];
+        for (var j = 0; j < N; j++) {
+          try { var z = evaluate2(func, xs[i], ys[j]); row.push(isFinite(z) ? z : null); }
+          catch(e) { row.push(null); }
+        }
+        zs.push(row);
+      }
+      traces.push({ x: xs, y: ys, z: zs, type: 'surface', name: func.trim(), colorscale: 'Viridis', showscale: idx === 0 });
+    });
+    var layout = { title: funcs.join(', '), scene: { xaxis: { title: 'x' }, yaxis: { title: 'y' }, zaxis: { title: 'z' } }, paper_bgcolor: 'rgba(0,0,0,0)', margin: { t: 40, r: 20, b: 40, l: 40 } };
+    Plotly.newPlot(plotArea, traces, layout, { responsive: true });
+  }
+
+  async function plotAI(desc) {
+    document.getElementById('plotLoading').style.display = 'block';
+    var plotArea = document.getElementById('plotArea');
+    plotArea.innerHTML = '';
+
+    try {
+      var apiKey = '';
+      try { apiKey = localStorage.getItem('mathlearnlab:apikey') || ''; } catch(e) {}
+      var resp = await fetch('/api/workshop/plot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': apiKey },
+        body: JSON.stringify({ description: desc }),
+      });
+      if (!resp.ok) throw new Error((await resp.json()).detail || 'API error');
+      var data = await resp.json();
+
+      if (data.code) {
+        try {
+          var fn = new Function('Plotly', 'document', 'data', data.code);
+          fn(Plotly, document, null);
+        } catch(e) { plotArea.innerHTML = '<p style="color:red;">执行代码出错: ' + e.message + '</p><pre style="font-size:12px;">' + data.code + '</pre>'; }
+      }
+    } catch(e) { plotArea.innerHTML = '<p style="color:red;">AI 生成失败: ' + e.message + '</p>'; }
+    document.getElementById('plotLoading').style.display = 'none';
+  }
+
+  // Simple expression evaluator
+  function evaluate(expr, x) {
+    expr = expr.replace(/\^/g, '**');
+    // Replace math functions
+    var safe = expr.replace(/sin\(/g,'Math.sin(').replace(/cos\(/g,'Math.cos(').replace(/tan\(/g,'Math.tan(').replace(/exp\(/g,'Math.exp(').replace(/log\(/g,'Math.log(').replace(/sqrt\(/g,'Math.sqrt(').replace(/abs\(/g,'Math.abs(').replace(/pi/gi,'Math.PI').replace(/e(?![xp\(])/gi,'Math.E');
+    return eval(safe);
+  }
+
+  function evaluate2(expr, x, y) {
+    expr = expr.replace(/\^/g, '**');
+    var safe = expr.replace(/sin\(/g,'Math.sin(').replace(/cos\(/g,'Math.cos(').replace(/sqrt\(/g,'Math.sqrt(').replace(/abs\(/g,'Math.abs(').replace(/pi/gi,'Math.PI').replace(/exp\(/g,'Math.exp(');
+    return eval(safe);
+  }
+
+  return { setMode:setMode, preset:preset, plot:plot, mode:mode };
+})();
+</script>
+{% endblock %}

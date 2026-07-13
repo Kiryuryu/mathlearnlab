@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}数学家长廊{% endblock %}
+{% block content %}
+<div style="max-width:1400px;margin:0 auto;padding:32px 20px;">
+  <h1>🧑‍🔬 数学家长廊</h1>
+  <p style="color:var(--text-secondary);">数学不只是公式，更是人的故事。走进这些伟大数学家的世界，理解他们为什么提出那些概念、经历了怎样的挣扎与突破。</p>
+
+  <div class="gallery-grid" style="padding:20px 0;">
+    {% for key, m in settings.mathematicians.items() %}
+    <div class="exhibit-card" data-href="/mathematicians/{{ key }}" style="background:linear-gradient(135deg, #1a1a2e, #2d1b69);min-height:220px;">
+      <span class="exhibit-card-icon" style="font-size:56px;">{{ m.icon }}</span>
+      <div class="exhibit-card-body">
+        <h2 style="font-size:18px;">{{ m.name }}</h2>
+        <p style="font-size:12px;opacity:0.7;">{{ m.years }}</p>
+        <p style="font-size:13px;">{{ m.contributions }}</p>
+        <div class="historian" style="font-size:11px;margin-top:4px;">{{ m.quote[:60] }}...</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
