@@ -111,7 +111,7 @@
   </div>
 
   <!-- Auth Dialog -->
-  <div class="auth-dialog" id="authModal" hidden>
+  <div class="auth-dialog" id="authModal">
     <button class="auth-close" onclick="hideAuthModal()">&times;</button>
     <div class="auth-modal-side">
       <div class="auth-brand">数学博物馆</div>
@@ -222,19 +222,13 @@
   }
   function toggleAuthModal() {
     if (authUser) return;
-    var m = document.getElementById('authModal');
-    m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
-    m.hidden = false;
+    document.getElementById('authModal').classList.toggle('show');
   }
   function showAuthModal() {
-    var m = document.getElementById('authModal');
-    m.style.display = 'flex';
-    m.hidden = false;
+    document.getElementById('authModal').classList.add('show');
   }
   function hideAuthModal() {
-    var m = document.getElementById('authModal');
-    m.style.display = 'none';
-    m.hidden = true;
+    document.getElementById('authModal').classList.remove('show');
   }
   function switchAuthTab(tab) {
     document.getElementById('authTabLogin').classList.toggle('active', tab==='login');
