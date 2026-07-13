@@ -40,7 +40,7 @@
 <script>
 (function initViz() {
   var topic = '{{ topic_key }}';
-  if (!window.Plotly) {
+  if (!window.Plotly || !window.Plotly.newPlot) {
     if (!initViz._retries) initViz._retries = 0;
     initViz._retries++;
     if (initViz._retries > 50) {
@@ -52,19 +52,26 @@
     return;
   }
 
-  var container = document.getElementById('vizPlot');
-  if (container) {
-    if (topic === 'limits') MuseumViz.epsilonDelta(container);
-    else if (topic === 'derivatives') MuseumViz.tangentLine(container);
-    else if (topic === 'integrals') MuseumViz.riemannSum(container);
-    else if (topic === 'series') MuseumViz.fourierSeries(container);
-    else if (topic === 'multivariable') MuseumViz.gradientDescent(container);
+  try {
+    var container = document.getElementById('vizPlot');
+    if (container) {
+      if (topic === 'limits') MuseumViz.epsilonDelta(container);
+      else if (topic === 'derivatives') MuseumViz.tangentLine(container);
+      else if (topic === 'integrals') MuseumViz.riemannSum(container);
+      else if (topic === 'series') MuseumViz.fourierSeries(container);
+      else if (topic === 'multivariable') MuseumViz.gradientDescent(container);
+    }
+  } catch(e) {
+    var el = document.getElementById('vizPlot');
+    if (el) el.innerHTML = '<p style=\"color:var(--accent-error);text-align:center;padding:60px;\">交互图出错: ' + e.message + '</p>';
   }
 
-  var teContainer = document.getElementById('teContainer');
-  if (teContainer && window.ThoughtExperiments) {
-    ThoughtExperiments.render(topic, teContainer);
-  }
+  try {
+    var teContainer = document.getElementById('teContainer');
+    if (teContainer && window.ThoughtExperiments) {
+      ThoughtExperiments.render(topic, teContainer);
+    }
+  } catch(e) {}
 })();
 </script>
 {% endblock %}
