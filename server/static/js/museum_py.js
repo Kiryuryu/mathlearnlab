@@ -103,9 +103,15 @@ var MuseumPy = (function() {
     return final.join('\n');
   }
 
-  // Make all code blocks executable
+  // Make all code blocks executable. First block auto-runs as setup.
   function makeExecutable() {
-    document.querySelectorAll('pre code.language-python').forEach(function(codeBlock) {
+    var blocks = document.querySelectorAll('pre code.language-python');
+    if (!blocks.length) return;
+
+    var firstBlock = blocks[0];
+    var isSetup = /^(import |from |%matplotlib|\s*$|\s*#)/m.test(firstBlock.textContent);
+
+    blocks.forEach(function(codeBlock, idx) {
       var pre = codeBlock.closest('pre');
       if (!pre || pre.dataset.pyodideReady) return;
       pre.dataset.pyodideReady = '1';
@@ -113,6 +119,36 @@ var MuseumPy = (function() {
       var wrapper = document.createElement('div');
       wrapper.style.cssText = 'position:relative;margin:8px 0;';
 
+      var isFirst = (idx === 0 && isSetup);
+
+      if (isFirst) {
+        // Setup block: auto-run, compact indicator
+        var status = document.createElement('span');
+        status.className = 'py-setup-status';
+        status.style.cssText = 'position:absolute;top:6px;right:8px;z-index:5;font-size:10px;color:var(--accent);opacity:0.7;';
+        status.textContent = '⏳';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        wrapper.appendChild(status);
+
+        // Auto-run setup on load
+        (function(block, preEl, stEl) {
+          var check = setInterval(function() {
+            if (window._pyodideReady) {
+              clearInterval(check);
+              runSetup(block, preEl, stEl);
+            }
+          }, 300);
+          // Timeout fallback: load pyodide and run
+          setTimeout(function() {
+            clearInterval(check);
+            if (stEl.textContent === '⏳') runSetup(block, preEl, stEl);
+          }, 2000);
+        })(codeBlock, pre, status);
+        return;
+      }
+
+      // Normal block: Run button
       var btn = document.createElement('button');
       btn.textContent = '▶ 运行';
       btn.className = 'btn btn-sm py-run-btn';
@@ -128,6 +164,68 @@ var MuseumPy = (function() {
       wrapper.appendChild(btn);
       wrapper.appendChild(output);
     });
+
+    // Add "Run All" bar above code blocks if there are multiple
+    if (blocks.length > 1 && isSetup) {
+      var firstWrapper = blocks[0].closest('pre').parentNode;
+      var runAllBar = document.createElement('div');
+      runAllBar.className = 'py-runall-bar';
+      runAllBar.style.cssText = 'display:flex;align-items:center;gap:8px;padding:4px 0;margin-bottom:4px;font-size:12px;';
+      runAllBar.innerHTML = '<span style="color:var(--text-muted);">代码块:</span><button class="btn btn-sm" style="font-size:11px;" id="btnRunAll">▶ 全部运行</button>';
+      firstWrapper.parentNode.insertBefore(runAllBar, firstWrapper);
+
+      document.getElementById('btnRunAll').onclick = function() {
+        var btn = document.getElementById('btnRunAll');
+        btn.textContent = '⏳ 运行中...';
+        btn.disabled = true;
+        runAllBlocks(blocks).then(function() {
+          btn.textContent = '✓ 完成';
+          setTimeout(function() { btn.textContent = '▶ 全部运行'; btn.disabled = false; }, 2000);
+        });
+      };
+    }
+  }
+
+  async function runSetup(codeBlock, pre, statusEl) {
+    var py = await ensurePyodide();
+    if (!py) { statusEl.textContent = '✗ 加载失败'; return; }
+
+    try {
+      py.setStdout({ batched: function(t) {} });
+      py.setStderr({ batched: function(t) {} });
+
+      var code = adaptCode(codeBlock.textContent);
+      // Inject fallbacks before setup
+      try {
+        py.runPython('COLORS = ["#5b7b94","#b55a5a","#8b7355","#4a7c59"]\ndef annotate_point(*a,**k): pass\ndef set_style(): pass\n');
+      } catch(e) {}
+
+      await py.runPythonAsync(code);
+
+      // Try init_printing
+      try { py.runPython('import sympy as sp; sp.init_printing()'); } catch(e) {}
+
+      statusEl.textContent = '✓ Ready';
+      statusEl.style.color = 'var(--accent-correct)';
+      window._pyodideReady = true;
+    } catch(e) {
+      statusEl.textContent = '✗ Error';
+      statusEl.style.color = 'var(--accent-error)';
+      statusEl.title = e.message;
+    }
+  }
+
+  async function runAllBlocks(blocks) {
+    for (var i = 1; i < blocks.length; i++) {
+      var pre = blocks[i].closest('pre');
+      var wrapper = pre.parentNode;
+      var output = wrapper.querySelector('.py-output');
+      if (output) {
+        output.style.display = 'block';
+        output.textContent = '';
+      }
+      await runCode(blocks[i], pre);
+    }
   }
 
   async function runCode(codeBlock, pre) {
