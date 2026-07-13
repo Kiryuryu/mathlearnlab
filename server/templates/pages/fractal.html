@@ -8,11 +8,13 @@
   <div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap;align-items:center;">
     <button class="btn btn-sm" onclick="fractalSet('mandelbrot')" id="btnMandelbrot" style="background:var(--accent);color:#fff;">Mandelbrot 集</button>
     <button class="btn btn-sm" onclick="fractalSet('julia')" id="btnJulia">Julia 集</button>
-    <span style="font-size:12px;color:var(--text-muted);margin-left:8px;">滚轮缩放 | 拖动平移 | 点击设置 Julia 参数</span>
+    <button class="btn btn-sm" onclick="fractalSet('lorenz')" id="btnLorenz">Lorenz 吸引子</button>
+    <span style="font-size:12px;color:var(--text-muted);margin-left:8px;" id="fractalHint">滚轮缩放 | 拖动平移 | 点击设置 Julia 参数</span>
     <button class="btn btn-sm" onclick="fractalReset()" style="margin-left:auto;">重置视图</button>
   </div>
 
-  <canvas id="fractalCanvas" style="width:100%;aspect-ratio:1;max-height:600px;border:1px solid var(--border);border-radius:8px;cursor:crosshair;"></canvas>
+  <canvas id="fractalCanvas" style="width:100%;aspect-ratio:1;max-height:600px;border:1px solid var(--border);border-radius:8px;cursor:crosshair;display:block;"></canvas>
+  <div id="lorenz3D" style="width:100%;height:500px;border:1px solid var(--border);border-radius:8px;display:none;"></div>
 
   <div style="margin-top:12px;font-size:12px;color:var(--text-muted);text-align:center;">
     <span id="fractalInfo">中心: -0.5+0i, 范围: 3.0</span>
@@ -38,7 +40,27 @@ function fractalSet(m) {
   document.getElementById('btnMandelbrot').style.color = m==='mandelbrot' ? '#fff' : '';
   document.getElementById('btnJulia').style.background = m==='julia' ? 'var(--accent)' : '';
   document.getElementById('btnJulia').style.color = m==='julia' ? '#fff' : '';
-  fractalRedraw();
+  document.getElementById('btnLorenz').style.background = m==='lorenz' ? 'var(--accent)' : '';
+  document.getElementById('btnLorenz').style.color = m==='lorenz' ? '#fff' : '';
+
+  var canvas = document.getElementById('fractalCanvas');
+  var lorenz = document.getElementById('lorenz3D');
+  var info = document.getElementById('fractalInfo');
+  var hint = document.getElementById('fractalHint');
+
+  if (m === 'lorenz') {
+    canvas.style.display = 'none';
+    lorenz.style.display = 'block';
+    info.parentElement.style.display = 'none';
+    hint.textContent = '蝴蝶效应：初始条件的微小差异导致轨迹完全分离 | 拖动旋转视角';
+    drawLorenz();
+  } else {
+    canvas.style.display = 'block';
+    lorenz.style.display = 'none';
+    info.parentElement.style.display = '';
+    hint.textContent = '滚轮缩放 | 拖动平移 | 点击设置 Julia 参数';
+    fractalRedraw();
+  }
 }
 
 function fractalReset() {
@@ -131,5 +153,33 @@ canvas.addEventListener('click', function(e) {
 });
 
 fractalRedraw();
+
+// Lorenz attractor
+function drawLorenz() {
+  var sigma = 10, rho = 28, beta = 8/3, dt = 0.003;
+  var x = 0.1, y = 0, z = 0;
+  var xs = [], ys = [], zs = [];
+  var steps = 15000;
+  for (var i = 0; i < steps; i++) {
+    var dx = sigma * (y - x) * dt;
+    var dy = (x * (rho - z) - y) * dt;
+    var dz = (x * y - beta * z) * dt;
+    x += dx; y += dy; z += dz;
+    if (i > 1000) { xs.push(x); ys.push(y); zs.push(z); }
+  }
+
+  var trace = {
+    x: xs, y: ys, z: zs,
+    type: 'scatter3d', mode: 'lines',
+    line: { width: 2, color: xs.map(function(_,i) { return i/xs.length; }), colorscale: 'Viridis' },
+  };
+  var layout = {
+    title: 'Lorenz 吸引子 — 蝴蝶效应的几何形状',
+    scene: { xaxis:{title:'x'}, yaxis:{title:'y'}, zaxis:{title:'z'} },
+    margin: { t:40, r:20, b:40, l:20 },
+    paper_bgcolor: 'rgba(0,0,0,0)',
+  };
+  Plotly.newPlot('lorenz3D', [trace], layout, { responsive: true });
+}
 </script>
 {% endblock %}
