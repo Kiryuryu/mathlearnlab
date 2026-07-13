@@ -1,11 +1,19 @@
 {% extends "base.html" %}
-{% block title %}{{ topic.zh }} — 练习{% endblock %}
+{% block title %}练习{% endblock %}
 {% block content %}
 <div class="practice-page">
   <!-- Header -->
   <div class="practice-header">
-    <a href="/exhibit/{{ topic_key }}" class="practice-back">&larr; {{ topic.zh }}</a>
+    <a href="/gaoshu" class="practice-back">&larr; 微积分的世界</a>
     <h1>练习</h1>
+    <div class="practice-topic-select">
+      <span style="font-size:13px;color:var(--text-muted);">主题：</span>
+      <select id="topicSelect" onchange="PracticeV2.switchTopic(this.value)" style="padding:6px 12px;border:1px solid var(--border);border-radius:6px;font-size:14px;background:var(--bg-card);color:var(--text-primary);">
+        {% for key, e in settings.gaoshu_subtopics %}
+        <option value="{{ key }}" {% if key == topic_key %}selected{% endif %}>{{ e.zh }}</option>
+        {% endfor %}
+      </select>
+    </div>
     <div class="practice-steps" id="practiceSteps">
       <span class="practice-step active" data-phase="select">选题</span>
       <span class="practice-step-arrow">&rarr;</span>
