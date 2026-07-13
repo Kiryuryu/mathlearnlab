@@ -1,12 +1,6 @@
 // Museum global utilities
 var Museum = (function() {
-  function toggleTheme() {
-    var html = document.documentElement;
-    var current = html.getAttribute('data-theme') || 'light';
-    html.setAttribute('data-theme', current === 'light' ? 'dark' : 'light');
-    try { localStorage.setItem('mathlearnlab:theme', current === 'light' ? 'dark' : 'light'); } catch(e) {}
-  }
-
+  // Theme is handled by theme.js exclusively
 
   // Enable exhibit card click navigation
   document.addEventListener('click', function(e) {
@@ -16,5 +10,5 @@ var Museum = (function() {
     }
   });
 
-  return { toggleTheme: toggleTheme };
+  return {};
 })();

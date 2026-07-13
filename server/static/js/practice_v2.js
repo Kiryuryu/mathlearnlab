@@ -95,9 +95,10 @@ var PracticeV2 = (function() {
 
   function renderSolve() {
     if (!currentProblem) return;
-    $id('phaseSelect').style.display = 'none';
-    $id('phaseResults').style.display = 'none';
-    $id('phaseSolve').style.display = 'block';
+    var ps = $id('phaseSelect'); var pr = $id('phaseResults'); var pso = $id('phaseSolve');
+    if (ps) ps.style.display = 'none';
+    if (pr) pr.style.display = 'none';
+    if (pso) pso.style.display = 'block';
     setStep('solve');
 
     var p = currentProblem;
@@ -195,7 +196,7 @@ var PracticeV2 = (function() {
   }
 
   function goToPhase(p) {
-    if (p === 'select') { currentProblem = null; imageBase64 = null; result = null; $id('phaseSelect').style.display = 'block'; $id('phaseSolve').style.display = 'none'; $id('phaseResults').style.display = 'none'; loadProblems(); }
+    if (p === 'select') { currentProblem = null; imageBase64 = null; result = null; var ps=$id('phaseSelect'), pso=$id('phaseSolve'), pr=$id('phaseResults'); if(ps) ps.style.display='block'; if(pso) pso.style.display='none'; if(pr) pr.style.display='none'; loadProblems(); }
     setStep(p);
   }
 

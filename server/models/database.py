@@ -21,6 +21,17 @@ def get_db() -> sqlite3.Connection:
     return conn
 
 
+from contextlib import contextmanager
+
+@contextmanager
+def db_session():
+    conn = get_db()
+    try:
+        yield conn
+    finally:
+        conn.close()
+
+
 def init_db():
     """Create tables if they don't exist."""
     conn = get_db()

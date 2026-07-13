@@ -47,14 +47,17 @@ async def grade_submission(request: Request, user: dict | None = Depends(get_cur
 
     # Save to history if user is logged in
     if user:
-        history_svc.save_grade(
-            user_id=user["user_id"],
-        topic_key=topic_key,
-        problem_id=problem_id,
-        problem_statement=problem.get("problem_statement", ""),
-        solution_steps=problem.get("solution", {}).get("steps", []),
-        final_answer=problem.get("solution", {}).get("final_answer", ""),
-        grading_result=result,
-    )
+        try:
+            history_svc.save_grade(
+                user_id=user["user_id"],
+                topic_key=topic_key,
+                problem_id=problem_id,
+                problem_statement=problem.get("problem_statement", ""),
+                solution_steps=problem.get("solution", {}).get("steps", []),
+                final_answer=problem.get("solution", {}).get("final_answer", ""),
+                grading_result=result,
+            )
+        except Exception:
+            pass  # non-critical; user still gets grading result
 
     return result

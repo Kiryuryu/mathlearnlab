@@ -74,7 +74,8 @@ class Settings(BaseSettings):
         "linear-algebra":{"zh": "线性代数 — 空间的变换", "icon": "⊕",
                           "historian": "凯莱、哈密顿、格拉斯曼",
                           "big_question": "一个矩阵乘以一个向量，到底在做一件什么事？",
-                          "beauty": "特征向量是矩阵变换下\"方向不变\"的向量——它们揭示了系统的本质"},
+                          "beauty": "特征向量是矩阵变换下\"方向不变\"的向量——它们揭示了系统的本质",
+                          "notebook": "02-xiandai/01-linear-algebra"},
     }
 
     # ── Math Quotes ──
