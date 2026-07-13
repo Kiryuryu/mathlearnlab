@@ -121,6 +121,7 @@ function fractalRedraw() {
 }
 
 var canvas = document.getElementById('fractalCanvas');
+if (!canvas) return;
 canvas.addEventListener('wheel', function(e) {
   e.preventDefault();
   var rect = canvas.getBoundingClientRect();
