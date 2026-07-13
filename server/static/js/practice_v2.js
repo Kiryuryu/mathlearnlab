@@ -36,7 +36,7 @@ var PracticeV2 = (function() {
     $id('practiceStatus').textContent = '';
   }
 
-  async function aiGenerate() {
+  async function aiGenerate() { if (window.requireAuth && !window.requireAuth()) return;
     var diff = $id('diffFilter') ? $id('diffFilter').value : 'exam';
     
     $id('practiceStatus').textContent = '正在生成题目...';
@@ -161,7 +161,7 @@ var PracticeV2 = (function() {
 
   function clearImage() { imageBase64 = null; $id('imagePreview').style.display = 'none'; $id('submitBtn').disabled = true; $id('fileInput').value = ''; }
 
-  async function submitGrade() {
+  async function submitGrade() { if (window.requireAuth && !window.requireAuth()) return;
     if (!imageBase64 || !currentProblem) return;
     var btn = $id('submitBtn'); btn.disabled = true; btn.textContent = '批改中...';
     var apiKey = ''; try { apiKey = localStorage.getItem('mathlearnlab:apikey') || ''; } catch(e) {}

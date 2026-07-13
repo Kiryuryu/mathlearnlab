@@ -98,6 +98,7 @@ var MuseumChat = (function() {
   }
 
   async function send() {
+    if (window.requireAuth && !window.requireAuth()) return;
     var input = $('chatPopupInput');
     var text = input.value.trim();
     if (!text || abortController) return;
