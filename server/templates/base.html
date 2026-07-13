@@ -73,9 +73,9 @@
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
           <span style="font-size:11px;color:var(--text-muted);">模型:</span>
           <input type="text" id="chatModelInput" placeholder="模型 ID" style="width:180px;padding:3px 8px;border:1px solid var(--border);border-radius:4px;font-size:11px;background:var(--bg-input);color:var(--text-primary);font-family:var(--font-mono);">
-          <button class="btn btn-sm" onclick="MuseumChat.setModel('claude-haiku-4-5-20251001')" style="font-size:10px;padding:2px 6px;">Haiku</button>
-          <button class="btn btn-sm" onclick="MuseumChat.setModel('claude-sonnet-4-20250514')" style="font-size:10px;padding:2px 6px;">Sonnet</button>
-          <button class="btn btn-sm" onclick="MuseumChat.setModel('claude-opus-4-20250514')" style="font-size:10px;padding:2px 6px;">Opus</button>
+          <button class="btn btn-sm" onclick="MuseumChat.setModel('deepseek-chat')" style="font-size:10px;padding:2px 6px;">V3</button>
+          <button class="btn btn-sm" onclick="MuseumChat.setModel('deepseek-chat')" style="font-size:10px;padding:2px 6px;">Chat</button>
+          <button class="btn btn-sm" onclick="MuseumChat.setModel('deepseek-reasoner')" style="font-size:10px;padding:2px 6px;">R1</button>
         </div>
         <div>
           <button onclick="MuseumChat.newSession()" title="新会话">+</button>
@@ -104,9 +104,9 @@
   <div class="modal-overlay" id="apiKeyModal" hidden>
     <div class="modal">
       <h3>配置 API Key</h3>
-      <p class="modal-hint">使用 AI 功能（聊天、出题、批改、函数生成）需要你自己的 Anthropic API Key。</p>
-      <p class="modal-hint" style="font-size:11px;color:var(--accent-warm);">Key 仅存储在浏览器本地，不会上传到服务器。获取 Key：<a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></p>
-      <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." class="input-full">
+      <p class="modal-hint">使用 AI 功能需要你的 DeepSeek API Key。获取 Key：platform.deepseek.com</p>
+      <p class="modal-hint" style="font-size:11px;color:var(--accent-warm);">Key 仅存储在浏览器本地，不会上传到服务器。获取 Key：<a href="https://platform.deepseek.com" target="_blank">platform.deepseek.com</a></p>
+      <input type="password" id="apiKeyInput" placeholder="sk-..." class="input-full">
       <div class="modal-actions">
         <button class="btn btn-primary" onclick="saveApiKey()">保存</button>
         <button class="btn" onclick="document.getElementById('apiKeyModal').hidden=true;">取消</button>
@@ -135,7 +135,12 @@
         <div id="authFormRegister" style="display:none;">
           <input type="text" id="regUsername" placeholder="用户名（至少3位）" class="auth-input">
           <input type="email" id="regEmail" placeholder="邮箱（选填）" class="auth-input">
-          <input type="password" id="regPassword" placeholder="密码（至少6位）" class="auth-input" onkeydown="if(event.key==='Enter')doRegister()">
+          <input type="password" id="regPassword" placeholder="密码（至少6位）" class="auth-input">
+          <select id="regModel" class="auth-input" style="font-family:var(--font-mono);font-size:13px;">
+            <option value="deepseek-chat">DeepSeek V3</option>
+            <option value="deepseek-reasoner">DeepSeek R1</option>
+          </select>
+          <input type="password" id="regApiKey" placeholder="DeepSeek API Key（sk-...）" class="auth-input" style="font-family:var(--font-mono);font-size:12px;">
           <p id="regMsg" style="font-size:12px;color:var(--accent-error);display:none;margin:0 0 8px;text-align:center;"></p>
           <button class="auth-submit" onclick="doRegister()">注册</button>
         </div>
@@ -251,10 +256,13 @@
     var u = document.getElementById('regUsername').value.trim();
     var e = document.getElementById('regEmail').value.trim();
     var p = document.getElementById('regPassword').value;
+    var m = document.getElementById('regModel').value;
+    var k = document.getElementById('regApiKey').value.trim();
     var msg = document.getElementById('regMsg');
     if (!u || !p) { msg.textContent = '请填写用户名和密码'; msg.style.display=''; return; }
     if (u.length < 3) { msg.textContent = '用户名至少3位'; msg.style.display=''; return; }
     if (p.length < 6) { msg.textContent = '密码至少6位'; msg.style.display=''; return; }
+    if (!k) { msg.textContent = '请输入 DeepSeek API Key'; msg.style.display=''; return; }
     msg.style.display = 'none';
     try {
       var r = await fetch('/api/auth/register', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p,email:e})});
@@ -263,8 +271,12 @@
       authToken = d.token; authUser = d.user;
       localStorage.setItem('mathlearnlab:token', authToken);
       localStorage.setItem('mathlearnlab:user', JSON.stringify(authUser));
+      // Save model and API key
+      localStorage.setItem('museum:model', m);
+      localStorage.setItem('mathlearnlab:apikey', k);
       document.getElementById('authModal').hidden = true;
       updateUserUI();
+      updateApiKeyStatus();
     } catch(e) { msg.textContent = e.message; msg.style.display=''; }
   }
   updateUserUI();
