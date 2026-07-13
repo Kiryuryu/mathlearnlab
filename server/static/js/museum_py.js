@@ -26,70 +26,93 @@ var MuseumPy = (function() {
     }
   }
 
-  // Detects whether a code block requires Jupyter (uses ipywidgets, interact, etc.)
-  function isNotebookOnly(code) {
-    return /ipywidgets|interact\s*\(|FloatSlider|IntSlider|Play\b|jslink|VBox\b|HBox\b|IPython\.display|%matplotlib\s+widget|Output\(|clear_output|FuncAnimation/.test(code);
-  }
+  // Convert Jupyter widget code to plain Python that Pyodide can run.
+  // e.g. interact(func, x=FloatSlider(value=0.5))  →  func(x=0.5)
+  // e.g. interact(plot_3d, angle=Dropdown(value='30', options=['30','60']), ...)
+  //       → plot_3d(angle='30')
+  function adaptCode(code) {
+    var lines = code.split('\n');
+    var result = [];
+    var merged = code; // for multiline interact()
 
-  // Strip notebook-only lines from code
-  function stripNotebookCode(code) {
-    return code.split('\n').filter(function(line) {
+    // Step 1: Convert multiline interact to single line
+    merged = merged.replace(/interact\s*\(\s*([\s\S]*?)\)/g, function(match) {
+      return match.replace(/\n\s+/g, ' ').replace(/\s+/g, ' ');
+    });
+
+    var adapted = merged.split('\n');
+
+    for (var i = 0; i < adapted.length; i++) {
+      var line = adapted[i];
       var trimmed = line.trim();
-      if (!trimmed) return false; // skip empty lines
-      if (/^\s*%matplotlib/.test(line)) return false;
-      if (/from\s+ipywidgets\s+import/.test(line)) return false;
-      if (/from\s+IPython/.test(line)) return false;
-      if (/interact\s*\(/.test(line)) return false;
-      if (/from\s+utils\.plot_config/.test(line)) return false;
-      if (/set_style\s*\(/.test(line)) return false;
-      if (/COLORS\b.*annotate_point/.test(line)) return false;
-      if (/FuncAnimation/.test(line)) return false;
-      if (/from\s+matplotlib\.animation/.test(line)) return false;
-      return true;
-    }).join('\n');
+      if (!trimmed) continue;
+
+      // Skip notebook-only lines
+      if (/^\s*%matplotlib/.test(line)) continue;
+      if (/from\s+ipywidgets\s+import/.test(line)) continue;
+      if (/from\s+IPython/.test(line)) continue;
+      if (/from\s+utils\.plot_config/.test(line)) continue;
+      if (/set_style\s*\(/.test(line)) continue;
+      if (/COLORS\b.*annotate_point/.test(line)) continue;
+      if (/from\s+matplotlib\.animation/.test(line)) continue;
+      if (/FuncAnimation/.test(line)) continue;
+      if (/sys\.path\.insert/.test(line)) continue; // local path
+
+      // Convert interact(func, param=Widget(value=X, ...)) → func(param=X)
+      var interactMatch = trimmed.match(/^interact\s*\(\s*(\w+)\s*,?\s*(.+)\)\s*$/);
+      if (interactMatch) {
+        var funcName = interactMatch[1];
+        var argsStr = interactMatch[2];
+
+        // Extract parameter names and their default values from Widget(value=X)
+        var paramExprs = [];
+        var paramRegex = /(\w+)\s*=\s*(?:FloatSlider|IntSlider|Dropdown|SelectionSlider|ToggleButtons)\s*\([^)]*?value\s*=\s*([^,)\s]+)/g;
+        var pm;
+        while ((pm = paramRegex.exec(argsStr)) !== null) {
+          paramExprs.push(pm[1] + '=' + pm[2]);
+        }
+
+        // Also handle simple parameter=widget pattern without value= keyword
+        if (paramExprs.length === 0) {
+          // Fallback: try to extract just simple keyword=value pairs
+          var simpleRegex = /(\w+)\s*=\s*(?:FloatSlider|IntSlider|Dropdown)[^)]*?value\s*=\s*['"]?([^,'")]+)['"]?/g;
+          while ((pm = simpleRegex.exec(argsStr)) !== null) {
+            paramExprs.push(pm[1] + '=' + pm[2]);
+          }
+        }
+
+        if (paramExprs.length > 0) {
+          result.push(funcName + '(' + paramExprs.join(', ') + ')');
+        } else {
+          // Last resort: try to just call the function without arguments
+          result.push(funcName + '()');
+        }
+        continue;
+      }
+
+      result.push(line);
+    }
+
+    // Deduplicate consecutive empty lines
+    var final = [];
+    for (var i = 0; i < result.length; i++) {
+      if (result[i].trim() === '' && i > 0 && result[i-1].trim() === '') continue;
+      final.push(result[i]);
+    }
+
+    return final.join('\n');
   }
 
-  // Make code blocks executable
+  // Make all code blocks executable
   function makeExecutable() {
-    document.querySelectorAll('pre code.language-python').forEach(function(codeBlock, i) {
+    document.querySelectorAll('pre code.language-python').forEach(function(codeBlock) {
       var pre = codeBlock.closest('pre');
       if (!pre || pre.dataset.pyodideReady) return;
       pre.dataset.pyodideReady = '1';
 
-      var code = codeBlock.textContent;
-      var isNotebook = isNotebookOnly(code);
-
-      // Create wrapper
       var wrapper = document.createElement('div');
       wrapper.style.cssText = 'position:relative;margin:8px 0;';
 
-      // Detect if it's a simple import/setup block (often first cell)
-      var isSetup = /^(import |from |%matplotlib|\s*$|\s*#)/m.test(code) && code.split('\n').filter(function(l){return l.trim();}).length <= 10;
-
-      if (isNotebook) {
-        // Notebook-only block: show info button
-        var btn = document.createElement('button');
-        btn.textContent = '📓 Jupyter 查看';
-        btn.className = 'btn btn-sm py-run-btn py-jupyter-btn';
-        btn.style.cssText = 'position:absolute;top:8px;right:8px;z-index:5;font-size:11px;padding:3px 10px;opacity:0.6;';
-        btn.title = '此代码使用 ipywidgets 交互组件，需要在本地 Jupyter 中运行';
-        btn.onclick = function() {
-          // Show a hint panel
-          var existing = wrapper.querySelector('.py-jupyter-hint');
-          if (existing) { existing.remove(); return; }
-          var hint = document.createElement('div');
-          hint.className = 'py-jupyter-hint';
-          hint.style.cssText = 'background:var(--bg-nav);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-top:4px;font-size:13px;color:var(--text-secondary);line-height:1.7;';
-          hint.innerHTML = '<strong>📓 此代码需要本地 Jupyter 环境</strong><br>它使用了 <code>ipywidgets</code> 交互组件（滑块、下拉菜单等），这些在浏览器中无法运行。<br><br>👉 运行 <code>jupyter lab</code> 启动本地环境，打开对应的 <code>.ipynb</code> 文件即可体验完整交互。';
-          wrapper.appendChild(hint);
-        };
-        pre.parentNode.insertBefore(wrapper, pre);
-        wrapper.appendChild(pre);
-        wrapper.appendChild(btn);
-        return; // Don't add output area for notebook blocks
-      }
-
-      // Executable block
       var btn = document.createElement('button');
       btn.textContent = '▶ 运行';
       btn.className = 'btn btn-sm py-run-btn';
@@ -98,17 +121,12 @@ var MuseumPy = (function() {
 
       var output = document.createElement('div');
       output.className = 'py-output';
-      output.style.cssText = 'background:#1a1a2e;color:#e0e0e0;padding:8px 12px;border-radius:0 0 4px 4px;font-family:monospace;font-size:12px;max-height:300px;overflow-y:auto;display:none;white-space:pre-wrap;';
+      output.style.cssText = 'background:#1a1a2e;color:#e0e0e0;padding:8px 12px;border-radius:0 0 4px 4px;font-family:monospace;font-size:12px;max-height:400px;overflow-y:auto;display:none;white-space:pre-wrap;';
 
       pre.parentNode.insertBefore(wrapper, pre);
       wrapper.appendChild(pre);
       wrapper.appendChild(btn);
       wrapper.appendChild(output);
-
-      // Skip auto-run for setup blocks
-      if (isSetup) {
-        pre.style.cursor = 'default';
-      }
     });
   }
 
@@ -138,27 +156,26 @@ var MuseumPy = (function() {
       py.setStdout({ batched: function(text) { outputLines.push(text); } });
       py.setStderr({ batched: function(text) { outputLines.push('ERR: ' + text); } });
 
-      var code = codeBlock.textContent;
-      code = stripNotebookCode(code);
+      var code = adaptCode(codeBlock.textContent);
 
       if (!code.trim()) {
-        output.textContent = 'ℹ️ 此代码仅包含 Jupyter 特定组件，请在本地 Jupyter 中运行完整笔记本。';
+        output.textContent = '✅ 代码中无可执行内容（仅包含 notebook 配置）';
         btn.textContent = '▶ 运行';
         btn.disabled = false;
         return;
       }
 
-      // Inject fallback for missing utils
+      // Inject fallback for missing local utils
       try {
-        py.runPython('COLORS = ["#5b7b94","#b55a5a","#8b7355","#4a7c59"]\ndef annotate_point(*a,**k): pass\n');
+        py.runPython('# __FALLBACKS__\nCOLORS = ["#5b7b94","#b55a5a","#8b7355","#4a7c59"]\ndef annotate_point(*a,**k): pass\ndef set_style(): pass\n');
       } catch(e) {}
 
       await py.runPythonAsync(code);
 
-      if (outputLines.length > 0) {
-        output.textContent = outputLines.join('');
-      } else {
-        output.textContent = '✅ 执行完毕';
+      // Show printed output
+      var printed = outputLines.join('');
+      if (printed) {
+        output.textContent = printed;
       }
 
       // Render matplotlib figure
@@ -182,11 +199,17 @@ buf.getvalue().decode('utf-8')
         }
       } catch(e) {}
 
-    } catch(e) {
-      output.textContent = '错误: ' + e.message;
-      if (e.message.indexOf('interact') > -1) {
-        output.textContent += '\n\n💡 此代码需要在本地 Jupyter 中运行。运行 jupyter lab 打开对应的 .ipynb 文件。';
+      // Show done message if nothing else was output
+      if (!printed && output.children.length === 0) {
+        output.textContent = '✅ 执行完毕';
       }
+
+    } catch(e) {
+      var msg = '错误: ' + e.message;
+      if (e.message.indexOf('interact') > -1 || e.message.indexOf('FloatSlider') > -1) {
+        msg += '\n\n💡 交互式组件无法在浏览器中运行。页面上的交互可视化图已可用。';
+      }
+      output.textContent = msg;
     }
 
     btn.textContent = '▶ 运行';
