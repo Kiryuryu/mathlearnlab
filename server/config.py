@@ -33,7 +33,7 @@ class Settings(BaseSettings):
 
     # ── Museum Exhibits ──
     exhibits: dict = {
-        "gaoshu":        {"zh": "高等数学 — 微积分的世界", "icon": "📐",
+        "gaoshu":        {"zh": "微积分的世界", "icon": "📐",
                           "historian": "牛顿、莱布尼茨、柯西、欧拉…",
                           "big_question": "变化、累积、无穷——微积分如何改变了人类理解世界的方式？",
                           "beauty": "微积分是人类思想史上最伟大的成就之一。从芝诺的飞矢不动悖论，到牛顿和莱布尼茨的激烈争论，到柯西用ε-δ语言为它打下坚实根基——这是一个跨越两千年的故事。"},
@@ -158,9 +158,9 @@ class Settings(BaseSettings):
             ],
         },
         {
-            "section": "高等数学",
+            "section": "微积分",
             "entries": [
-                {"label": "📐 高等数学", "route": "/gaoshu"},
+                {"label": "微积分的世界", "route": "/gaoshu"},
                 {"label": "极限 — 无限逼近", "route": "/exhibit/limits"},
                 {"label": "导数 — 瞬间变化率", "route": "/exhibit/derivatives"},
                 {"label": "积分 — 和的极限", "route": "/exhibit/integrals"},
