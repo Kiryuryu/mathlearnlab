@@ -61,7 +61,7 @@ PracticeV2.init('{{ topic_key }}');
 document.addEventListener('DOMContentLoaded', function() { PracticeV2.loadProblems(); });
 
 // Filter chips
-document.querySelector('.practice-filter').addEventListener('click', function(e) {
+var pf = document.querySelector('.practice-filter'); if (pf) pf.addEventListener('click', function(e) {
   var chip = e.target.closest('.filter-chip');
   if (!chip) return;
   document.querySelectorAll('.filter-chip').forEach(function(c) { c.classList.remove('active'); });

@@ -3,24 +3,16 @@ Chat API — SSE streaming chat with Claude.
 API key now comes from backend config, not user header.
 """
 
-from fastapi import APIRouter, Request, HTTPException, Depends
+from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import StreamingResponse
-from server.routers.auth import require_user
 from server.services import chat_service
 
 router = APIRouter()
 
 
 @router.post("/api/chat/stream")
-async def chat_stream(request: Request, user: dict = Depends(require_user)):
-    """Stream a chat conversation with Claude via SSE.
-
-    Request body (JSON):
-        messages: list[{"role": "user"|"assistant", "content": "..."}]
-        system: str (optional system prompt)
-        model: str (optional model override)
-        context_route: str (current page route for context awareness)
-    """
+async def chat_stream(request: Request):
+    """Stream a chat conversation with Claude via SSE."""
     try:
         body = await request.json()
     except Exception:

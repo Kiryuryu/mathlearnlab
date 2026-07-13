@@ -38,6 +38,7 @@ var MuseumViz = (function() {
     }
 
     var controls = document.getElementById('vizControls');
+    if (!controls) return;
     controls.innerHTML = '<label>拖动 ε: <span id="epsVal">' + MuseumViz._epsVal.toFixed(2) + '</span></label><br>' +
       '<input type="range" id="epsSlider" min="0.05" max="1.5" step="0.05" value="' + MuseumViz._epsVal + '" style="width:260px;">';
     document.getElementById('epsSlider').oninput = function() {
@@ -78,6 +79,7 @@ var MuseumViz = (function() {
     }
 
     var controls = document.getElementById('vizControls');
+    if (!controls) return;
     controls.innerHTML = '<label>切点 x = <span id="tanVal">0.0</span></label><br>' +
       '<input type="range" id="tanSlider" min="-2.5" max="2.5" step="0.1" value="0" style="width:260px;">';
     var slider = document.getElementById('tanSlider');
@@ -134,6 +136,7 @@ var MuseumViz = (function() {
     }
 
     var controls = document.getElementById('vizControls');
+    if (!controls) return;
     controls.innerHTML = '<label>矩形数 n = <span id="nVal">10</span></label><br>' +
       '<input type="range" id="nSlider" min="2" max="100" step="1" value="10" style="width:260px;">';
     document.getElementById('nSlider').oninput = function() {
@@ -170,6 +173,7 @@ var MuseumViz = (function() {
     }
 
     var controls = document.getElementById('vizControls');
+    if (!controls) return;
     controls.innerHTML = '<label>谐波数 N = <span id="nFourier">3</span></label><br>' +
       '<input type="range" id="fourierSlider" min="1" max="20" step="1" value="3" style="width:260px;">';
     document.getElementById('fourierSlider').oninput = function() {
