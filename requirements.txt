@@ -38,3 +38,4 @@ nbformat>=5.9
 
 # ── Animation support ──
 ipython>=8.20
+pymysql
