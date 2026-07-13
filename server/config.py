@@ -33,27 +33,36 @@ class Settings(BaseSettings):
 
     # ── Museum Exhibits ──
     exhibits: dict = {
+        "gaoshu":        {"zh": "高等数学 — 微积分的世界", "icon": "📐",
+                          "historian": "牛顿、莱布尼茨、柯西、欧拉…",
+                          "big_question": "变化、累积、无穷——微积分如何改变了人类理解世界的方式？",
+                          "beauty": "微积分是人类思想史上最伟大的成就之一。从芝诺的飞矢不动悖论，到牛顿和莱布尼茨的激烈争论，到柯西用ε-δ语言为它打下坚实根基——这是一个跨越两千年的故事。"},
         "limits":        {"zh": "极限 — 无限逼近的艺术", "icon": "∞", "json": "limits.json",
+                          "parent": "gaoshu", "order": 1,
                           "historian": "柯西、魏尔斯特拉斯",
                           "big_question": "如何用数学语言精确描述'无限接近'？",
                           "beauty": "ε-δ 定义用有限的符号捕捉了无穷的直觉",
                           "notebook": "01-gaoshu/01-limits-continuity-differentiation"},
         "derivatives":   {"zh": "导数 — 瞬间的变化率",   "icon": "∆", "json": "derivatives.json",
+                          "parent": "gaoshu", "order": 2,
                           "historian": "费马、牛顿、莱布尼茨",
                           "big_question": "如何在某一瞬间测量变化？",
                           "beauty": "泰勒展开：任何光滑函数都可以用多项式逼近",
                           "notebook": "01-gaoshu/01-limits-continuity-differentiation"},
         "integrals":     {"zh": "积分 — 和的极限",       "icon": "∫", "json": "integrals.json",
+                          "parent": "gaoshu", "order": 3,
                           "historian": "阿基米德、黎曼、勒贝格",
                           "big_question": "如何求一个曲线下方不规则图形的面积？",
                           "beauty": "微积分基本定理：微分和积分是互逆运算——这是数学史上最伟大的发现之一",
                           "notebook": "01-gaoshu/02-integration"},
         "series":        {"zh": "无穷级数 — 无限的拼图",  "icon": "∑", "json": "series.json",
+                          "parent": "gaoshu", "order": 4,
                           "historian": "欧拉、傅里叶",
                           "big_question": "无穷多个数加起来可以是有限的吗？",
                           "beauty": "巴塞尔问题：1+1/4+1/9+1/16+... = π²/6 —— 自然数的倒数平方和竟然与圆周率有关",
                           "notebook": "01-gaoshu/03-infinite-series"},
         "multivariable": {"zh": "多元微积分 — 从平面到空间","icon": "∂", "json": "multivariable.json",
+                          "parent": "gaoshu", "order": 5,
                           "historian": "拉格朗日、高斯、格林",
                           "big_question": "如何在多维世界中理解变化、极值和流动？",
                           "beauty": "梯度下降：沿着最陡峭的方向下山——这个概念今天驱动着所有AI的学习",
@@ -151,6 +160,7 @@ class Settings(BaseSettings):
         {
             "section": "高等数学",
             "entries": [
+                {"label": "📐 高等数学", "route": "/gaoshu"},
                 {"label": "极限 — 无限逼近", "route": "/exhibit/limits"},
                 {"label": "导数 — 瞬间变化率", "route": "/exhibit/derivatives"},
                 {"label": "积分 — 和的极限", "route": "/exhibit/integrals"},
@@ -172,7 +182,7 @@ class Settings(BaseSettings):
         {
             "section": "工具",
             "entries": [
-                {"label": "🎨 函數工坊", "route": "/workshop"},
+                {"label": "🎨 函数工坊", "route": "/workshop"},
                 {"label": "🧪 动手实验室", "route": "/practice/integrals"},
             ],
         },
@@ -186,6 +196,10 @@ def get_settings_dict() -> dict:
     """Return settings as plain dict for Jinja2 template context.
     Must convert nested dicts and non-serializable values to plain types."""
     s = settings
+    gaoshu_subtopics = sorted(
+        [(k, v) for k, v in s.exhibits.items() if k != "gaoshu"],
+        key=lambda kv: kv[1].get("order", 99)
+    )
     return {
         "app_name": s.app_name,
         "app_subtitle": s.app_subtitle,
@@ -197,6 +211,7 @@ def get_settings_dict() -> dict:
         "exhibits": s.exhibits,
         "difficulty": s.difficulty,
         "nav_tree": s.nav_tree,
+        "gaoshu_subtopics": gaoshu_subtopics,
     }
 
 

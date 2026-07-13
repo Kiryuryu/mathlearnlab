@@ -44,14 +44,11 @@
   <nav class="museum-nav" id="museumNav">
     <a href="/" class="{% if request.url.path == '/' %}active{% endif %}">🏛 大厅</a>
     <span class="nav-sep">|</span>
-    {% for key, e in settings.exhibits.items() %}
-    <a href="/exhibit/{{ key }}" class="{% if request.url.path.startswith('/exhibit/' + key) %}active{% endif %}">{{ e.icon }} {{ e.zh.split('—')[0].strip() if e.zh else key }}</a>
-    {% endfor %}
+    <a href="/gaoshu" class="{% if request.url.path.startswith('/gaoshu') %}active{% endif %}">📐 高等数学</a>
     <span class="nav-sep">|</span>
-    <a href="/mathematicians">🧑‍🔬 数学家长廊</a>
-    <a href="/workshop">🎨 函数工坊</a>
-    <a href="/practice/integrals">🧪 实验室</a>
-    <a href="/error-log">📋 错题本</a>
+    <a href="/mathematicians" class="{% if request.url.path.startswith('/mathematicians') %}active{% endif %}">🧑‍🔬 数学家长廊</a>
+    <a href="/workshop" class="{% if request.url.path.startswith('/workshop') %}active{% endif %}">🎨 函数工坊</a>
+    <a href="/practice/integrals" class="{% if request.url.path.startswith('/practice') %}active{% endif %}">🧪 实验室</a>
   </nav>
 
   <!-- Body -->

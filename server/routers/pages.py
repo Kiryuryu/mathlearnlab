@@ -41,6 +41,15 @@ async def home(request: Request):
     return templates.TemplateResponse("pages/home.html", _ctx(request))
 
 
+@router.get("/gaoshu", response_class=HTMLResponse)
+async def gaoshu_page(request: Request):
+    gaoshu_subtopics = sorted(
+        [(k, v) for k, v in settings.exhibits.items() if k != "gaoshu"],
+        key=lambda kv: kv[1].get("order", 99)
+    )
+    return templates.TemplateResponse("pages/gaoshu.html", _ctx(request, gaoshu_subtopics=gaoshu_subtopics))
+
+
 @router.get("/notebooks/{chapter}/{filename}", response_class=HTMLResponse)
 async def notebook_page(request: Request, chapter: str, filename: str):
     filepath = f"notebooks/{chapter}/{filename}.md"

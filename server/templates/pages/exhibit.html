@@ -19,6 +19,13 @@
     <div id="vizPlot" style="min-height:400px;"></div>
     <div id="vizControls" style="text-align:center;margin-top:8px;"></div>
   </div>
+
+  <!-- Thought Experiments -->
+  <div class="te-section" id="thoughtExperiments">
+    <h3 style="margin:32px 0 16px;">🧠 思想实验</h3>
+    <p style="color:var(--text-secondary);font-size:14px;margin-bottom:16px;">不要急着看答案。先动手探索，自己发现——这才是数学真正的乐趣。</p>
+    <div id="teContainer"></div>
+  </div>
 </div>
 
 <!-- Actions -->
@@ -27,22 +34,27 @@
 </div>
 
 <script>
-// Auto-detect which visualization to load
 (function() {
   var topic = '{{ topic_key }}';
   var container = document.getElementById('vizPlot');
-  if (!container || !window.Plotly) return;
+  if (container && window.Plotly) {
+    if (topic === 'limits') {
+      MuseumViz.epsilonDelta(container);
+    } else if (topic === 'derivatives') {
+      MuseumViz.tangentLine(container);
+    } else if (topic === 'integrals') {
+      MuseumViz.riemannSum(container);
+    } else if (topic === 'series') {
+      MuseumViz.fourierSeries(container);
+    } else if (topic === 'multivariable') {
+      MuseumViz.gradientDescent(container);
+    }
+  }
 
-  if (topic === 'limits') {
-    MuseumViz.epsilonDelta(container);
-  } else if (topic === 'derivatives') {
-    MuseumViz.tangentLine(container);
-  } else if (topic === 'integrals') {
-    MuseumViz.riemannSum(container);
-  } else if (topic === 'series') {
-    MuseumViz.fourierSeries(container);
-  } else if (topic === 'multivariable') {
-    MuseumViz.gradientDescent(container);
+  // Load thought experiments
+  var teContainer = document.getElementById('teContainer');
+  if (teContainer && window.ThoughtExperiments) {
+    ThoughtExperiments.render(topic, teContainer);
   }
 })();
 </script>
@@ -50,4 +62,5 @@
 
 {% block scripts %}
 <script src="/static/js/museum_viz.js"></script>
+<script src="/static/js/thought_experiments.js"></script>
 {% endblock %}
