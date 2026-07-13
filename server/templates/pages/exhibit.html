@@ -38,23 +38,20 @@
 <script src="/static/js/museum_viz.js"></script>
 <script src="/static/js/thought_experiments.js"></script>
 <script>
-(function() {
+(function initViz() {
   var topic = '{{ topic_key }}';
-  if (!window.Plotly) return;
+  if (!window.Plotly) {
+    setTimeout(initViz, 200);
+    return;
+  }
 
   var container = document.getElementById('vizPlot');
   if (container) {
-    if (topic === 'limits') {
-      MuseumViz.epsilonDelta(container);
-    } else if (topic === 'derivatives') {
-      MuseumViz.tangentLine(container);
-    } else if (topic === 'integrals') {
-      MuseumViz.riemannSum(container);
-    } else if (topic === 'series') {
-      MuseumViz.fourierSeries(container);
-    } else if (topic === 'multivariable') {
-      MuseumViz.gradientDescent(container);
-    }
+    if (topic === 'limits') MuseumViz.epsilonDelta(container);
+    else if (topic === 'derivatives') MuseumViz.tangentLine(container);
+    else if (topic === 'integrals') MuseumViz.riemannSum(container);
+    else if (topic === 'series') MuseumViz.fourierSeries(container);
+    else if (topic === 'multivariable') MuseumViz.gradientDescent(container);
   }
 
   var teContainer = document.getElementById('teContainer');
