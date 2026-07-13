@@ -29,7 +29,7 @@ async def _read_md(filepath: str) -> str:
     try:
         import markdown as md
         html = md.markdown(md_text, extensions=["fenced_code", "tables", "codehilite", "nl2br"])
-        # Convert ```python fences to <code class="language-python"> for pyodide
+        # Add language-python class for pyodide detection
         html = html.replace('<code>', '<code class="language-python">')
     except ImportError:
         html = f"<pre>{md_text}</pre>"
