@@ -291,12 +291,6 @@
   }
   window.requireAuth = requireAuth;
   window.getAuthToken = function() { return authToken; };
-  </script>
-    var k = localStorage.getItem('mathlearnlab:apikey') || '';
-    var dot = document.getElementById('apiKeyStatus');
-    dot.style.background = k ? 'var(--accent-correct)' : 'var(--accent-error)';
-    document.getElementById('apiKeyBtn').title = k ? '已配置 Key' : '未配置 Key，点击设置';
-  }
   updateApiKeyStatus();
   </script>
 
