@@ -59,7 +59,8 @@ function fractalSet(m) {
     lorenz.style.display = 'none';
     info.parentElement.style.display = '';
     hint.textContent = '滚轮缩放 | 拖动平移 | 点击设置 Julia 参数';
-    fractalRedraw();
+    if (m === 'julia') { cx = 0; cy = 0; range = 3; }
+    requestAnimationFrame(function(){ fractalRedraw(); });
   }
 }
 
@@ -71,7 +72,8 @@ function fractalReset() {
 function fractalRedraw() {
   maxIter = parseInt(document.getElementById('maxIter').value) || 100;
   var canvas = document.getElementById('fractalCanvas');
-  var w = canvas.clientWidth;
+  var rect = canvas.getBoundingClientRect();
+  var w = Math.floor(rect.width);
   var h = Math.min(w, 600);
   canvas.width = w; canvas.height = h;
 
@@ -121,27 +123,28 @@ function fractalRedraw() {
 }
 
 var canvas = document.getElementById('fractalCanvas');
-if (!canvas) { console.warn('fractal canvas missing'); } else {
+if (canvas) {
 var wheelTimer = null;
 canvas.addEventListener('wheel', function(e) {
   e.preventDefault();
   var rect = canvas.getBoundingClientRect();
-  var mx = cx + ((e.clientX - rect.left) / canvas.clientWidth - 0.5) * range * canvas.clientWidth / canvas.clientHeight;
-  var my = cy + ((e.clientY - rect.top) / canvas.clientHeight - 0.5) * range;
+  var mx = cx + ((e.clientX - rect.left) / rect.width - 0.5) * range * rect.width / rect.height;
+  var my = cy + ((e.clientY - rect.top) / rect.height - 0.5) * range;
   var zoom = e.deltaY > 0 ? 1.5 : 1/1.5;
   range *= zoom;
   cx = mx + (cx - mx) * zoom;
   cy = my + (cy - my) * zoom;
   clearTimeout(wheelTimer);
   wheelTimer = setTimeout(function(){ fractalRedraw(); }, 60);
-});
+}, {passive: false});
 
 var dragging = false, dragX, dragY, needsRedraw = false;
 canvas.addEventListener('mousedown', function(e) { dragging = true; dragX = e.clientX; dragY = e.clientY; });
 canvas.addEventListener('mousemove', function(e) {
   if (!dragging) return;
-  var dx = (e.clientX - dragX) / canvas.clientWidth * range * canvas.clientWidth / canvas.clientHeight;
-  var dy = (e.clientY - dragY) / canvas.clientHeight * range;
+  var rect = canvas.getBoundingClientRect();
+  var dx = (e.clientX - dragX) / rect.width * range * rect.width / rect.height;
+  var dy = (e.clientY - dragY) / rect.height * range;
   cx -= dx; cy -= dy;
   dragX = e.clientX; dragY = e.clientY;
   if (!needsRedraw) { needsRedraw = true; requestAnimationFrame(function(){ fractalRedraw(); needsRedraw = false; }); }
@@ -150,8 +153,8 @@ canvas.addEventListener('mouseup', function() { dragging = false; });
 canvas.addEventListener('click', function(e) {
   if (Math.abs(e.clientX - dragX) > 2 || Math.abs(e.clientY - dragY) > 2) return;
   var rect = canvas.getBoundingClientRect();
-  juliaCx = cx + ((e.clientX - rect.left) / canvas.clientWidth - 0.5) * range * canvas.clientWidth / canvas.clientHeight;
-  juliaCy = cy + ((e.clientY - rect.top) / canvas.clientHeight - 0.5) * range;
+  juliaCx = cx + ((e.clientX - rect.left) / rect.width - 0.5) * range * canvas.clientWidth / rect.height;
+  juliaCy = cy + ((e.clientY - rect.top) / rect.height - 0.5) * range;
   if (mode === 'julia') fractalRedraw();
 });
 
@@ -184,6 +187,6 @@ function drawLorenz() {
   };
   Plotly.newPlot('lorenz3D', [trace], layout, { responsive: true });
 }
-} // close else block from canvas guard
+} // close if(canvas) block
 </script>
 {% endblock %}
