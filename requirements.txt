@@ -40,3 +40,4 @@ nbformat>=5.9
 ipython>=8.20
 pymysql
 openai
+markdown>=3.4
