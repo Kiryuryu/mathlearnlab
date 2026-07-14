@@ -3,7 +3,7 @@ Grade history service — save and query grading results (SQLite-backed, per-use
 """
 
 import json
-from server.models.database import get_db
+from server.models.database import get_db, db_session
 
 
 def save_grade(user_id: str, topic_key: str, problem_id: str,

@@ -4,7 +4,7 @@ Auth API — registration, login, user info.
 
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from server.models.database import get_db, db_session, init_db
+from server.models.database import get_db, db_session
 from server.models.auth import (
     hash_password,
     verify_password,

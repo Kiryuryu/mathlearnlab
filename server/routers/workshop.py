@@ -3,7 +3,7 @@ Workshop API — AI-assisted function plotting via DeepSeek.
 """
 import asyncio
 from fastapi import APIRouter, Request, HTTPException
-import json, re
+import re
 from server.config import settings
 
 router = APIRouter()

@@ -149,15 +149,17 @@ var MuseumChat = (function() {
           if (!line.startsWith('data: ')) continue;
           var data = line.slice(6);
           if (data === '[DONE]') { abortController = null; break; }
+          // Try JSON (for errors), otherwise raw text
           try {
             var parsed = JSON.parse(data);
             if (parsed.error) throw new Error(parsed.error);
-            if (parsed.type === 'content_block_delta') {
-              fullText += parsed.delta.text || '';
-              streamDiv.textContent = fullText;
-              container.scrollTop = container.scrollHeight;
-            }
-          } catch(e) {}
+          } catch(e) {
+            if (e.message !== 'Unexpected token' && e.message.indexOf('JSON') === -1) throw e;
+            // Raw text chunk
+            fullText += data;
+            streamDiv.textContent = fullText;
+            container.scrollTop = container.scrollHeight;
+          }
         }
       }
       messages.push({ role: 'assistant', content: fullText });
