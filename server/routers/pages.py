@@ -100,7 +100,7 @@ async def exhibit_page(request: Request, topic: str, tab: str = "concept"):
     # Load tabbed content
     tab_content = {}
     tab_dir = CONTENT_DIR / "exhibits" / topic
-    for tab_name in ["applications", "history", "beauty", "explore"]:
+    for tab_name in ["applications", "history", "beauty", "explore", "method"]:
         tab_file = tab_dir / f"{tab_name}.md"
         if tab_file.exists():
             tab_content[tab_name] = await _read_md(str(tab_file.relative_to(CONTENT_DIR)))
