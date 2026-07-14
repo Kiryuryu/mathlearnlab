@@ -114,7 +114,6 @@
 
   <!-- Login Dialog -->
   <div id="loginBox" class="login-box">
-    <div class="login-close" onclick="hideAuthModal()">×</div>
     <div class="login-left">
       <div class="login-logo">数学博物馆</div>
       <div class="login-sub">记录学习轨迹<br>解锁完整功能</div>
@@ -215,17 +214,13 @@
     var btn = document.getElementById('userBtn');
     if (authUser) {
       btn.textContent = authUser.username;
-      btn.title = '点击退出登录';
-      btn.onclick = function() { localStorage.removeItem('mathlearnlab:token'); localStorage.removeItem('mathlearnlab:user'); authToken=''; authUser=null; updateUserUI(); };
+      btn.title = '退出登录';
+      btn.onclick = function() { localStorage.removeItem('mathlearnlab:token'); localStorage.removeItem('mathlearnlab:user'); authToken=''; authUser=null; updateUserUI(); showAuthModal(); };
     } else {
       btn.textContent = '登录';
       btn.title = '登录';
-      btn.onclick = toggleAuthModal;
+      btn.onclick = function(){}; // dialog already shown, button does nothing
     }
-  }
-  function toggleAuthModal() {
-    if (authUser) return;
-    document.getElementById('loginBox').classList.toggle('show');
   }
   function showAuthModal() {
     document.getElementById('loginBox').classList.add('show');
