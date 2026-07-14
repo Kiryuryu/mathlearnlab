@@ -132,7 +132,7 @@
         <button class="login-btn" onclick="doLogin()">登录</button>
         <p style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:10px;">没有账号？<a href="javascript:switchAuthTab('register')" style="color:var(--accent);">点这里注册</a></p>
       </div>
-      <div id="regPanel" style="display:none">
+      <div id="regPanel">
         <input id="regUsername" placeholder="用户名（至少3位）" class="login-inp">
         <input id="regEmail" placeholder="邮箱（选填）" class="login-inp">
         <input id="regPassword" type="password" placeholder="密码（至少6位）" class="login-inp">
@@ -222,7 +222,7 @@
     } else {
       btn.textContent = '登录';
       btn.title = '登录';
-      btn.onclick = function(){}; // dialog already shown, button does nothing
+      btn.onclick = function() { showAuthModal(); switchAuthTab('login'); };
     }
   }
   function showAuthModal() {

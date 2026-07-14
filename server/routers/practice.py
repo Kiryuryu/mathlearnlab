@@ -6,6 +6,7 @@ from fastapi import APIRouter, HTTPException, Query, Request
 from pydantic import BaseModel
 from server.services import problem_bank
 from server.config import settings
+from openai import AsyncOpenAI
 
 router = APIRouter()
 
