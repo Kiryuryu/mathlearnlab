@@ -110,35 +110,35 @@
     </div>
   </div>
 
-  <!-- Auth Dialog -->
-  <div class="auth-dialog" id="authModal">
-    <button class="auth-close" onclick="hideAuthModal()">&times;</button>
-    <div class="auth-modal-side">
-      <div class="auth-brand">数学博物馆</div>
-      <p style="font-size:13px;opacity:0.7;">记录学习轨迹，解锁完整功能</p>
+  <!-- Login Dialog -->
+  <div id="loginBox" class="login-box">
+    <div class="login-close" onclick="hideAuthModal()">×</div>
+    <div class="login-left">
+      <div class="login-logo">数学博物馆</div>
+      <div class="login-sub">记录学习轨迹<br>解锁完整功能</div>
     </div>
-    <div class="auth-modal-main">
-      <div class="auth-tabs">
-        <button class="auth-tab active" id="authTabLogin" onclick="switchAuthTab('login')">登录</button>
-        <button class="auth-tab" id="authTabRegister" onclick="switchAuthTab('register')">注册</button>
+    <div class="login-right">
+      <div class="login-tabs">
+        <span class="login-tab on" id="loginTab1" onclick="switchAuthTab('login')">登录</span>
+        <span class="login-tab" id="loginTab2" onclick="switchAuthTab('register')">注册</span>
       </div>
-      <div id="authFormLogin">
-        <input type="text" id="loginUsername" placeholder="用户名" class="auth-input">
-        <input type="password" id="loginPassword" placeholder="密码" class="auth-input" onkeydown="if(event.key==='Enter')doLogin()">
-        <p id="authMsg" style="font-size:12px;color:var(--accent-error);display:none;margin:0 0 8px;text-align:center;"></p>
-        <button class="auth-submit" onclick="doLogin()">登录</button>
+      <div id="loginPanel">
+        <input id="loginUsername" placeholder="用户名" class="login-inp">
+        <input id="loginPassword" type="password" placeholder="密码" class="login-inp" onkeydown="if(event.key==='Enter')doLogin()">
+        <p id="authMsg" class="login-err"></p>
+        <button class="login-btn" onclick="doLogin()">登录</button>
       </div>
-      <div id="authFormRegister" style="display:none;">
-        <input type="text" id="regUsername" placeholder="用户名（至少3位）" class="auth-input">
-        <input type="email" id="regEmail" placeholder="邮箱（选填）" class="auth-input">
-        <input type="password" id="regPassword" placeholder="密码（至少6位）" class="auth-input">
-        <select id="regModel" class="auth-input" style="font-family:var(--font-mono);font-size:13px;">
+      <div id="regPanel" style="display:none">
+        <input id="regUsername" placeholder="用户名（至少3位）" class="login-inp">
+        <input id="regEmail" placeholder="邮箱（选填）" class="login-inp">
+        <input id="regPassword" type="password" placeholder="密码（至少6位）" class="login-inp">
+        <select id="regModel" class="login-inp" style="font-family:var(--font-mono);font-size:13px">
           <option value="deepseek-chat">DeepSeek V3</option>
           <option value="deepseek-reasoner">DeepSeek R1</option>
         </select>
-        <input type="password" id="regApiKey" placeholder="DeepSeek API Key（sk-...）" class="auth-input" style="font-family:var(--font-mono);font-size:12px;">
-        <p id="regMsg" style="font-size:12px;color:var(--accent-error);display:none;margin:0 0 8px;text-align:center;"></p>
-        <button class="auth-submit" onclick="doRegister()">注册</button>
+        <input id="regApiKey" type="password" placeholder="DeepSeek API Key（sk-...）" class="login-inp" style="font-family:var(--font-mono);font-size:12px">
+        <p id="regMsg" class="login-err"></p>
+        <button class="login-btn" onclick="doRegister()">注册</button>
       </div>
     </div>
   </div>
@@ -222,19 +222,19 @@
   }
   function toggleAuthModal() {
     if (authUser) return;
-    document.getElementById('authModal').classList.toggle('show');
+    document.getElementById('loginBox').classList.toggle('show');
   }
   function showAuthModal() {
-    document.getElementById('authModal').classList.add('show');
+    document.getElementById('loginBox').classList.add('show');
   }
   function hideAuthModal() {
-    document.getElementById('authModal').classList.remove('show');
+    document.getElementById('loginBox').classList.remove('show');
   }
   function switchAuthTab(tab) {
-    document.getElementById('authTabLogin').classList.toggle('active', tab==='login');
-    document.getElementById('authTabRegister').classList.toggle('active', tab==='register');
-    document.getElementById('authFormLogin').style.display = tab==='login' ? '' : 'none';
-    document.getElementById('authFormRegister').style.display = tab==='register' ? '' : 'none';
+    document.getElementById('loginTab1').classList.toggle('on', tab==='login');
+    document.getElementById('loginTab2').classList.toggle('on', tab==='register');
+    document.getElementById('loginPanel').style.display = tab==='login' ? '' : 'none';
+    document.getElementById('regPanel').style.display = tab==='register' ? '' : 'none';
   }
   async function doLogin() {
     var u = document.getElementById('loginUsername').value.trim();
