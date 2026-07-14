@@ -76,6 +76,11 @@ class Settings(BaseSettings):
                           "big_question": "一个矩阵乘以一个向量，到底在做一件什么事？",
                           "beauty": "特征向量是矩阵变换下\"方向不变\"的向量——它们揭示了系统的本质",
                           "notebook": "02-xiandai/01-linear-algebra"},
+        "probability":   {"zh": "概率论 — 不确定性的科学", "icon": "P",
+                          "historian": "帕斯卡、伯努利、柯尔莫哥洛夫",
+                          "big_question": "如何用数学描述\"随机\"？",
+                          "beauty": "大数定律：随机中蕴含着确定性——大量独立随机事件的平均值总是趋近于期望值",
+                          "notebook": "03-gailvlun/01-probability"},
     }
 
     # ── Math Quotes ──
