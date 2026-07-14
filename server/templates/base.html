@@ -69,8 +69,8 @@
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
           <span style="font-size:11px;color:var(--text-muted);">模型:</span>
           <input type="text" id="chatModelInput" placeholder="模型 ID" style="width:180px;padding:3px 8px;border:1px solid var(--border);border-radius:4px;font-size:11px;background:var(--bg-input);color:var(--text-primary);font-family:var(--font-mono);">
-          <button class="btn btn-sm" onclick="MuseumChat.setModel('deepseek-chat')" style="font-size:10px;padding:2px 6px;">V3</button>
-          <button class="btn btn-sm" onclick="MuseumChat.setModel('deepseek-chat')" style="font-size:10px;padding:2px 6px;">Chat</button>
+          <button class="btn btn-sm" onclick="MuseumChat.setModel('deepseek-chat')" style="font-size:10px;padding:2px 6px;">V4 Pro</button>
+          <button class="btn btn-sm" onclick="MuseumChat.setModel('deepseek-chat')" style="font-size:10px;padding:2px 6px;">V4 Flash</button>
           <button class="btn btn-sm" onclick="MuseumChat.setModel('deepseek-reasoner')" style="font-size:10px;padding:2px 6px;">R1</button>
         </div>
         <div>
@@ -133,7 +133,8 @@
         <input id="regEmail" placeholder="邮箱（选填）" class="login-inp">
         <input id="regPassword" type="password" placeholder="密码（至少6位）" class="login-inp">
         <select id="regModel" class="login-inp" style="font-family:var(--font-mono);font-size:13px">
-          <option value="deepseek-chat">DeepSeek V3</option>
+          <option value="deepseek-chat">DeepSeek V4 Pro</option>
+          <option value="deepseek-chat">DeepSeek V4 Flash</option>
           <option value="deepseek-reasoner">DeepSeek R1</option>
         </select>
         <input id="regApiKey" type="password" placeholder="DeepSeek API Key（sk-...）" class="login-inp" style="font-family:var(--font-mono);font-size:12px">
