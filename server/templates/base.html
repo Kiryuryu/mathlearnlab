@@ -284,6 +284,8 @@
     } catch(e) { msg.textContent = e.message; msg.style.display=''; }
   }
   updateUserUI();
+  // Force login on page load if not authenticated
+  if (!authToken) setTimeout(function(){ showAuthModal(); }, 800);
   // Export helpers for other scripts
   function requireAuth() {
     if (authToken) return true;
