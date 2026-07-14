@@ -66,12 +66,9 @@ async def generate_problem(request: Request):
     }
 
     import json, random, string
-    key = request.headers.get("X-API-Key") or settings.anthropic_api_key
+    key = request.headers.get("X-API-Key")
     if not key:
-        p = problem_bank.get_random_problem(topic_key, None)
-        if p:
-            return {"problem": p, "generated": False}
-        raise HTTPException(status_code=401, detail="请先配置 API Key（点击右上角按钮）")
+        raise HTTPException(status_code=401, detail="请先在登录时配置 DeepSeek API Key")
 
     gen_id = "GEN-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
     prompt = f"""你是一位数学命题专家。请为"{exhibit_name}"主题生成一道练习题。
