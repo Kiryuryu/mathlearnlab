@@ -20,9 +20,9 @@ async def workshop_plot(request: Request):
     if not description:
         raise HTTPException(status_code=400, detail="Missing description")
 
-    key = request.headers.get("X-API-Key") or settings.anthropic_api_key
+    key = request.headers.get("X-API-Key")
     if not key:
-        return {"code": None, "explanation": None, "message": "请先配置 API Key"}
+        return {"code": None, "explanation": None, "message": "请先登录并配置 DeepSeek API Key"}
 
     from openai import AsyncOpenAI
     client = AsyncOpenAI(api_key=key, base_url="https://api.deepseek.com")

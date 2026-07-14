@@ -22,7 +22,7 @@ async def stream_chat(messages: list[dict], system: str | None = None,
                       api_key: str | None = None, context_route: str = ""):
     """Async generator yielding SSE-formatted chat chunks via DeepSeek."""
     if not api_key:
-        yield "data: {\"error\":\"未配置 API Key\"}\n\n"
+        yield "data: {\"error\":\"请先登录并配置 DeepSeek API Key\"}\n\n"
         yield "data: [DONE]\n\n"
         return
 
