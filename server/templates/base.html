@@ -285,7 +285,7 @@
   }
   updateUserUI();
   // Force login on page load if not authenticated
-  if (!authToken) setTimeout(function(){ showAuthModal(); }, 800);
+  if (!authToken) showAuthModal();
   // Export helpers for other scripts
   function requireAuth() {
     if (authToken) return true;
