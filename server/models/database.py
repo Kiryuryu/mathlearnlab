@@ -18,15 +18,40 @@ DATABASE_URL = os.getenv("DATABASE_URL", "")
 
 def _get_mysql_conn():
     import pymysql
-    # Parse mysql://user:pass@host/db
     url = DATABASE_URL.replace("mysql://", "")
     user_pass, host_db = url.split("@")
     user, password = user_pass.split(":")
     host, db = host_db.split("/")
-    conn = pymysql.connect(host=host, user=user, password=password,
+    raw = pymysql.connect(host=host, user=user, password=password,
                            database=db, charset="utf8mb4",
                            cursorclass=pymysql.cursors.DictCursor)
-    return conn
+    # Wrap to provide SQLite-compatible .execute() and .commit() interface
+    return _MySQLWrapper(raw)
+
+
+class _MySQLWrapper:
+    def __init__(self, conn):
+        self._conn = conn
+        self._cursor = conn.cursor()
+        self.row_factory = None  # dummy for compat
+
+    def execute(self, sql, params=None):
+        self._cursor.execute(sql.replace("?", "%s"), params or ())
+        self._cursor._rows = list(self._cursor.fetchall())
+        return self
+
+    def fetchone(self):
+        return self._cursor._rows[0] if self._cursor._rows else None
+
+    def fetchall(self):
+        return self._cursor._rows
+
+    def commit(self):
+        self._conn.commit()
+
+    def close(self):
+        self._cursor.close()
+        self._conn.close()
 
 
 def get_db():
