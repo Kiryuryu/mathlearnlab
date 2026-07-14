@@ -109,12 +109,15 @@ function fractalRedraw() {
 
       var idx = (py * w + px) * 4;
       if (iter === maxIter) {
-        img.data[idx] = 0; img.data[idx+1] = 0; img.data[idx+2] = 0; img.data[idx+3] = 255;
+        img.data[idx] = 15; img.data[idx+1] = 10; img.data[idx+2] = 30; img.data[idx+3] = 255;
       } else {
         var t = iter / maxIter;
-        img.data[idx]   = Math.floor(9 * (1-t) * t*t*t * 255);
-        img.data[idx+1] = Math.floor(15 * (1-t)*(1-t) * t*t * 255);
-        img.data[idx+2] = Math.floor(8.5 * (1-t)*(1-t)*(1-t) * t * 255);
+        var r = Math.floor(9 * (1-t) * t*t*t * 255);
+        var g = Math.floor(15 * (1-t)*(1-t) * t*t * 255);
+        var b = Math.floor(8.5 * (1-t)*(1-t)*(1-t) * t * 255);
+        img.data[idx]   = Math.min(255, r + 20);
+        img.data[idx+1] = Math.min(255, g + 10);
+        img.data[idx+2] = Math.min(255, b + 40);
         img.data[idx+3] = 255;
       }
     }
@@ -123,19 +126,23 @@ function fractalRedraw() {
 }
 
 var canvas = document.getElementById('fractalCanvas');
+var wheelAccum = 0;
 if (canvas) {
-var wheelTimer = null;
 canvas.addEventListener('wheel', function(e) {
   e.preventDefault();
+  wheelAccum += e.deltaY;
+  var threshold = Math.abs(e.deltaY) > 50 ? 0 : 10; // trackpad: accumulate, mouse: instant
+  if (Math.abs(wheelAccum) < threshold) return;
+  var zoom = wheelAccum > 0 ? 1.3 : 1/1.3;
   var rect = canvas.getBoundingClientRect();
   var mx = cx + ((e.clientX - rect.left) / rect.width - 0.5) * range * rect.width / rect.height;
   var my = cy + ((e.clientY - rect.top) / rect.height - 0.5) * range;
-  var zoom = e.deltaY > 0 ? 1.5 : 1/1.5;
   range *= zoom;
   cx = mx + (cx - mx) * zoom;
   cy = my + (cy - my) * zoom;
+  wheelAccum = 0;
   clearTimeout(wheelTimer);
-  wheelTimer = setTimeout(function(){ fractalRedraw(); }, 60);
+  wheelTimer = setTimeout(function(){ fractalRedraw(); }, 30);
 }, {passive: false});
 
 var dragging = false, dragX, dragY, needsRedraw = false;
