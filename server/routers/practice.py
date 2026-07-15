@@ -2,10 +2,11 @@
 Practice API — problem bank queries + AI generation.
 """
 
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, HTTPException, Query, Request, Depends
 from pydantic import BaseModel
 from server.services import problem_bank
 from server.config import settings
+from server.routers.auth import require_user
 from openai import AsyncOpenAI
 
 router = APIRouter()
@@ -44,7 +45,7 @@ async def get_problem(topic: str, problem_id: str):
 
 
 @router.post("/api/practice/generate")
-async def generate_problem(request: Request):
+async def generate_problem(request: Request, user: dict = Depends(require_user)):
     """Use Claude to generate a new practice problem on the fly."""
     try:
         body = await request.json()

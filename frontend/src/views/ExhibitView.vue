@@ -24,6 +24,8 @@
 <script setup>
 import { ref, watch, onMounted, nextTick, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { loadPlotly } from '@/utils/plotly'
+import { renderMarkdown } from '@/utils/markdown'
 
 const route = useRoute()
 const topic = computed(() => route.params.topic)
@@ -70,31 +72,29 @@ async function loadContent() {
     }
     const cr = await fetch(`/api/content/${path}`)
     const cd = await cr.json()
-    content.value = cd.content || cd.error || ''
+    content.value = renderMarkdown(cd.content || cd.error || '')
   } catch(e) {
     content.value = '<p>内容加载失败</p>'
   }
   loading.value = false
   await nextTick()
-  if (window.MathJax) MathJax.typesetPromise()
 }
 
 watch([topic, activeTab], loadContent, { immediate: true })
 
-// Plotly viz (deferred)
+// Plotly viz (lazy-loaded on demand)
 let vizInited = false
-onMounted(() => {
+onMounted(async () => {
   loadContent()
-  const check = setInterval(() => {
-    if (window.Plotly && vizPlot.value && !vizInited) {
-      vizInited = true; clearInterval(check)
-      initViz()
-    }
-  }, 300)
+  try {
+    await loadPlotly()
+    await nextTick()
+    if (!vizInited && vizPlot.value) { vizInited = true; initViz() }
+  } catch(e) {}
 })
 
 function initViz() {
-  if (!window.Plotly || !vizPlot.value) return
+  if (typeof Plotly === 'undefined' || !vizPlot.value) return
   const t = topic.value
   const el = vizPlot.value
   if (t === 'limits') MuseumVizEpsilon(el)
@@ -211,6 +211,11 @@ function MuseumVizGradient(el) {
 .tab:hover { color:#4a6a8a; }
 .tab.active { color:#4a6a8a; border-bottom-color:#4a6a8a; font-weight:600; }
 .tab-content { max-width:800px; margin:0 auto; padding:32px 40px; }
+.tab-content :deep(.katex-display) { margin:16px 0; overflow-x:auto; overflow-y:hidden; }
+.tab-content :deep(p) { margin:10px 0; }
+.tab-content :deep(ul), .tab-content :deep(ol) { padding-left:24px; margin:10px 0; }
+.tab-content :deep(li) { margin:4px 0; }
+.tab-content :deep(pre) { background:var(--bg-nav); border:1px solid var(--border); border-radius:6px; padding:14px 18px; overflow-x:auto; }
 .viz-wrap { background:var(--bg-card,#fff); border:1px solid var(--border,#e2e5e8); border-radius:10px; padding:20px; margin:16px 0; }
 .viz-wrap h4 { margin-bottom:12px; }
 .viz-plot { width:100%; height:420px; }

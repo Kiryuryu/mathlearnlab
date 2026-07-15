@@ -28,6 +28,7 @@
 
 <script setup>
 import { ref, nextTick } from 'vue'
+import { loadPlotly } from '@/utils/plotly'
 
 const mode = ref('2d')
 const funcInput = ref('sin(x)')
@@ -60,8 +61,9 @@ function ev2(expr, x, y) {
   return Function('x','y','return '+s)(x, y)
 }
 
-function plot() {
-  if (!window.Plotly || !plotEl.value) return
+async function plot() {
+  if (!plotEl.value) return
+  try { await loadPlotly() } catch { return }
   plotted.value = true
   const el = plotEl.value
   const funcs = funcInput.value.trim().split('\n').filter(Boolean)

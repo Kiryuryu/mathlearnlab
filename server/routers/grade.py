@@ -4,14 +4,14 @@ Grade API — OCR handwriting grading endpoint.
 
 import base64
 from fastapi import APIRouter, Request, HTTPException, Depends
-from server.routers.auth import get_current_user
+from server.routers.auth import require_user
 from server.services import grader, problem_bank, history as history_svc
 
 router = APIRouter()
 
 
 @router.post("/api/grade")
-async def grade_submission(request: Request, user: dict | None = Depends(get_current_user)):
+async def grade_submission(request: Request, user: dict = Depends(require_user)):
     """Grade a handwritten answer."""
     try:
         body = await request.json()
@@ -45,19 +45,18 @@ async def grade_submission(request: Request, user: dict | None = Depends(get_cur
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Grading failed: {str(e)}")
 
-    # Save to history if user is logged in
-    if user:
-        try:
-            history_svc.save_grade(
-                user_id=user["user_id"],
-                topic_key=topic_key,
-                problem_id=problem_id,
-                problem_statement=problem.get("problem_statement", ""),
-                solution_steps=problem.get("solution", {}).get("steps", []),
-                final_answer=problem.get("solution", {}).get("final_answer", ""),
-                grading_result=result,
-            )
-        except Exception:
-            pass  # non-critical; user still gets grading result
+    # Save to history
+    try:
+        history_svc.save_grade(
+            user_id=user["user_id"],
+            topic_key=topic_key,
+            problem_id=problem_id,
+            problem_statement=problem.get("problem_statement", ""),
+            solution_steps=problem.get("solution", {}).get("steps", []),
+            final_answer=problem.get("solution", {}).get("final_answer", ""),
+            grading_result=result,
+        )
+    except Exception:
+        pass  # non-critical; user still gets grading result
 
     return result
