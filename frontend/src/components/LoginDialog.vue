@@ -52,7 +52,10 @@ async function handleRegister() {
   if (regUser.value.length < 3) { regErr.value = '用户名至少3位'; return }
   if (regPass.value.length < 6) { regErr.value = '密码至少6位'; return }
   if (!regKey.value) { regErr.value = '请输入 DeepSeek API Key'; return }
-  try { await auth.doRegister(regUser.value, regPass.value, regEmail.value, regModel.value, regKey.value) } catch(e) { regErr.value = e.message }
+  try {
+    const msg = await auth.doRegister(regUser.value, regPass.value, regEmail.value, regModel.value, regKey.value)
+    alert(msg + '\n请等待管理员审核通过后登录')
+  } catch(e) { regErr.value = e.message }
 }
 </script>
 
