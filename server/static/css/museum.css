@@ -652,11 +652,6 @@ p.pointer { color: #fff; font-family: var(--font-mono); }
 .practice-upload:hover { border-color: var(--accent); background: var(--bg-nav); }
 .practice-upload-icon { font-size: 32px; color: var(--text-muted); margin-bottom: 8px; }
 
-@media (max-width: 768px) {
-  .practice-toolbar { flex-direction: column; align-items: stretch; }
-  .practice-actions { justify-content: center; }
-  .practice-filter { justify-content: center; }
-}
 
 /* ── Mobile responsive ── */
 @media (max-width: 768px) {
@@ -936,4 +931,15 @@ p.pointer { color: #fff; font-family: var(--font-mono); }
 
   /* Exhibit page */
   .exhibit-actions { padding: 0 0 32px; }
+
+  /* Fractal Canvas */
+  #fractalCanvas { width: 100% !important; max-height: 400px; }
+
+  /* Practice page */
+  .practice-page { padding: 16px 12px 48px; }
+  .practice-problem-card { padding: 12px; }
+  .ppc-difficulty { width: 32px; }
+
+  /* Daily problem card */
+  #dailyProblem { margin: 0 12px 16px; padding: 16px; }
 }
