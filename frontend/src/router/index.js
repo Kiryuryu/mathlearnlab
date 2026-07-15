@@ -11,6 +11,7 @@ const routes = [
   { path: '/mathematicians/:key', name: 'mathematician', component: () => import('@/views/MathematicianView.vue') },
   { path: '/practice/:topic?', name: 'practice', component: () => import('@/views/PracticeView.vue') },
   { path: '/news', name: 'news', component: () => import('@/views/NewsView.vue') },
+  { path: '/admin', name: 'admin', component: () => import('@/views/AdminView.vue') },
   { path: '/:path(.*)', redirect: '/' }
 ]
 

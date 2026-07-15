@@ -35,15 +35,14 @@ export const useAuth = defineStore('auth', () => {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password, email })
     })
-    if (!r.ok) throw new Error((await r.json()).detail || 'Register failed')
     const d = await r.json()
-    token.value = d.token; user.value = d.user
+    if (!r.ok) throw new Error(d.detail || 'Register failed')
+    // Save model + key but not token — user needs admin approval
     apiKey.value = key; model.value = m
-    localStorage.setItem('mathlearnlab:token', d.token)
-    localStorage.setItem('mathlearnlab:user', JSON.stringify(d.user))
     localStorage.setItem('mathlearnlab:apikey', key)
     localStorage.setItem('museum:model', m)
     showLogin.value = false
+    return d.message || '注册成功，等待审核'
   }
 
   function logout() {
