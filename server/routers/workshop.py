@@ -2,15 +2,16 @@
 Workshop API — AI-assisted function plotting via DeepSeek.
 """
 import asyncio
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException, Depends
 import re
 from server.config import settings
+from server.routers.auth import require_user
 
 router = APIRouter()
 
 
 @router.post("/api/workshop/plot")
-async def workshop_plot(request: Request):
+async def workshop_plot(request: Request, user: dict = Depends(require_user)):
     try:
         body = await request.json()
     except Exception:

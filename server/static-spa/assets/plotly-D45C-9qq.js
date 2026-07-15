@@ -1,0 +1,1 @@
+var e=null;function t(){return typeof window<`u`&&window.Plotly?Promise.resolve(window.Plotly):e||(e=new Promise((t,n)=>{let r=document.createElement(`script`);r.src=`https://cdn.jsdelivr.net/npm/plotly.js@2.35.2/dist/plotly.min.js`,r.async=!0,r.onload=()=>t(window.Plotly),r.onerror=t=>{e=null,n(Error(`Plotly failed to load`))},document.head.appendChild(r)}),e)}export{t};

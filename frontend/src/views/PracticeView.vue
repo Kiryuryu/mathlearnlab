@@ -25,9 +25,9 @@
           <button v-for="d in difficulties" :key="d.key" :class="{ active: filter === d.key }" @click="filter = d.key">{{ d.label }}</button>
         </div>
         <div class="actions">
-          <button class="btn" @click="aiGenerate" :disabled="generating">
+          <button class="btn" @click="aiGenerate" :disabled="generating" :title="auth.isLoggedIn ? '' : '登录后使用'">
             <span v-if="generating" class="spin"></span>
-            {{ generating ? '生成中...' : 'AI 出题' }}
+            {{ generating ? '生成中...' : (auth.isLoggedIn ? 'AI 出题' : '🔒 AI 出题') }}
           </button>
           <button class="btn btn-primary" @click="randomProblem">随机抽题</button>
         </div>
@@ -36,7 +36,7 @@
         <div v-if="!problems.length" class="empty">暂无题目，点击「AI 出题」生成</div>
         <div v-for="p in filteredProblems" :key="p.id" class="problem-card" @click="selectProblem(p.id)">
           <span class="diff" :class="p.difficulty">{{ diffLabel(p.difficulty) }}</span>
-          <div class="p-body"><span class="p-id">{{ p.id }}</span><span class="p-preview">{{ p.preview }}</span></div>
+          <div class="p-body"><span class="p-id">{{ p.id }}</span><span class="p-preview" v-html="renderMarkdown(p.preview)"></span></div>
           <span class="p-arrow">→</span>
         </div>
       </div>
@@ -46,7 +46,7 @@
     <div v-if="step === 'solve' && currentProblem" class="solve-area">
       <div class="problem-display">
         <div class="p-meta"><span :class="currentProblem.difficulty">{{ diffLabel(currentProblem.difficulty) }}</span></div>
-        <div class="p-statement" v-html="currentProblem.problem_statement"></div>
+        <div class="p-statement" v-html="renderedStatement"></div>
       </div>
       <div class="upload-zone" @click="$refs.fileInput.click()" v-if="!previewUrl">
         <div class="upload-icon">+</div>
@@ -57,7 +57,9 @@
         <img :src="previewUrl" class="preview-img">
         <button @click="previewUrl=null;imageBase64=null">重新上传</button>
       </div>
-      <button class="submit-btn" :disabled="!imageBase64" @click="submitGrade">提交批改</button>
+      <button class="submit-btn" :disabled="!imageBase64" @click="submitGrade">
+        {{ auth.isLoggedIn ? '提交批改' : '🔒 登录后批改' }}
+      </button>
       <button class="btn" @click="step='select';currentProblem=null">返回选题</button>
     </div>
 
@@ -79,6 +81,11 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { renderMarkdown } from '@/utils/markdown'
+import { useAuth } from '@/stores/auth'
+import { apiFetch } from '@/utils/api'
+
+const auth = useAuth()
 
 const topic = ref('limits')
 const step = ref('select')
@@ -89,6 +96,8 @@ const previewUrl = ref(null)
 const imageBase64 = ref(null)
 const result = ref(null)
 const generating = ref(false)
+
+const renderedStatement = computed(() => renderMarkdown(currentProblem.value?.problem_statement || ''))
 
 const subtopics = [
   { key: 'limits', label: '极限 — 无限逼近的艺术' },
@@ -136,13 +145,14 @@ async function selectProblem(id) {
   } catch(e) {}
 }
 async function aiGenerate() {
+  if (!auth.isLoggedIn) { auth.openLogin('login'); return }
   generating.value = true
   try {
-    const key = localStorage.getItem('mathlearnlab:apikey') || ''
-    const r = await fetch('/api/practice/generate', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-API-Key': key },
+    const r = await apiFetch('/api/practice/generate', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ topic_key: topic.value, difficulty: filter.value === 'all' ? 'exam' : filter.value })
     })
+    if (r.status === 401) { auth.openLogin('login'); generating.value = false; return }
     currentProblem.value = (await r.json()).problem
     step.value = 'solve'
   } catch(e) { alert('生成失败: '+e.message) }
@@ -169,12 +179,13 @@ async function handleFile(e) {
 }
 
 async function submitGrade() {
-  const key = localStorage.getItem('mathlearnlab:apikey') || ''
+  if (!auth.isLoggedIn) { auth.openLogin('login'); return }
   try {
-    const r = await fetch('/api/grade', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-API-Key': key },
+    const r = await apiFetch('/api/grade', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ topic_key: topic.value, problem_id: currentProblem.value.id, image_base64: imageBase64.value })
     })
+    if (r.status === 401) { auth.openLogin('login'); return }
     result.value = await r.json()
     step.value = 'results'
   } catch(e) { alert('批改失败: '+e.message) }
@@ -187,45 +198,50 @@ onMounted(loadProblems)
 .practice-page { max-width:780px; margin:0 auto; padding:32px 20px 64px; }
 .header { text-align:center; margin-bottom:32px; }
 .header h1 { font-size:24px; }
-.back { font-size:13px; color:#889098; text-decoration:none; }
+.back { font-size:13px; color:var(--text-muted); text-decoration:none; }
 .steps { display:flex; align-items:center; justify-content:center; gap:8px; margin:8px 0; }
-.steps span { font-size:13px; color:#889098; padding:4px 12px; border-radius:20px; }
-.steps span.active { background:#4a6a8a; color:#fff; }
-.steps span.done { color:#3d6b4f; }
-.topic-select { display:flex; align-items:center; justify-content:center; gap:8px; margin:8px 0; font-size:13px; }
+.steps span { font-size:13px; color:var(--text-muted); padding:4px 12px; border-radius:20px; }
+.steps span.active { background:var(--accent); color:#fff; }
+.steps span.done { color:var(--accent-correct); }
+.topic-select { display:flex; align-items:center; justify-content:center; gap:8px; margin:8px 0; font-size:13px; color:var(--text-secondary); }
+.topic-select select { background:var(--bg-input); color:var(--text-primary); border:1px solid var(--border); border-radius:4px; padding:3px 8px; }
 .toolbar { display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:16px; }
 .filters { display:flex; gap:4px; }
-.filters button { padding:5px 14px; border:1px solid #e2e5e8; border-radius:20px; font-size:12px; cursor:pointer; background:#fff; color:#505560; }
-.filters button.active { background:#4a6a8a; color:#fff; }
+.filters button { padding:5px 14px; border:1px solid var(--border); border-radius:20px; font-size:12px; cursor:pointer; background:var(--bg-card); color:var(--text-secondary); }
+.filters button.active { background:var(--accent); color:#fff; border-color:var(--accent); }
 .actions { display:flex; gap:8px; }
-.btn { padding:7px 18px; border:1px solid #e2e5e8; border-radius:4px; background:#fff; color:#505560; cursor:pointer; font-size:14px; text-decoration:none; }
-.btn-primary { border-color:#4a6a8a; color:#4a6a8a; }
-.btn-primary:hover { background:#4a6a8a; color:#fff; }
+.btn { padding:7px 18px; border:1px solid var(--border); border-radius:4px; background:var(--bg-card); color:var(--text-primary); cursor:pointer; font-size:14px; text-decoration:none; }
+.btn-primary { border-color:var(--accent); color:var(--accent); }
+.btn-primary:hover { background:var(--accent); color:#fff; }
 .btn:disabled { opacity:0.4; }
-.spin { display:inline-block; width:12px; height:12px; border:2px solid #e2e5e8; border-top-color:#4a6a8a; border-radius:50%; animation:spin 0.6s linear infinite; margin-right:4px; vertical-align:middle; }
+.spin { display:inline-block; width:12px; height:12px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.6s linear infinite; margin-right:4px; vertical-align:middle; }
 @keyframes spin { to { transform:rotate(360deg) } }
 .problem-list { display:flex; flex-direction:column; gap:4px; }
-.empty { text-align:center; padding:40px; color:#889098; }
-.problem-card { display:flex; align-items:center; gap:12px; padding:14px 16px; border:1px solid #e2e5e8; border-radius:8px; cursor:pointer; background:#fff; }
-.problem-card:hover { border-color:#4a6a8a; }
+.empty { text-align:center; padding:40px; color:var(--text-muted); }
+.problem-card { display:flex; align-items:center; gap:12px; padding:14px 16px; border:1px solid var(--border); border-radius:8px; cursor:pointer; background:var(--bg-card); }
+.problem-card:hover { border-color:var(--accent); }
 .diff { font-size:12px; width:40px; text-align:center; }
-.basic { color:#3d6b4f; } .advanced { color:#4a6a8a; } .exam { color:#6b5e4a; } .graduate, .phd { color:#a45050; }
+.basic { color:var(--accent-correct); } .advanced { color:var(--accent); } .exam { color:var(--accent-warm); } .graduate, .phd { color:var(--accent-error); }
 .p-body { flex:1; }
-.p-id { font-size:12px; color:#889098; }
-.p-preview { font-size:14px; display:block; }
-.p-arrow { font-size:18px; color:#889098; }
+.p-id { font-size:12px; color:var(--text-muted); }
+.p-preview { font-size:14px; display:block; color:var(--text-primary); }
+.p-preview :deep(.katex) { font-size:1em; }
+.p-arrow { font-size:18px; color:var(--text-muted); }
 .solve-area { max-width:600px; margin:0 auto; }
-.problem-display { background:#fff; border:1px solid #e2e5e8; border-radius:10px; padding:24px; margin-bottom:16px; }
-.p-statement { font-size:16px; line-height:1.8; }
-.upload-zone { border:2px dashed #e2e5e8; border-radius:12px; padding:40px 20px; text-align:center; cursor:pointer; }
-.upload-icon { font-size:32px; color:#889098; margin-bottom:8px; }
+.problem-display { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:24px; margin-bottom:16px; }
+.p-statement { font-size:16px; line-height:1.8; color:var(--text-primary); }
+.p-statement :deep(.katex-display) { margin:16px 0; overflow-x:auto; overflow-y:hidden; }
+.upload-zone { border:2px dashed var(--border); border-radius:12px; padding:40px 20px; text-align:center; cursor:pointer; background:var(--bg-card); }
+.upload-zone:hover { border-color:var(--accent); }
+.upload-icon { font-size:32px; color:var(--text-muted); margin-bottom:8px; }
 .preview { text-align:center; margin:16px 0; }
-.preview-img { max-width:100%; max-height:300px; border-radius:8px; border:1px solid #e2e5e8; }
-.submit-btn { width:100%; padding:14px; background:#4a6a8a; color:#fff; border:none; border-radius:8px; font-size:15px; cursor:pointer; margin-top:12px; }
+.preview-img { max-width:100%; max-height:300px; border-radius:8px; border:1px solid var(--border); }
+.submit-btn { width:100%; padding:14px; background:var(--accent); color:#fff; border:none; border-radius:8px; font-size:15px; cursor:pointer; margin-top:12px; }
 .submit-btn:disabled { opacity:0.4; }
 .results { max-width:600px; margin:0 auto; }
 .verdict { padding:14px 22px; border-radius:8px; text-align:center; font-size:19px; font-weight:700; margin:12px 0; }
-.verdict-correct { background:#eaf4ee; color:#3d6b4f; } .verdict-partial { background:#faf3e8; color:#6b5e4a; } .verdict-incorrect { background:#f9eaea; color:#a45050; }
-.feedback { background:#fff; border:1px solid #e2e5e8; border-radius:8px; padding:14px 18px; margin:8px 0; line-height:1.8; }
+.verdict-correct { background:#eaf4ee; color:var(--accent-correct); } .verdict-partial { background:#faf3e8; color:var(--accent-warm); } .verdict-incorrect { background:#f9eaea; color:var(--accent-error); }
+[data-theme="dark"] .verdict-correct { background:#1a2e20; color:#8cc9a0; } [data-theme="dark"] .verdict-partial { background:#2e2418; color:#d4b87a; } [data-theme="dark"] .verdict-incorrect { background:#2e1a1a; color:#d49a9a; }
+.feedback { background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:14px 18px; margin:8px 0; line-height:1.8; color:var(--text-primary); }
 .result-actions { display:flex; gap:8px; margin-top:16px; }
 </style>

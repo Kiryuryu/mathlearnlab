@@ -20,6 +20,7 @@
 
 <script setup>
 import { ref, onMounted, nextTick, watch } from 'vue'
+import { loadPlotly } from '@/utils/plotly'
 
 const mode = ref('mandelbrot')
 const canvasEl = ref(null)
@@ -85,8 +86,9 @@ function redraw() {
   ctx.putImageData(img, 0, 0)
 }
 
-function drawLorenz() {
-  if (!window.Plotly || !lorenzEl.value) return
+async function drawLorenz() {
+  if (!lorenzEl.value) return
+  try { await loadPlotly() } catch { return }
   const sigma=10, rho=28, beta=8/3, dt=0.003
   let x=0.1, y=0, z=0
   const xs=[], ys=[], zs=[]

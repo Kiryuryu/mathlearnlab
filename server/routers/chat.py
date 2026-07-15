@@ -3,16 +3,17 @@ Chat API — SSE streaming chat with Claude.
 API key comes from client (X-API-Key header), not server config.
 """
 
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException, Depends
 from fastapi.responses import StreamingResponse
 from server.services import chat_service
 from server.config import settings
+from server.routers.auth import require_user
 
 router = APIRouter()
 
 
 @router.post("/api/chat/stream")
-async def chat_stream(request: Request):
+async def chat_stream(request: Request, user: dict = Depends(require_user)):
     """Stream a chat conversation with Claude via SSE."""
     try:
         body = await request.json()
