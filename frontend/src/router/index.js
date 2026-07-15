@@ -10,6 +10,7 @@ const routes = [
   { path: '/mathematicians', name: 'mathematicians', component: () => import('@/views/MathematiciansView.vue') },
   { path: '/mathematicians/:key', name: 'mathematician', component: () => import('@/views/MathematicianView.vue') },
   { path: '/practice/:topic?', name: 'practice', component: () => import('@/views/PracticeView.vue') },
+  { path: '/news', name: 'news', component: () => import('@/views/NewsView.vue') },
   { path: '/:path(.*)', redirect: '/' }
 ]
 

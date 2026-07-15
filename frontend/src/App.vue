@@ -18,6 +18,7 @@
       <router-link to="/mathematicians">数学家长廊</router-link>
       <router-link to="/workshop">函数工坊</router-link>
       <router-link to="/fractal">分形</router-link>
+      <router-link to="/news">新闻</router-link>
       <router-link to="/practice">练习</router-link>
     </nav>
     <main><router-view /></main>
