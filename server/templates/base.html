@@ -211,8 +211,10 @@
   }
   // Auth
   var authToken = localStorage.getItem('mathlearnlab:token') || '';
+  if (authToken === 'null' || authToken === 'undefined') authToken = '';
   var authUser = null;
-  try { authUser = JSON.parse(localStorage.getItem('mathlearnlab:user') || 'null'); } catch(e) {}
+  try { var u = localStorage.getItem('mathlearnlab:user'); if (u && u !== 'null') authUser = JSON.parse(u); } catch(e) {}
+  if (!authUser) authToken = '';
   function updateUserUI() {
     var btn = document.getElementById('userBtn');
     if (authUser) {
