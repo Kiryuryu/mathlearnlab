@@ -67,7 +67,3 @@ app.include_router(chat.router)
 app.include_router(stats.router)
 app.include_router(workshop.router)
 app.include_router(blog.router)
-
-# Pages router — serves existing Jinja2 frontend until Flutter replaces it
-from server.routers import pages
-app.include_router(pages.router)
