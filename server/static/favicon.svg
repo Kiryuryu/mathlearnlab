@@ -1,4 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="6" fill="#2c3e50"/>
-  <text x="16" y="23" text-anchor="middle" font-size="20" font-family="serif" fill="#ecf0f1">Σ</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#4a6a8a"/><text x="32" y="44" text-anchor="middle" font-family="serif" font-size="36" font-weight="700" fill="#fff">M</text></svg>
