@@ -61,11 +61,12 @@
   background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
 }
 .exhibit-card:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: var(--shadow-elevated), 0 12px 40px rgba(0,0,0,0.15);
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: var(--shadow-elevated), 0 8px 30px rgba(0,0,0,0.08);
   text-decoration: none;
   color: #fff;
 }
+.exhibit-card { transition: transform 0.25s ease, box-shadow 0.25s ease; }
 .exhibit-card:nth-child(1) { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); }
 .exhibit-card:nth-child(2) { background: linear-gradient(135deg, #2d1b69 0%, #5b2c8e 100%); }
 .exhibit-card:nth-child(3) { background: linear-gradient(135deg, #0d3b3b 0%, #1a6b5a 100%); }
