@@ -39,7 +39,7 @@ var PracticeV2 = (function() {
   async function aiGenerate() { if (window.requireAuth && !window.requireAuth()) return;
     var diff = $id('diffFilter') ? $id('diffFilter').value : 'exam';
     
-    $id('practiceStatus').textContent = '正在生成题目...';
+    $id('practiceStatus').innerHTML = '<span class="spinner" style="display:inline-block;width:14px;height:14px;margin-right:6px;"></span>正在生成题目...';
     try {
       var apiKey = '';
       try { apiKey = localStorage.getItem('mathlearnlab:apikey') || ''; } catch(e) {}
