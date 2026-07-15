@@ -576,8 +576,8 @@ p.pointer { color: #fff; font-family: var(--font-mono); }
 .ws-preset-group { margin-bottom: 10px; }
 
 /* Login Box */
-.login-box { display:none !important; position:fixed !important; top:50% !important; left:50% !important; transform:translate(-50%,-50%) !important; background:var(--bg-card); border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,0.15); width:480px; max-width:92vw; z-index:999; overflow:hidden; }
-.login-box.show { display:flex !important; }
+.login-box-old { display:none !important; position:fixed !important; top:50% !important; left:50% !important; transform:translate(-50%,-50%) !important; background:var(--bg-card); border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,0.15); width:480px; max-width:92vw; z-index:999; overflow:hidden; }
+.login-box-old.show { display:flex !important; }
 .login-left { width:160px; background:linear-gradient(160deg,#1e2935,#3a5a7c); color:#fff; padding:40px 24px; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; flex-shrink:0; }
 .login-logo { font-family:var(--font-heading); font-size:18px; font-weight:700; letter-spacing:2px; margin-bottom:8px; }
 .login-sub { font-size:12px; opacity:0.7; line-height:1.6; }
