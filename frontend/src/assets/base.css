@@ -1,0 +1,150 @@
+/* === 静逸书卷 — Base Design System === */
+
+/* ── Custom Properties ── */
+:root {
+  /* Cool scholarly palette — clean, intellectual, not warm-craft */
+  --bg-page:        #f7f8f9;
+  --bg-card:        #ffffff;
+  --bg-nav:         #f0f2f4;
+  --bg-chat:        #f9fafa;
+  --bg-input:       #f7f8f9;
+  --text-primary:   #1a1d22;
+  --text-secondary: #505560;
+  --text-muted:     #889098;
+  --accent:         #4a6a8a;
+  --accent-warm:    #6b5e4a;
+  --accent-correct: #3d6b4f;
+  --accent-error:   #a45050;
+  --border:         #e2e5e8;
+  --border-focus:   #c0c5cc;
+  --radius:         6px;
+  --radius-lg:      10px;
+  --shadow-card:    0 1px 2px rgba(26,29,34,0.03), 0 1px 2px rgba(26,29,34,0.04);
+  --shadow-elevated: 0 4px 10px rgba(26,29,34,0.05);
+
+  /* Typography */
+  --font-heading:   'Noto Serif SC', 'Songti SC', 'SimSun', Georgia, serif;
+  --font-body:      'Noto Sans SC', 'PingFang SC', -apple-system, 'Helvetica Neue', sans-serif;
+  --font-mono:      'JetBrains Mono', 'Fira Code', 'SF Mono', 'Menlo', monospace;
+  --line-height:    1.75;
+}
+
+/* Dark mode — cool study at night */
+[data-theme="dark"] {
+  --bg-page:        #14161a;
+  --bg-card:        #1d2025;
+  --bg-nav:         #181a1f;
+  --bg-chat:        #1c1e23;
+  --bg-input:       #22252a;
+  --text-primary:   #e4e6ea;
+  --text-secondary: #a0a5ae;
+  --text-muted:     #6e7278;
+  --accent:         #6a9abc;
+  --accent-warm:    #b8a88a;
+  --accent-correct: #5a8a64;
+  --accent-error:   #c06060;
+  --border:         #2a2d32;
+  --border-focus:   #3a3e44;
+  --shadow-card:    0 1px 2px rgba(0,0,0,0.15);
+  --shadow-elevated: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: var(--line-height);
+  color: var(--text-primary);
+  background: var(--bg-page);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Typography ── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text-primary);
+}
+h1 { font-size: 26px; margin-bottom: 8px; }
+h2 { font-size: 21px; margin: 28px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+h3 { font-size: 17px; margin: 20px 0 8px; }
+h4 { font-size: 15px; margin: 16px 0 6px; }
+p { margin: 8px 0; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Code ── */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--bg-nav);
+  padding: 2px 5px;
+  border-radius: 3px;
+  color: var(--text-primary);
+}
+pre {
+  background: var(--bg-nav);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  overflow-x: auto;
+  margin: 12px 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+pre code { background: none; padding: 0; }
+
+/* ── Tables ── */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 12px 0;
+  font-size: 14px;
+}
+th, td {
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  text-align: left;
+}
+th {
+  background: var(--bg-nav);
+  font-weight: 600;
+  font-family: var(--font-heading);
+}
+
+/* ── Blockquotes ── */
+blockquote {
+  border-left: 3px solid var(--accent);
+  margin: 12px 0;
+  padding: 8px 16px;
+  background: var(--bg-nav);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* ── Details/Summary ── */
+details {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin: 8px 0;
+  background: var(--bg-card);
+}
+details summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-family: var(--font-heading);
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ── Selection ── */
+::selection { background: var(--accent-warm); color: #fff; opacity: 0.3; }
