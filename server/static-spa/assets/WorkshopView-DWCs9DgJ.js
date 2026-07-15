@@ -1,1 +1,0 @@
-import{_ as e,o as t,r as n,t as r,u as i}from"./index-BxrcIlNe.js";var a={},o={class:`page`};function s(r,a){return i(),t(`div`,o,[n(`h1`,null,e(r.$route.params.topic),1),a[0]||=n(`p`,null,`展项内容加载中...`,-1)])}var c=r(a,[[`render`,s],[`__scopeId`,`data-v-09919093`]]);export{c as default};
