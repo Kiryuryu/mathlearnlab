@@ -31,3 +31,4 @@ client/pubspec.lock
 
 # Build output
 site/
+server/static-spa/

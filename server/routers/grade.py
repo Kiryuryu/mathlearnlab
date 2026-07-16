@@ -2,12 +2,30 @@
 Grade API — OCR handwriting grading endpoint.
 """
 
+import json
 import base64
+from pathlib import Path
 from fastapi import APIRouter, Request, HTTPException, Depends
 from server.routers.auth import require_user
-from server.services import grader, problem_bank, history as history_svc
+from server.services import grader, history as history_svc
 
 router = APIRouter()
+
+GENERATED_DIR = Path(__file__).resolve().parent.parent.parent / "data" / "generated_problems"
+
+
+def _load_generated_problem(topic_key: str, problem_id: str) -> dict | None:
+    problem_path = GENERATED_DIR / f"{topic_key}_problems.json"
+    if not problem_path.exists():
+        return None
+    try:
+        problems = json.loads(problem_path.read_text(encoding="utf-8"))
+        for p in problems:
+            if p.get("id") == problem_id:
+                return p
+    except Exception:
+        pass
+    return None
 
 
 @router.post("/api/grade")
@@ -26,7 +44,7 @@ async def grade_submission(request: Request, user: dict = Depends(require_user))
         raise HTTPException(status_code=400, detail="Missing required fields: topic_key, problem_id, image_base64")
 
     # Load problem
-    problem = problem_bank.get_problem(topic_key, problem_id)
+    problem = _load_generated_problem(topic_key, problem_id)
     if not problem:
         raise HTTPException(status_code=404, detail=f"Problem {problem_id} not found in {topic_key}")
 

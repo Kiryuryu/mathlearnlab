@@ -39,7 +39,6 @@ app.add_middleware(
 
 # ── Mount static files ──
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
-app.mount("/data", StaticFiles(directory=str(DATA_DIR)), name="data")
 
 # ── Health check ──
 @app.get("/api/health")
@@ -54,6 +53,7 @@ async def museum_exhibits():
         "app_subtitle": settings.app_subtitle,
         "exhibits": settings.exhibits,
         "nav_tree": settings.nav_tree,
+        "mathematicians": settings.mathematicians,
     }
 
 # Import and include routers
