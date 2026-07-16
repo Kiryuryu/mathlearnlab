@@ -6,16 +6,23 @@ export const useAuth = defineStore('auth', () => {
   const user = ref(JSON.parse(localStorage.getItem('mathlearnlab:user') || 'null'))
   const showLogin = ref(false)
   const loginTab = ref('register')
+  const showSettings = ref(false)
+  const showAiSetup = ref(false)
   const apiKey = ref(localStorage.getItem('mathlearnlab:apikey') || '')
-  const model = ref(localStorage.getItem('museum:model') || 'deepseek-chat')
+  const model = ref(localStorage.getItem('mathlearnlab:model') || 'deepseek-chat')
 
   const isLoggedIn = computed(() => !!token.value && !!user.value)
+  const hasModel = computed(() => !!apiKey.value && !!model.value)
 
   function openLogin(tab = 'register') {
     loginTab.value = tab
     showLogin.value = true
   }
   function closeLogin() { showLogin.value = false }
+  function openSettings() { showSettings.value = true }
+  function closeSettings() { showSettings.value = false }
+  function openAiSetup() { showAiSetup.value = true }
+  function closeAiSetup() { showAiSetup.value = false }
 
   async function doLogin(username, password) {
     const r = await fetch('/api/auth/login', {
@@ -30,17 +37,13 @@ export const useAuth = defineStore('auth', () => {
     showLogin.value = false
   }
 
-  async function doRegister(username, password, email, m, key) {
+  async function doRegister(username, password, email) {
     const r = await fetch('/api/auth/register', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password, email })
     })
     const d = await r.json()
     if (!r.ok) throw new Error(d.detail || 'Register failed')
-    // Save model + key but not token — user needs admin approval
-    apiKey.value = key; model.value = m
-    localStorage.setItem('mathlearnlab:apikey', key)
-    localStorage.setItem('museum:model', m)
     showLogin.value = false
     return d.message || '注册成功，等待审核'
   }
@@ -52,5 +55,11 @@ export const useAuth = defineStore('auth', () => {
     showLogin.value = true; loginTab.value = 'register'
   }
 
-  return { token, user, showLogin, loginTab, apiKey, model, isLoggedIn, openLogin, closeLogin, doLogin, doRegister, logout }
+  function setModelConfig(m, key) {
+    model.value = m; apiKey.value = key
+    localStorage.setItem('mathlearnlab:model', m)
+    localStorage.setItem('mathlearnlab:apikey', key)
+  }
+
+  return { token, user, showLogin, loginTab, showSettings, showAiSetup, apiKey, model, isLoggedIn, hasModel, openLogin, closeLogin, openSettings, closeSettings, openAiSetup, closeAiSetup, doLogin, doRegister, setModelConfig, logout }
 })

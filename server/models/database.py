@@ -87,6 +87,7 @@ def init_db():
                 username    TEXT NOT NULL UNIQUE,
                 email       TEXT NOT NULL DEFAULT '',
                 password_hash TEXT NOT NULL,
+                status      TEXT NOT NULL DEFAULT 'pending',
                 created_at  TEXT NOT NULL DEFAULT (datetime('now'))
             );
             CREATE TABLE IF NOT EXISTS grade_records (
@@ -110,5 +111,11 @@ def init_db():
             CREATE INDEX IF NOT EXISTS idx_grade_topic ON grade_records(user_id, topic_key);
         """)
         conn.commit()
+        # Migration: add status column if missing (for existing DBs)
+        try:
+            conn.execute("ALTER TABLE users ADD COLUMN status TEXT NOT NULL DEFAULT 'pending'")
+            conn.commit()
+        except Exception:
+            pass  # column already exists
     finally:
         conn.close()

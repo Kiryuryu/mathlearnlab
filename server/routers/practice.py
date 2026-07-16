@@ -1,15 +1,23 @@
 """
-Practice API — problem bank queries + AI generation.
+Practice API — AI-only problem generation with deduplication.
 """
 
-from fastapi import APIRouter, HTTPException, Query, Request, Depends
+import json
+import random
+import string
+import time
+from pathlib import Path
+from fastapi import APIRouter, HTTPException, Request, Depends
 from pydantic import BaseModel
-from server.services import problem_bank
 from server.config import settings
 from server.routers.auth import require_user
 from openai import AsyncOpenAI
 
 router = APIRouter()
+
+DATA_DIR = Path(__file__).resolve().parent.parent.parent / "data"
+GENERATED_DIR = DATA_DIR / "generated_problems"
+GENERATED_DIR.mkdir(parents=True, exist_ok=True)
 
 
 class GenerateRequest(BaseModel):
@@ -17,36 +25,30 @@ class GenerateRequest(BaseModel):
     difficulty: str = "medium"
 
 
-@router.get("/api/practice/{topic}/problems")
-async def list_problems(topic: str, difficulty: str = Query(default="all")):
-    summaries = problem_bank.list_problem_summaries(topic, difficulty=None if difficulty == "all" else difficulty)
-    return {"topic": topic, "problems": summaries, "count": len(summaries)}
+def _history_path(topic: str) -> Path:
+    return GENERATED_DIR / f"{topic}.json"
 
 
-@router.get("/api/practice/{topic}/problems/random")
-async def random_problem(topic: str, difficulty: str = Query(default="all")):
-    """Return a random problem WITHOUT solution (API-facing)."""
-    p = problem_bank.get_random_problem(topic, difficulty=None if difficulty == "all" else difficulty)
-    if not p:
-        raise HTTPException(status_code=404, detail="No problems found")
-    p = dict(p)
-    p.pop("solution", None)
-    p.pop("grading_rubric", None)
-    return {"problem": p}
+def _load_history(topic: str) -> list[dict]:
+    p = _history_path(topic)
+    if not p.exists():
+        return []
+    try:
+        return json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return []
 
 
-@router.get("/api/practice/{topic}/problems/{problem_id}")
-async def get_problem(topic: str, problem_id: str):
-    """Return a specific problem with full details."""
-    p = problem_bank.get_problem(topic, problem_id)
-    if not p:
-        raise HTTPException(status_code=404, detail=f"Problem {problem_id} not found")
-    return {"problem": p}
+def _save_history(topic: str, entries: list[dict]):
+    _history_path(topic).write_text(
+        json.dumps(entries[-200:], ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
 
 
 @router.post("/api/practice/generate")
 async def generate_problem(request: Request, user: dict = Depends(require_user)):
-    """Use Claude to generate a new practice problem on the fly."""
+    """Generate a new practice problem via DeepSeek, avoiding recent duplicates."""
     try:
         body = await request.json()
     except Exception:
@@ -67,17 +69,27 @@ async def generate_problem(request: Request, user: dict = Depends(require_user))
         "phd": "博士级难度，需要高度创造性的数学思维，可能是开放性问题或需要构造反例",
     }
 
-    import json, random, string
     key = request.headers.get("X-API-Key")
     if not key:
         raise HTTPException(status_code=401, detail="请先在登录时配置 DeepSeek API Key")
 
-    gen_id = "GEN-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
+    gen_id = "GEN-" + "".join(random.choices(string.ascii_uppercase + string.digits, k=5))
+
+    history = _load_history(topic_key)
+    recent = [h.get("preview", "") for h in history[-10:] if h.get("preview")]
+    avoid_text = ""
+    if recent:
+        avoid_text = (
+            "\n\n以下是最近生成过的题目，请勿重复或高度相似，换一个角度或知识点：\n"
+            + "\n".join(f"- {r}" for r in recent)
+        )
+
     prompt = f"""你是一位数学命题专家。请为"{exhibit_name}"主题生成一道练习题。
 
 难度级别：{difficulty}
-难度要求：{diff_guide.get(difficulty, '中等难度')}
+难度要求：{diff_guide.get(difficulty, "中等难度")}
 相关知识点：{knowledge_points}
+{avoid_text}
 
 请用 JSON 格式输出：
 {{
@@ -105,7 +117,6 @@ async def generate_problem(request: Request, user: dict = Depends(require_user))
         response = await client.chat.completions.create(
             model="deepseek-chat",
             max_tokens=1500,
-            
             messages=[{"role": "user", "content": prompt}],
         )
         raw = response.choices[0].message.content
@@ -115,9 +126,29 @@ async def generate_problem(request: Request, user: dict = Depends(require_user))
             raw = raw.split("```")[1].split("```")[0]
 
         problem = json.loads(raw.strip())
+
+        history.append({
+            "id": problem.get("id", gen_id),
+            "preview": problem.get("preview", "")[:120],
+            "topic": topic_key,
+            "difficulty": difficulty,
+            "ts": time.time(),
+        })
+        _save_history(topic_key, history)
+
+        problem_path = GENERATED_DIR / f"{topic_key}_problems.json"
+        existing = []
+        if problem_path.exists():
+            try:
+                existing = json.loads(problem_path.read_text(encoding="utf-8"))
+            except Exception:
+                existing = []
+        existing.append(problem)
+        problem_path.write_text(
+            json.dumps(existing[-500:], ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+
         return {"problem": problem, "generated": True}
     except Exception as e:
-        p = problem_bank.get_random_problem(topic_key, None)
-        if p:
-            return {"problem": p, "generated": False, "fallback_reason": str(e)[:100]}
         raise HTTPException(status_code=500, detail=f"生成失败: {str(e)[:200]}")

@@ -2,6 +2,7 @@
 Auth API — registration, login, user info.
 """
 import os
+import secrets
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from server.models.database import get_db, db_session
@@ -61,6 +62,16 @@ def require_user(user: dict | None = Depends(get_current_user)) -> dict:
 
 
 # ── Routes ──
+
+
+@router.get("/api/auth/check-username")
+async def check_username(username: str):
+    """Check if a username is available."""
+    if len(username) < 3:
+        return {"available": False, "reason": "too_short"}
+    with db_session() as conn:
+        existing = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+    return {"available": existing is None, "reason": "taken" if existing else None}
 
 
 @router.post("/api/auth/register")
@@ -135,7 +146,7 @@ async def me(user: dict = Depends(require_user)):
     }
 
 
-ADMIN_SECRET = os.getenv("ADMIN_SECRET", "mathlab-admin-2026")
+ADMIN_SECRET = os.getenv("ADMIN_SECRET") or secrets.token_urlsafe(32)
 
 
 @router.get("/api/admin/users")

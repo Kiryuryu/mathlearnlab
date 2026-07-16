@@ -1,11 +1,11 @@
 <template>
   <div class="news-page">
-    <h1>数学新闻</h1>
-    <p class="sub">数学界的最新动态与深度文章</p>
+    <h1>{{ $t('news.title') }}</h1>
+    <p class="sub">{{ $t('news.subtitle') }}</p>
 
     <!-- Post detail -->
     <div v-if="selectedPost" class="post-detail">
-      <button class="back-btn" @click="selectedPost=null">← 返回列表</button>
+      <button class="back-btn" @click="selectedPost=null">{{ $t('news.back') }}</button>
       <h2>{{ selectedPost.title }}</h2>
       <div class="post-meta">{{ selectedPost.date }} · {{ selectedPost.category }}</div>
       <div class="post-content" v-html="renderedContent"></div>
@@ -13,7 +13,7 @@
 
     <!-- Post list -->
     <div v-else>
-      <div v-if="loading" class="loading">加载中...</div>
+      <div v-if="loading" class="loading">{{ $t('news.loading') }}</div>
       <div v-else class="news-list">
         <div v-for="post in posts" :key="post.slug" class="news-card" @click="openPost(post)">
           <div class="news-meta">
@@ -23,7 +23,7 @@
           <h3>{{ post.title }}</h3>
           <p class="news-summary">{{ stripSummary(post.summary) }}</p>
         </div>
-        <div v-if="!posts.length" class="empty">暂无文章</div>
+        <div v-if="!posts.length" class="empty">{{ $t('news.empty') }}</div>
       </div>
     </div>
   </div>
@@ -31,7 +31,11 @@
 
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useToast } from '@/utils/toast'
 import { renderMarkdown, stripMarkdown } from '@/utils/markdown'
+const { t } = useI18n()
+const { show: showToast } = useToast()
 
 const posts = ref([])
 const loading = ref(false)
@@ -48,7 +52,7 @@ async function fetchPosts() {
   try {
     const r = await fetch('/api/blog/posts')
     posts.value = (await r.json()).posts || []
-  } catch(e) {}
+  } catch(e) { console.warn('Failed to fetch posts', e); showToast(t('news.loadFail')) }
   loading.value = false
 }
 
@@ -59,7 +63,7 @@ async function openPost(post) {
     renderedContent.value = renderMarkdown(selectedPost.value.content)
     window.scrollTo({ top: 0, behavior: 'smooth' })
     await nextTick()
-  } catch(e) {}
+  } catch(e) { console.warn('Failed to open post', e); showToast(t('news.loadFail')) }
 }
 
 onMounted(fetchPosts)

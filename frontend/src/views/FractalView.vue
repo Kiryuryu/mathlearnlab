@@ -1,26 +1,29 @@
 <template>
   <div class="fractal-page">
-    <h1>分形 — 无限自相似的宇宙</h1>
-    <p class="sub">Mandelbrot 集：z = z² + c。用鼠标滚轮放大，探索无穷深度。</p>
+    <h1>{{ $t('fractal.title') }}</h1>
+    <p class="sub">{{ $t('fractal.subtitle') }}</p>
     <div class="fractal-toolbar">
-      <button :class="{ active: mode === 'mandelbrot' }" @click="setMode('mandelbrot')">Mandelbrot 集</button>
-      <button :class="{ active: mode === 'julia' }" @click="setMode('julia')">Julia 集</button>
-      <button :class="{ active: mode === 'lorenz' }" @click="setMode('lorenz')">Lorenz 吸引子</button>
-      <span class="hint" v-if="mode !== 'lorenz'">滚轮缩放 | 拖动平移 | 点击设 Julia 参数</span>
-      <button @click="resetView">重置</button>
+      <button :class="{ active: mode === 'mandelbrot' }" @click="setMode('mandelbrot')">{{ $t('fractal.mandelbrot') }}</button>
+      <button :class="{ active: mode === 'julia' }" @click="setMode('julia')">{{ $t('fractal.julia') }}</button>
+      <button :class="{ active: mode === 'lorenz' }" @click="setMode('lorenz')">{{ $t('fractal.lorenz') }}</button>
+      <span class="hint" v-if="mode !== 'lorenz'">{{ $t('fractal.hint') }}</span>
+      <button @click="resetView">{{ $t('fractal.reset') }}</button>
     </div>
-    <canvas v-show="mode !== 'lorenz'" ref="canvasEl" class="fractal-canvas"></canvas>
+    <canvas v-show="mode !== 'lorenz'" ref="canvasEl" class="fractal-canvas" @wheel="onWheel" @mousedown="onMouseDown" @click="onClick"></canvas>
     <div v-show="mode === 'lorenz'" ref="lorenzEl" class="lorenz-plot"></div>
     <div class="info" v-if="mode !== 'lorenz'">
-      <span>中心: {{ cx.toFixed(6) }}+{{ cy.toFixed(6) }}i, 范围: {{ range.toExponential(2) }}</span>
-      <span>迭代: <input v-model.number="maxIter" @change="redraw" type="number" min="20" max="500" step="10" style="width:60px"></span>
+      <span>{{ $t('fractal.center') }}: {{ cx.toFixed(6) }}+{{ cy.toFixed(6) }}i, {{ $t('fractal.range') }}: {{ range.toExponential(2) }}</span>
+      <span>{{ $t('fractal.iter') }}: <input v-model.number="maxIter" @change="redraw" type="number" min="20" max="500" step="10" style="width:60px"></span>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick, watch } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { loadPlotly } from '@/utils/plotly'
+
+const { locale } = useI18n()
 
 const mode = ref('mandelbrot')
 const canvasEl = ref(null)
@@ -100,7 +103,7 @@ async function drawLorenz() {
     x:xs, y:ys, z:zs, type:'scatter3d', mode:'lines',
     line:{width:2, color:xs.map((_,i)=>i/xs.length), colorscale:'Viridis'}
   }], {
-    title:'Lorenz 吸引子 — 蝴蝶效应的几何形状',
+    title: locale.value === 'en' ? 'Lorenz Attractor — The Geometry of the Butterfly Effect' : 'Lorenz 吸引子 — 蝴蝶效应的几何形状',
     scene:{xaxis:{title:'x'},yaxis:{title:'y'},zaxis:{title:'z'}},
     margin:{t:40,r:20,b:40,l:20}, paper_bgcolor:'rgba(0,0,0,0)'
   }, {responsive:true})
@@ -108,12 +111,22 @@ async function drawLorenz() {
 
 // Mouse events
 let wheelAccum = 0
+let _onMouseMove, _onMouseUp, _checkInt
 onMounted(() => {
-  const check = setInterval(() => {
-    if (canvasEl.value) { clearInterval(check); nextTick(() => redraw()) }
+  let tries = 0
+  _checkInt = setInterval(() => {
+    if (canvasEl.value) { clearInterval(_checkInt); nextTick(() => redraw()); return }
+    if (++tries > 25) clearInterval(_checkInt)
   }, 200)
-  window.addEventListener('mousemove', onMouseMove)
-  window.addEventListener('mouseup', () => dragging = false)
+  _onMouseMove = onMouseMove
+  _onMouseUp = () => { dragging = false }
+  window.addEventListener('mousemove', _onMouseMove)
+  window.addEventListener('mouseup', _onMouseUp)
+})
+onUnmounted(() => {
+  if (_checkInt) clearInterval(_checkInt)
+  if (_onMouseMove) window.removeEventListener('mousemove', _onMouseMove)
+  if (_onMouseUp) window.removeEventListener('mouseup', _onMouseUp)
 })
 
 function onWheel(e) {
@@ -150,19 +163,17 @@ function onClick(e) {
   redraw()
 }
 
-// Expose handlers for template
-defineExpose({ onWheel, onMouseDown, onClick })
 </script>
 
 <style scoped>
 .fractal-page { max-width:1100px; margin:0 auto; padding:32px 20px; }
 .fractal-page h1 { font-size:28px; }
-.sub { color:#505560; margin-bottom:16px; }
+.sub { color:var(--text-secondary); margin-bottom:16px; }
 .fractal-toolbar { display:flex; gap:8px; margin:12px 0; flex-wrap:wrap; align-items:center; }
-.fractal-toolbar button { padding:5px 14px; border:1px solid #e2e5e8; border-radius:20px; font-size:12px; cursor:pointer; background:#fff; color:#505560; }
-.fractal-toolbar button.active { background:#4a6a8a; color:#fff; }
-.hint { font-size:12px; color:#889098; margin-left:8px; }
-.fractal-canvas { width:100%; aspect-ratio:1; max-height:600px; border:1px solid #e2e5e8; border-radius:8px; cursor:crosshair; }
-.lorenz-plot { width:100%; height:500px; border:1px solid #e2e5e8; border-radius:8px; }
-.info { margin-top:8px; font-size:12px; color:#889098; display:flex; gap:16px; align-items:center; }
+.fractal-toolbar button { padding:5px 14px; border:1px solid var(--border); border-radius:20px; font-size:12px; cursor:pointer; background:var(--bg-card); color:var(--text-secondary); }
+.fractal-toolbar button.active { background:var(--accent); color:#fff; }
+.hint { font-size:12px; color:var(--text-muted); margin-left:8px; }
+.fractal-canvas { width:100%; aspect-ratio:1; max-height:600px; border:1px solid var(--border); border-radius:8px; cursor:crosshair; }
+.lorenz-plot { width:100%; height:500px; border:1px solid var(--border); border-radius:8px; }
+.info { margin-top:8px; font-size:12px; color:var(--text-muted); display:flex; gap:16px; align-items:center; }
 </style>
