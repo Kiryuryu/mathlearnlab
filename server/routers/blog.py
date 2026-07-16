@@ -32,6 +32,7 @@ async def list_posts():
         return {"posts": []}
     posts = []
     for md_file in sorted(NEWS_DIR.glob("*.md"), reverse=True):
+        if md_file.name.startswith("._"): continue
         text = md_file.read_text(encoding="utf-8")
         meta, body = parse_frontmatter(text)
         posts.append({
@@ -49,7 +50,7 @@ async def list_posts():
 async def get_post(slug: str):
     """Get a single blog post with full content."""
     filepath = NEWS_DIR / f"{slug}.md"
-    if not filepath.exists():
+    if not filepath.exists() or filepath.name.startswith("._"):
         raise HTTPException(status_code=404, detail="Post not found")
     text = filepath.read_text(encoding="utf-8")
     meta, body = parse_frontmatter(text)

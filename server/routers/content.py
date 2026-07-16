@@ -47,6 +47,7 @@ async def search_content(q: str = "", lang: str = "zh"):
 
     if CONTENT_DIR.exists():
         for md_file in CONTENT_DIR.rglob("*.md"):
+            if md_file.name.startswith("._"): continue
             try:
                 text = md_file.read_text(encoding="utf-8")
                 lower_text = text.lower()
