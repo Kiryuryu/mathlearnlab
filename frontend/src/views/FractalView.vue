@@ -23,7 +23,7 @@ import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { loadPlotly } from '@/utils/plotly'
 
-const { locale } = useI18n()
+const { t, locale } = useI18n()
 
 const mode = ref('mandelbrot')
 const canvasEl = ref(null)
@@ -103,7 +103,7 @@ async function drawLorenz() {
     x:xs, y:ys, z:zs, type:'scatter3d', mode:'lines',
     line:{width:2, color:xs.map((_,i)=>i/xs.length), colorscale:'Viridis'}
   }], {
-    title: locale.value === 'en' ? 'Lorenz Attractor — The Geometry of the Butterfly Effect' : 'Lorenz 吸引子 — 蝴蝶效应的几何形状',
+    title: t('fractal.lorenzTitle'),
     scene:{xaxis:{title:'x'},yaxis:{title:'y'},zaxis:{title:'z'}},
     margin:{t:40,r:20,b:40,l:20}, paper_bgcolor:'rgba(0,0,0,0)'
   }, {responsive:true})

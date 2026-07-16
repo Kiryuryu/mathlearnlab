@@ -24,7 +24,7 @@
 <script setup>
 import { ref, computed, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const emit = defineEmits(['close'])
 const query = ref('')
@@ -53,7 +53,7 @@ function onInput() {
 async function doSearch() {
   if (!query.value.trim()) return
   try {
-    const r = await fetch(`/api/search?q=${encodeURIComponent(query.value.trim())}`)
+    const r = await fetch(`/api/search?q=${encodeURIComponent(query.value.trim())}&lang=${locale.value}`)
     const d = await r.json()
     results.value = d.results || []
   } catch { results.value = [] }

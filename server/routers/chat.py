@@ -28,16 +28,18 @@ async def chat_stream(request: Request, user: dict = Depends(require_user)):
     model = body.get("model")
     max_tokens = body.get("max_tokens")
     context_route = body.get("context_route", "")
+    lang = body.get("lang", "zh")
 
-    # Use client-provided key, or server default if none
     api_key = request.headers.get("X-API-Key") or settings.anthropic_api_key
     if not api_key:
-        raise HTTPException(status_code=401, detail="请先配置 API Key（点击右上角圆点按钮）")
+        err = "请先配置 API Key（点击右上角圆点按钮）" if lang == "zh" else "Please configure your API Key first"
+        raise HTTPException(status_code=401, detail=err)
 
     return StreamingResponse(
         chat_service.stream_chat(
             messages=messages, system=system, model=model,
             max_tokens=max_tokens, api_key=api_key, context_route=context_route,
+            lang=lang,
         ),
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "Connection": "keep-alive", "X-Accel-Buffering": "no"},

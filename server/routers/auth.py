@@ -18,8 +18,6 @@ router = APIRouter()
 security = HTTPBearer(auto_error=False)
 
 
-# ── Model schemas (inline pydantic, no ORM needed) ──
-
 from pydantic import BaseModel
 
 
@@ -41,11 +39,7 @@ class UserInfo(BaseModel):
     created_at: str
 
 
-# ── Dependency: get current user (optional) ──
-
-
 def get_current_user(credentials: HTTPAuthorizationCredentials | None = Depends(security)) -> dict | None:
-    """Extract user from JWT bearer token. Returns None if no token or invalid."""
     if credentials is None:
         return None
     payload = decode_access_token(credentials.credentials)
@@ -55,18 +49,13 @@ def get_current_user(credentials: HTTPAuthorizationCredentials | None = Depends(
 
 
 def require_user(user: dict | None = Depends(get_current_user)) -> dict:
-    """Require a valid user. Raises 401 if missing."""
     if user is None:
         raise HTTPException(status_code=401, detail="Authentication required")
     return user
 
 
-# ── Routes ──
-
-
 @router.get("/api/auth/check-username")
 async def check_username(username: str):
-    """Check if a username is available."""
     if len(username) < 3:
         return {"available": False, "reason": "too_short"}
     with db_session() as conn:
@@ -76,7 +65,6 @@ async def check_username(username: str):
 
 @router.post("/api/auth/register")
 async def register(body: RegisterRequest):
-    """Register a new user account (pending admin approval)."""
     if len(body.username) < 3:
         raise HTTPException(status_code=400, detail="Username must be at least 3 characters")
     if len(body.password) < 6:
@@ -95,23 +83,21 @@ async def register(body: RegisterRequest):
         )
         conn.commit()
 
-    # Send email to admin
     from server.services.email import send_admin_notification
-    approve_url = f"https://www.mathlearnlab.cn/admin"
+    approve_url = "https://www.mathlearnlab.cn/admin"
     send_admin_notification(
-        subject=f"数学博物馆 - 新用户注册: {body.username}",
-        body=f"<h3>新用户注册</h3><p>用户名: {body.username}</p><p>邮箱: {body.email}</p><p>ID: {user_id}</p><p>请登录管理后台审核: <a href=\"{approve_url}\">{approve_url}</a></p>"
+        subject=f"Math Museum - New Registration: {body.username}",
+        body=f"<h3>New User Registration</h3><p>Username: {body.username}</p><p>Email: {body.email}</p><p>ID: {user_id}</p><p>Review at: <a href=\"{approve_url}\">{approve_url}</a></p>"
     )
 
     return {
-        "message": "注册成功，请等待管理员审核",
+        "message": "Registration submitted, awaiting admin approval",
         "status": "pending",
     }
 
 
 @router.post("/api/auth/login")
 async def login(body: LoginRequest):
-    """Login and get JWT token. Requires admin-approved account."""
     with db_session() as conn:
         row = conn.execute("SELECT * FROM users WHERE username = ?", (body.username,)).fetchone()
 
@@ -120,9 +106,9 @@ async def login(body: LoginRequest):
 
     status = row.get("status", "active")
     if status == "pending":
-        raise HTTPException(status_code=403, detail="账号正在审核中，请等待管理员通过")
+        raise HTTPException(status_code=403, detail="Account is pending admin approval")
     if status == "rejected":
-        raise HTTPException(status_code=403, detail="账号审核未通过")
+        raise HTTPException(status_code=403, detail="Account registration was rejected")
 
     token = create_access_token(row["id"], row["username"])
     return {
@@ -133,7 +119,6 @@ async def login(body: LoginRequest):
 
 @router.get("/api/auth/me")
 async def me(user: dict = Depends(require_user)):
-    """Get current user info."""
     conn = get_db()
     row = conn.execute("SELECT * FROM users WHERE id = ?", (user["user_id"],)).fetchone()
     conn.close()
@@ -151,7 +136,6 @@ ADMIN_SECRET = os.getenv("ADMIN_SECRET") or secrets.token_urlsafe(32)
 
 @router.get("/api/admin/users")
 async def list_pending_users(secret: str = "", status: str = "pending"):
-    """List users by status (admin only)."""
     if secret != ADMIN_SECRET:
         raise HTTPException(status_code=403, detail="Unauthorized")
     with db_session() as conn:
@@ -164,7 +148,6 @@ async def list_pending_users(secret: str = "", status: str = "pending"):
 
 @router.post("/api/admin/users/{user_id}/approve")
 async def approve_user(user_id: str, secret: str = ""):
-    """Approve a pending user."""
     if secret != ADMIN_SECRET:
         raise HTTPException(status_code=403, detail="Unauthorized")
     with db_session() as conn:
@@ -175,11 +158,9 @@ async def approve_user(user_id: str, secret: str = ""):
 
 @router.post("/api/admin/users/{user_id}/reject")
 async def reject_user(user_id: str, secret: str = ""):
-    """Reject a pending user."""
     if secret != ADMIN_SECRET:
         raise HTTPException(status_code=403, detail="Unauthorized")
     with db_session() as conn:
         conn.execute("UPDATE users SET status = 'rejected' WHERE id = ?", (user_id,))
         conn.commit()
     return {"status": "rejected"}
-

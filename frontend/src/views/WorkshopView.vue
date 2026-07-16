@@ -31,7 +31,7 @@ import { ref, computed, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { loadPlotly } from '@/utils/plotly'
 
-const { locale } = useI18n()
+const { t } = useI18n()
 const mode = ref('2d')
 const funcInput = ref('sin(x)')
 const aiDesc = ref('')
@@ -55,9 +55,7 @@ const presetDefs = [
 ]
 const presets = computed(() => presetDefs.map(g => ({
   ...g,
-  label: locale.value === 'en'
-    ? ({ basic: 'Basic', limits: 'Limits', series: 'Series', '3d': '3D', vector: 'Vector Field' })[g.key] || g.key
-    : ({ basic: '基础', limits: '极限', series: '级数', '3d': '3D', vector: '向量场' })[g.key] || g.key,
+  label: t('workshop.preset' + g.key.charAt(0).toUpperCase() + g.key.slice(1)),
 })))
 
 function ev1(expr, x) {
