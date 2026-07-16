@@ -1,10 +1,10 @@
 """
 Chat service — SSE streaming chat via DeepSeek (OpenAI-compatible) API.
 """
-from openai import AsyncOpenAI
-from server.config import settings
 
-SYSTEM_PROMPT_TEMPLATE = """你是数学博物馆的 AI 导览员。{context_info}
+from openai import AsyncOpenAI
+
+ZH_SYSTEM_PROMPT = """你是数学博物馆的 AI 导览员。{context_info}
 
 你的使命：
 - 帮助访客发现数学之美，理解概念的直观含义，而非应试技巧
@@ -16,19 +16,34 @@ SYSTEM_PROMPT_TEMPLATE = """你是数学博物馆的 AI 导览员。{context_inf
 - 举例说明抽象概念在现实世界中的应用
 - 保持热情和好奇心，激发访客对数学的热爱"""
 
+EN_SYSTEM_PROMPT = """You are the AI tour guide of the Math Museum. {context_info}
+
+Your mission:
+- Help visitors discover the beauty of mathematics and understand concepts intuitively
+- Answer in English, with elegant and engaging language like a knowledgeable guide
+- Use LaTeX for math formulas ($...$ inline, $$...$$ display)
+- Structure answers: first give intuition, then rigorous explanation
+- Tell the stories behind concepts — who discovered them, why they are defined that way, what makes them beautiful
+- Point out deep connections between concepts
+- Give real-world examples of abstract ideas
+- Be passionate and curious, inspiring visitors' love for mathematics"""
+
 
 async def stream_chat(messages: list[dict], system: str | None = None,
                       model: str | None = None, max_tokens: int | None = None,
-                      api_key: str | None = None, context_route: str = ""):
+                      api_key: str | None = None, context_route: str = "",
+                      lang: str = "zh"):
     """Async generator yielding SSE-formatted chat chunks via DeepSeek."""
     if not api_key:
-        yield "data: {\"error\":\"请先登录并配置 DeepSeek API Key\"}\n\n"
+        err = "请先登录并配置 DeepSeek API Key" if lang == "zh" else "Please log in and configure your DeepSeek API Key"
+        yield f"data: {{\"error\":\"{err}\"}}\n\n"
         yield "data: [DONE]\n\n"
         return
 
     model = model or "deepseek-chat"
+    prompt = ZH_SYSTEM_PROMPT if lang == "zh" else EN_SYSTEM_PROMPT
     context_info = f"当前访客在浏览: {context_route}" if context_route else ""
-    system_msg = system or SYSTEM_PROMPT_TEMPLATE.format(context_info=context_info)
+    system_msg = system or prompt.format(context_info=context_info)
 
     chat_messages = [{"role": "system", "content": system_msg}]
     for m in messages[-30:]:

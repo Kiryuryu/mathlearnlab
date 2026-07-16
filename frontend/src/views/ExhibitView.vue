@@ -146,9 +146,7 @@ function MuseumVizEpsilon(el) {
     ], { title: 'ε-δ: ε='+eps.toFixed(2)+', δ='+delta.toFixed(2), margin:{t:40,r:20,b:40,l:40}, paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)', showlegend:false }, { responsive: true })
   }
   const ctrls = vizControls.value
-  if (ctrls) ctrls.innerHTML = (locale.value === 'en'
-    ? '<label>Drag ε: <span id="epsVal">0.50</span></label><br><input type="range" id="epsSlider" min="0.05" max="1.5" step="0.05" value="0.5" style="width:260px">'
-    : '<label>拖动 ε: <span id="epsVal">0.50</span></label><br><input type="range" id="epsSlider" min="0.05" max="1.5" step="0.05" value="0.5" style="width:260px">')
+  if (ctrls) ctrls.innerHTML = `<label>${t('exhibit.vizEpsilon')} <span id="epsVal">0.50</span></label><br><input type="range" id="epsSlider" min="0.05" max="1.5" step="0.05" value="0.5" style="width:260px">`
   setTimeout(() => {
     const s = document.getElementById('epsSlider')
     if (s) s.oninput = function() { epsVal = parseFloat(this.value); document.getElementById('epsVal').textContent = epsVal.toFixed(2); render() }
@@ -168,9 +166,7 @@ function MuseumVizTangent(el) {
     ], { title: 'f\'(x)='+fp(a).toFixed(1)+' at x='+a.toFixed(1), xaxis:{range:[-3,3]}, margin:{t:40,r:20,b:40,l:40}, paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)', showlegend:false }, { responsive: true })
   }
   const ctrls = vizControls.value
-  if (ctrls) ctrls.innerHTML = (locale.value === 'en'
-    ? '<label>Tangent x = <span id="tanVal">0.0</span></label><br><input type="range" id="tanSlider" min="-2.5" max="2.5" step="0.1" value="0" style="width:260px">'
-    : '<label>切点 x = <span id="tanVal">0.0</span></label><br><input type="range" id="tanSlider" min="-2.5" max="2.5" step="0.1" value="0" style="width:260px">')
+  if (ctrls) ctrls.innerHTML = `<label>${t('exhibit.vizTangent')} <span id="tanVal">0.0</span></label><br><input type="range" id="tanSlider" min="-2.5" max="2.5" step="0.1" value="0" style="width:260px">`
   setTimeout(() => {
     const s = document.getElementById('tanSlider')
     if (s) s.oninput = function() { tanA = parseFloat(this.value); document.getElementById('tanVal').textContent = tanA.toFixed(1); render() }
@@ -192,9 +188,7 @@ function MuseumVizRiemann(el) {
     ], { title: 'Riemann: n='+n+', ≈'+area.toFixed(3)+' (exact:'+(8/3).toFixed(3)+')', margin:{t:40,r:20,b:40,l:40}, paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)', showlegend:false }, { responsive: true })
   }
   const ctrls = vizControls.value
-  if (ctrls) ctrls.innerHTML = (locale.value === 'en'
-    ? '<label>Rectangles n = <span id="nVal">10</span></label><br><input type="range" id="nSlider" min="2" max="100" step="1" value="10" style="width:260px">'
-    : '<label>矩形数 n = <span id="nVal">10</span></label><br><input type="range" id="nSlider" min="2" max="100" step="1" value="10" style="width:260px">')
+  if (ctrls) ctrls.innerHTML = `<label>${t('exhibit.vizRectangles')} <span id="nVal">10</span></label><br><input type="range" id="nSlider" min="2" max="100" step="1" value="10" style="width:260px">`
   setTimeout(() => {
     const s = document.getElementById('nSlider')
     if (s) s.oninput = function() { riemN = parseInt(this.value); document.getElementById('nVal').textContent = riemN; render() }
@@ -209,9 +203,7 @@ function MuseumVizFourier(el) {
     Plotly.react(el, [{ x: xs, y: ys, type: 'scatter', mode: 'lines', line: { color: '#4a6a8a', width: 2 } }], { title: 'Fourier: N='+N+' harmonics', xaxis:{title:'x'}, yaxis:{range:[-1.8,1.8]}, margin:{t:40,r:20,b:40,l:40}, paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)', showlegend:false }, { responsive: true })
   }
   const ctrls = vizControls.value
-  if (ctrls) ctrls.innerHTML = (locale.value === 'en'
-    ? '<label>Harmonics N = <span id="nFourier">3</span></label><br><input type="range" id="fourierSlider" min="1" max="20" step="1" value="3" style="width:260px">'
-    : '<label>谐波数 N = <span id="nFourier">3</span></label><br><input type="range" id="fourierSlider" min="1" max="20" step="1" value="3" style="width:260px">')
+  if (ctrls) ctrls.innerHTML = `<label>${t('exhibit.vizHarmonics')} <span id="nFourier">3</span></label><br><input type="range" id="fourierSlider" min="1" max="20" step="1" value="3" style="width:260px">`
   setTimeout(() => {
     const s = document.getElementById('fourierSlider')
     if (s) s.oninput = function() { fN = parseInt(this.value); document.getElementById('nFourier').textContent = fN; render() }
