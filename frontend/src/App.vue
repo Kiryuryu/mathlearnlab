@@ -3,7 +3,7 @@
     <a href="#main-content" class="skip-link">{{ $t('common.skipToContent') }}</a>
     <header class="app-header">
       <div class="header-left">
-        <router-link to="/" class="app-brand">{{ $t('header.brand') }}</router-link>
+        <router-link to="/" class="app-brand" @click.prevent="onLogoClick">{{ $t('header.brand') }}</router-link>
         <span class="app-subtitle">{{ $t('header.subtitle') }}</span>
       </div>
       <div class="header-right">
@@ -44,7 +44,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '@/stores/auth'
 const LoginDialog = defineAsyncComponent(() => import('@/components/LoginDialog.vue'))
 const SettingsDialog = defineAsyncComponent(() => import('@/components/SettingsDialog.vue'))
@@ -54,6 +54,7 @@ const ChatDialog = defineAsyncComponent(() => import('@/components/ChatDialog.vu
 
 const { t, locale } = useI18n()
 const route = useRoute()
+const router = useRouter()
 const auth = useAuth()
 const showSearch = ref(false)
 const searchDialogRef = ref(null)
@@ -79,13 +80,21 @@ function toggleTheme() {
 function onScroll() { showBackTop.value = window.scrollY > 300 }
 function scrollTop() { window.scrollTo({ top: 0, behavior: 'smooth' }) }
 
+let logoClicks = 0, logoTimer = null
+function onLogoClick() {
+  logoClicks++
+  clearTimeout(logoTimer)
+  logoTimer = setTimeout(() => { logoClicks = 0 }, 2000)
+  if (logoClicks >= 7) { logoClicks = 0; router.push('/admin') }
+}
+
 onMounted(() => {
   const saved = localStorage.getItem('mathlearnlab:theme')
   if (saved) document.documentElement.setAttribute('data-theme', saved)
   else if (window.matchMedia('(prefers-color-scheme: dark)').matches)
     document.documentElement.setAttribute('data-theme', 'dark')
   window.addEventListener('scroll', onScroll)
-  if (!auth.isLoggedIn) setTimeout(() => auth.openLogin(), 300)
+  if (!auth.isLoggedIn && route.name !== 'admin') setTimeout(() => auth.openLogin(), 300)
 })
 onUnmounted(() => window.removeEventListener('scroll', onScroll))
 
