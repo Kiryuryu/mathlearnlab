@@ -52,6 +52,10 @@
       <button class="submit-btn" :disabled="!imageBase64" @click="submitGrade">
         {{ auth.isLoggedIn ? $t('practice.submitForGrade') : '🔒 '+$t('practice.loginToUse') }}
       </button>
+      <div v-if="gradingProgress > 0" class="grading-progress">
+        <div class="progress-bar" :style="{ width: gradingProgress + '%' }"></div>
+        <span class="progress-text">{{ gradingMessages[Math.floor(gradingProgress / 25)] || '处理中...' }}</span>
+      </div>
       <button class="btn" @click="step='select';currentProblem=null">{{ $t('practice.backToSelect') }}</button>
     </div>
 
@@ -66,6 +70,7 @@
       <div class="result-actions">
         <button class="btn btn-primary" @click="step='select';result=null">{{ $t('practice.tryAnother') }}</button>
         <button class="btn" @click="step='solve'">{{ $t('practice.redo') }}</button>
+        <button class="btn" @click="exportPDF">📄 PDF</button>
       </div>
     </div>
     <AiSetupGuide v-if="auth.showAiSetup" @close="auth.closeAiSetup" @proceed="pendingAction?.()" />
@@ -79,6 +84,7 @@ import { renderMarkdown } from '@/utils/markdown'
 import { useAuth } from '@/stores/auth'
 import { apiFetch } from '@/utils/api'
 import { useToast } from '@/utils/toast'
+import { exportProblemToPDF } from '@/utils/pdfExport'
 const AiSetupGuide = defineAsyncComponent(() => import('@/components/AiSetupGuide.vue'))
 
 const { t, locale } = useI18n()
@@ -94,6 +100,8 @@ const previewUrl = ref(null)
 const imageBase64 = ref(null)
 const result = ref(null)
 const generating = ref(false)
+const gradingProgress = ref(0)
+const gradingMessages = ['正在准备题目...', '正在分析解答...', '正在评分...', '正在生成反馈...']
 
 const renderedStatement = computed(() => renderMarkdown(currentProblem.value?.problem_statement || ''))
 
@@ -165,14 +173,23 @@ async function submitGrade() {
 }
 async function submitGradeWithModel() {
   try {
+    gradingProgress.value = 25
     const r = await apiFetch('/api/grade', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ topic_key: topic.value, problem_id: currentProblem.value.id, image_base64: imageBase64.value })
     })
+    gradingProgress.value = 60
     if (r.status === 401) { auth.openLogin('login'); return }
     result.value = await r.json()
+    gradingProgress.value = 100
     step.value = 'results'
   } catch(e) { showToast(t('practice.gradeFail')+': '+e.message) }
+}
+
+function exportPDF() {
+  if (!currentProblem.value) return
+  const solution = result.value?.what_is_correct || result.value?.suggestion || ''
+  exportProblemToPDF(currentProblem.value, solution)
 }
 </script>
 
@@ -215,6 +232,9 @@ async function submitGradeWithModel() {
 .preview-img { max-width:100%; max-height:300px; border-radius:8px; border:1px solid var(--border); }
 .submit-btn { width:100%; padding:14px; background:var(--accent); color:#fff; border:none; border-radius:8px; font-size:15px; cursor:pointer; margin-top:12px; }
 .submit-btn:disabled { opacity:0.4; }
+.grading-progress { margin-top:12px; position:relative; }
+.progress-bar { height:4px; background:var(--accent); border-radius:2px; transition:width 0.3s; }
+.progress-text { font-size:12px; color:var(--text-muted); margin-top:4px; display:block; text-align:center; }
 .results { max-width:600px; margin:0 auto; }
 .verdict { padding:14px 22px; border-radius:8px; text-align:center; font-size:19px; font-weight:700; margin:12px 0; }
 .verdict-correct { background:#eaf4ee; color:var(--accent-correct); } .verdict-partial { background:#faf3e8; color:var(--accent-warm); } .verdict-incorrect { background:#f9eaea; color:var(--accent-error); }

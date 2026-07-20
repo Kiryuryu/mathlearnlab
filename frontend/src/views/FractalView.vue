@@ -32,6 +32,7 @@ const maxIter = ref(100)
 const cx = ref(-0.5), cy = ref(0), range = ref(3)
 const juliaCx = ref(-0.7), juliaCy = ref(0.27)
 let dragging = false, dragX = 0, dragY = 0, needsRedraw = false
+let worker = null
 
 function setMode(m) {
   mode.value = m
@@ -51,34 +52,64 @@ function redraw() {
   const w = Math.floor(rect.width) || 600
   const h = Math.min(w, 600)
   canvas.width = w; canvas.height = h
-  const ctx = canvas.getContext('2d')
+
+  if (!worker) {
+    try {
+      worker = new Worker(new URL('@/workers/fractal.worker.js', import.meta.url))
+      worker.onmessage = function(e) {
+        const { imgData, width, height } = e.data
+        const ctx = canvas.getContext('2d')
+        const img = new ImageData(new Uint8ClampedArray(imgData), width, height)
+        ctx.putImageData(img, 0, 0)
+      }
+    } catch {
+      // Fallback to main thread if Web Workers not supported
+      renderMainThread(w, h)
+      return
+    }
+  }
+
+  worker.postMessage({
+    mode: mode.value,
+    width: w, height: h,
+    cx: cx.value, cy: cy.value,
+    range: range.value,
+    maxIter: maxIter.value,
+    juliaCx: juliaCx.value, juliaCy: juliaCy.value,
+  }, [new SharedArrayBuffer(0)])
+}
+
+function renderMainThread(w, h) {
+  const ctx = canvasEl.value.getContext('2d')
   const img = ctx.createImageData(w, h)
   const mi = maxIter.value
+  const mx = mode.value === 'julia' ? juliaCx.value : 0
+  const my = mode.value === 'julia' ? juliaCy.value : 0
 
   for (let py = 0; py < h; py++) {
     for (let px = 0; px < w; px++) {
-      const x0 = cx.value + (px/w - 0.5) * range.value * w/h
-      const y0 = cy.value + (py/h - 0.5) * range.value
+      const x0 = cx.value + (px / w - 0.5) * range.value * (w / h)
+      const y0 = cy.value + (py / h - 0.5) * range.value
       let iter, x, y
 
       if (mode.value === 'mandelbrot') {
         x = 0; y = 0
         for (iter = 0; iter < mi; iter++) {
-          const xt = x*x - y*y + x0; y = 2*x*y + y0; x = xt
-          if (x*x + y*y > 4) break
+          const xt = x * x - y * y + x0; y = 2 * x * y + y0; x = xt
+          if (x * x + y * y > 4) break
         }
       } else {
         x = x0; y = y0
         for (iter = 0; iter < mi; iter++) {
-          const xt = x*x - y*y + juliaCx.value; y = 2*x*y + juliaCy.value; x = xt
-          if (x*x + y*y > 4) break
+          const xt = x * x - y * y + mx; y = 2 * x * y + my; x = xt
+          if (x * x + y * y > 4) break
         }
       }
 
-      const idx = (py*w + px)*4
+      const idx = (py * w + px) * 4
       if (iter === mi) { img.data[idx]=15; img.data[idx+1]=10; img.data[idx+2]=30; img.data[idx+3]=255 }
       else {
-        const t = iter/mi
+        const t = iter / mi
         img.data[idx]=Math.min(255,Math.floor(9*(1-t)*t*t*t*255)+20)
         img.data[idx+1]=Math.min(255,Math.floor(15*(1-t)*(1-t)*t*t*255)+10)
         img.data[idx+2]=Math.min(255,Math.floor(8.5*(1-t)*(1-t)*(1-t)*t*255)+40)

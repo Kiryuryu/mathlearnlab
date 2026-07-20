@@ -8,4 +8,13 @@ const app = createApp(App)
 app.use(createPinia())
 app.use(router)
 app.use(i18n)
+
+app.config.errorHandler = (err, instance, info) => {
+  console.error('[Vue Error]', err, info)
+}
+
+window.addEventListener('unhandledrejection', (e) => {
+  console.error('[Unhandled Promise]', e.reason)
+})
+
 app.mount('#app')

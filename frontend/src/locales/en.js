@@ -7,6 +7,7 @@ export default {
     fractal: 'Fractals',
     news: 'News',
     practice: 'Practice',
+    bookmarks: 'Bookmarks',
   },
   header: {
     login: 'Log In',
@@ -230,5 +231,17 @@ export default {
     skipToContent: 'Skip to content',
     switchLang: 'Switch language',
     toggleTheme: 'Toggle theme',
+    share: 'Share',
+    bookmark: 'Bookmark',
+    unbookmark: 'Unbookmark',
+    bookmarkAdded: 'Added to bookmarks',
+    bookmarkRemoved: 'Removed from bookmarks',
+    linkCopied: 'Link copied',
+    loading: 'Loading...',
+  },
+  bookmarks: {
+    title: 'My Bookmarks',
+    subtitle: 'Saved exhibits and practice problems',
+    empty: 'No bookmarks yet. Click the ☆ button on exhibit pages to save.',
   },
 }

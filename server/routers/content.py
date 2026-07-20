@@ -76,6 +76,36 @@ async def search_content(q: str = "", lang: str = "zh"):
             except Exception:
                 continue
 
+    # Search English content directory too
+    en_dir = CONTENT_DIR / "en"
+    if en_dir.exists():
+        for md_file in en_dir.rglob("*.md"):
+            if md_file.name.startswith("._"): continue
+            try:
+                text = md_file.read_text(encoding="utf-8")
+                lower_text = text.lower()
+                if query in lower_text:
+                    idx = lower_text.find(query)
+                    start = max(0, idx - 40)
+                    end = min(len(text), idx + len(query) + 80)
+                    snippet = text[start:end].replace("\n", " ").strip()
+                    if start > 0:
+                        snippet = "..." + snippet
+                    if end < len(text):
+                        snippet = snippet + "..."
+                    rel = str(md_file.relative_to(en_dir))
+                    title = rel.replace(".md", "").replace("-", " ").replace("/", " > ") + " (EN)"
+                    if rel.startswith("exhibits/"): route = "/exhibit/" + rel.split("/")[1]
+                    else: route = "/" + rel.replace(".md", "")
+                    results.append({
+                        "title": title,
+                        "excerpt": snippet[:160],
+                        "route": route,
+                        "section": _section("content", "en"),
+                    })
+            except Exception:
+                continue
+
     for key, e in settings.exhibits.items():
         if key == "gaoshu":
             continue

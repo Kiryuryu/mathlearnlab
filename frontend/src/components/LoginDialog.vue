@@ -1,6 +1,6 @@
 <template>
   <div class="login-overlay" @click.self="auth.closeLogin()">
-    <div class="login-box">
+    <div class="login-box" ref="loginBoxRef">
       <div class="login-left">
         <div class="login-logo">{{ $t('header.brand') }}</div>
         <div class="login-sub">{{ $t('login.guest') }}</div>
@@ -36,8 +36,11 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuth } from '@/stores/auth'
+import { useFocusTrap } from '@/utils/focusTrap'
 const auth = useAuth()
 const { t } = useI18n()
+const loginBoxRef = ref(null)
+useFocusTrap(loginBoxRef)
 
 const loginUser = ref(''), loginPass = ref(''), loginErr = ref('')
 const regUser = ref(''), regEmail = ref(''), regPass = ref(''), regErr = ref('')

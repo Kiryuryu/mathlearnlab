@@ -4,6 +4,16 @@
   <meta charset="UTF-8">
   <link rel="icon" href="/static/favicon.svg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    (function() {
+      try {
+        const t = localStorage.getItem('mathlearnlab:theme')
+        if (t) document.documentElement.setAttribute('data-theme', t)
+        else if (window.matchMedia('(prefers-color-scheme: dark)').matches)
+          document.documentElement.setAttribute('data-theme', 'dark')
+      } catch {}
+    })()
+  </script>
   <meta name="description" content="数学博物馆 — 知其然，知其所以然。交互式探索微积分、线性代数、概率论的数学之美。理解概念，发现数学。 Math Museum — interactive calculus, linear algebra & probability exhibits.">
   <meta name="keywords" content="数学,微积分,线性代数,概率论,数学博物馆,教育,interactive math,calculus,linear algebra">
   <meta property="og:title" content="数学博物馆 — 知其然，知其所以然 | Math Museum">
@@ -32,7 +42,8 @@
     "audience": { "@type": "Audience", "audienceType": "Mathematics students and enthusiasts" }
   }
   </script>
-  <script type="module" crossorigin src="/assets/index-CT3C4F2K.js"></script>
+  <script type="module" crossorigin src="/assets/index-B5jSRxeA.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/rolldown-runtime-QTnfLwEv.js">
   <link rel="modulepreload" crossorigin href="/assets/runtime-core.esm-bundler-CIxmKYxc.js">
   <link rel="modulepreload" crossorigin href="/assets/runtime-dom.esm-bundler-CK6iAQ-p.js">
   <link rel="stylesheet" crossorigin href="/assets/index-p0tli7Zm.css">
