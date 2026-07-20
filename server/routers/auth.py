@@ -3,7 +3,7 @@ Auth API — registration, login, user info.
 """
 import os
 import secrets
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from server.models.database import get_db, db_session
 from server.models.auth import (
@@ -37,6 +37,10 @@ class UserInfo(BaseModel):
     username: str
     email: str
     created_at: str
+
+
+class AdminSecretRequest(BaseModel):
+    secret: str
 
 
 def get_current_user(credentials: HTTPAuthorizationCredentials | None = Depends(security)) -> dict | None:
@@ -134,9 +138,9 @@ async def me(user: dict = Depends(require_user)):
 ADMIN_SECRET = os.getenv("ADMIN_SECRET") or secrets.token_urlsafe(32)
 
 
-@router.get("/api/admin/users")
-async def list_pending_users(secret: str = "", status: str = "pending"):
-    if secret != ADMIN_SECRET:
+@router.post("/api/admin/users")
+async def list_pending_users(body: AdminSecretRequest, status: str = "pending"):
+    if body.secret != ADMIN_SECRET:
         raise HTTPException(status_code=403, detail="Unauthorized")
     with db_session() as conn:
         if status == "all":
@@ -147,8 +151,8 @@ async def list_pending_users(secret: str = "", status: str = "pending"):
 
 
 @router.post("/api/admin/users/{user_id}/approve")
-async def approve_user(user_id: str, secret: str = ""):
-    if secret != ADMIN_SECRET:
+async def approve_user(user_id: str, body: AdminSecretRequest):
+    if body.secret != ADMIN_SECRET:
         raise HTTPException(status_code=403, detail="Unauthorized")
     with db_session() as conn:
         conn.execute("UPDATE users SET status = 'active' WHERE id = ?", (user_id,))
@@ -157,8 +161,8 @@ async def approve_user(user_id: str, secret: str = ""):
 
 
 @router.post("/api/admin/users/{user_id}/reject")
-async def reject_user(user_id: str, secret: str = ""):
-    if secret != ADMIN_SECRET:
+async def reject_user(user_id: str, body: AdminSecretRequest):
+    if body.secret != ADMIN_SECRET:
         raise HTTPException(status_code=403, detail="Unauthorized")
     with db_session() as conn:
         conn.execute("UPDATE users SET status = 'rejected' WHERE id = ?", (user_id,))

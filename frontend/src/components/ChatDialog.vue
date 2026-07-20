@@ -4,7 +4,7 @@
   </button>
 
   <div v-if="panelOpen" class="chat-overlay" @click.self="panelOpen = false">
-    <div class="chat-panel">
+    <div class="chat-panel" ref="panelRef">
       <header>
         <h3>{{ $t('chat.title') }}</h3>
         <span class="chat-context" v-if="contextLabel">{{ contextLabel }}</span>
@@ -42,6 +42,7 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuth } from '@/stores/auth'
 import { renderMarkdown } from '@/utils/markdown'
+import { useFocusTrap } from '@/utils/focusTrap'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -53,9 +54,11 @@ const messages = ref([])
 const streaming = ref(false)
 const streamText = ref('')
 const msgList = ref(null)
+const panelRef = ref(null)
 let msgId = 0
 let abortCtrl = null
 let userScrolledUp = false
+useFocusTrap(panelRef)
 
 const contextLabel = computed(() => {
   const name = route.name

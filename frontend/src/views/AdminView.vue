@@ -56,7 +56,11 @@ function formatDate(d) { return d ? new Date(d).toLocaleDateString(locale.value 
 
 async function load() {
   try {
-    const r = await fetch(`/api/admin/users?secret=${secret.value}&status=${filter.value}`)
+    const r = await fetch(`/api/admin/users?status=${filter.value}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret: secret.value })
+    })
     if (!r.ok) { showToast(t('admin.loadFail')); return }
     const d = await r.json()
     users.value = d.users || []
@@ -66,7 +70,11 @@ async function load() {
 
 async function approve(id) {
   try {
-    const r = await fetch(`/api/admin/users/${id}/approve?secret=${secret.value}`, { method: 'POST' })
+    const r = await fetch(`/api/admin/users/${id}/approve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret: secret.value })
+    })
     if (!r.ok) { showToast(t('admin.actionFail')); return }
     load()
   } catch(e) { console.warn('Failed to approve user', e); showToast(t('admin.actionFail')) }
@@ -74,7 +82,11 @@ async function approve(id) {
 
 async function reject(id) {
   try {
-    const r = await fetch(`/api/admin/users/${id}/reject?secret=${secret.value}`, { method: 'POST' })
+    const r = await fetch(`/api/admin/users/${id}/reject`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret: secret.value })
+    })
     if (!r.ok) { showToast(t('admin.actionFail')); return }
     load()
   } catch(e) { console.warn('Failed to reject user', e); showToast(t('admin.actionFail')) }

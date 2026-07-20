@@ -31,7 +31,7 @@ app = FastAPI(title=settings.app_name, version="4.0.0", lifespan=lifespan)
 # ── CORS ──
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["https://mathlearnlab.cn", "https://www.mathlearnlab.cn", "http://127.0.0.1:5173", "http://127.0.0.1:8000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -57,7 +57,7 @@ async def museum_exhibits():
     }
 
 # Import and include routers
-from server.routers import content, practice, grade, chat, stats, auth, workshop, blog
+from server.routers import content, practice, grade, chat, stats, auth, workshop, blog, bookmarks
 
 app.include_router(auth.router)
 app.include_router(content.router)
@@ -67,3 +67,4 @@ app.include_router(chat.router)
 app.include_router(stats.router)
 app.include_router(workshop.router)
 app.include_router(blog.router)
+app.include_router(bookmarks.router)

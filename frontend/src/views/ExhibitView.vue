@@ -10,6 +10,12 @@
       <a v-for="t in tabs" :key="t.key" :href="'?tab='+t.key" :class="['tab', { active: activeTab === t.key }]" @click.prevent="activeTab = t.key">{{ $t('exhibit.' + t.key) }}</a>
     </nav>
     <div class="tab-content">
+      <div class="exhibit-actions">
+        <button class="action-btn" @click="shareLink" :title="$t('common.share')">🔗</button>
+        <button class="action-btn" @click="toggleBookmark" :title="isBookmarked ? $t('common.unbookmark') : $t('common.bookmark')">
+          {{ isBookmarked ? '★' : '☆' }}
+        </button>
+      </div>
       <div v-if="loading" class="skeleton-wrap">
         <div class="skeleton skeleton-title"></div>
         <div class="skeleton skeleton-text"></div>
@@ -34,9 +40,13 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { loadPlotly } from '@/utils/plotly'
 import { renderMarkdown } from '@/utils/markdown'
+import { useAuth } from '@/stores/auth'
+import { useToast } from '@/utils/toast'
 
 const { t, locale } = useI18n()
 const route = useRoute()
+const auth = useAuth()
+const { show: showToast } = useToast()
 const topic = computed(() => route.params.topic)
 const activeTab = ref(route.query.tab || 'concept')
 const exhibit = ref(null)
@@ -45,6 +55,8 @@ const loading = ref(false)
 const vizPlot = ref(null)
 const vizControls = ref(null)
 const contentEl = ref(null)
+const isBookmarked = ref(false)
+let bookmarksLoaded = false
 
 const tabs = [
   { key: 'concept' },
@@ -107,6 +119,50 @@ async function loadContent() {
 }
 
 watch([topic, activeTab, locale], loadContent, { immediate: true })
+
+async function loadBookmarks() {
+  if (!auth.isLoggedIn || bookmarksLoaded) return
+  try {
+    const r = await fetch('/api/bookmarks')
+    if (r.ok) {
+      const d = await r.json()
+      const bm = d.bookmarks || []
+      isBookmarked.value = bm.some(b => b.route === `/exhibit/${topic.value}`)
+      bookmarksLoaded = true
+    }
+  } catch {}
+}
+
+async function toggleBookmark() {
+  if (!auth.isLoggedIn) { auth.openLogin('login'); return }
+  try {
+    const r = await fetch('/api/bookmarks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        route: `/exhibit/${topic.value}`,
+        title: exhibitName.value || topic.value,
+      })
+    })
+    if (r.ok) {
+      isBookmarked.value = !isBookmarked.value
+      showToast(isBookmarked.value ? (t('common.bookmarkAdded') || '已添加收藏') : (t('common.bookmarkRemoved') || '已取消收藏'))
+    }
+  } catch {}
+}
+
+function shareLink() {
+  const url = window.location.href
+  if (navigator.share) {
+    navigator.share({ title: exhibitName.value || topic.value, url })
+  } else {
+    navigator.clipboard.writeText(url).then(() => {
+      showToast(t('common.linkCopied') || '链接已复制')
+    }).catch(() => {
+      window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(exhibitName.value || topic.value)}`, '_blank')
+    })
+  }
+}
 
 // Plotly viz (lazy-loaded on demand)
 let vizInited = false
@@ -236,6 +292,10 @@ function MuseumVizGradient(el) {
 .tab:hover { color:var(--accent); }
 .tab.active { color:var(--accent); border-bottom-color:var(--accent); font-weight:600; }
 .tab-content { max-width:800px; margin:0 auto; padding:32px 40px; }
+.exhibit-actions { position:fixed; top:100px; right:20px; display:flex; flex-direction:column; gap:8px; z-index:20; }
+.action-btn { width:40px; height:40px; border-radius:50%; border:1px solid var(--border); background:var(--bg-card); color:var(--text-secondary); cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; transition:all 0.15s; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+.action-btn:hover { border-color:var(--accent); color:var(--accent); }
+.action-btn.active { color:var(--accent-warm); }
 .tab-content :deep(.katex-display) { margin:16px 0; overflow-x:auto; overflow-y:hidden; }
 .tab-content :deep(table) { width:100%; border-collapse:collapse; margin:16px 0; font-size:14px; }
 .tab-content :deep(th), .tab-content :deep(td) { border:1px solid var(--border); padding:8px 12px; text-align:left; }

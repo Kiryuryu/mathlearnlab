@@ -29,8 +29,6 @@ const { locale } = useI18n()
 
 const cards = [
   { to: '/gaoshu', title: '微积分的世界', title_en: 'Calculus World', desc: '极限、导数、积分、级数、多元微积分', desc_en: 'Limits, Derivatives, Integrals, Series, Multivariable', meta: '5大主题 · 7位核心数学家', meta_en: '5 Topics · 7 Key Mathematicians', bg: 'linear-gradient(135deg,#1a1d22,#1e2935 40%,#2a3d54 70%,#3a5a7c)' },
-  { to: '/exhibit/linear-algebra', title: '线性代数', title_en: 'Linear Algebra', desc: '矩阵变换 · 特征值 · 空间变形', desc_en: 'Matrix Transformations · Eigenvalues · Space Deformations', meta: '凯莱、哈密顿、格拉斯曼', meta_en: 'Cayley, Hamilton, Grassmann', bg: 'linear-gradient(135deg,#1a1a2e,#2a2a4e)' },
-  { to: '/exhibit/probability', title: '概率论', title_en: 'Probability', desc: '大数定律 · 中心极限 · 贝叶斯', desc_en: 'Law of Large Numbers · Central Limit · Bayes', meta: '帕斯卡、伯努利、柯尔莫哥洛夫', meta_en: 'Pascal, Bernoulli, Kolmogorov', bg: 'linear-gradient(135deg,#2e1a1a,#4e2a2a)' },
   { to: '/fractal', title: '分形探索', title_en: 'Fractal Explorer', desc: 'Mandelbrot 集 · Julia 集 · Lorenz 吸引子', desc_en: 'Mandelbrot · Julia · Lorenz Attractor', meta: 'Mandelbrot · Julia', bg: 'linear-gradient(135deg,#2e1a1a,#4e2a2a)' },
   { to: '/gallery', title: '数学之美', title_en: 'Mathematical Beauty', desc: '欧拉恒等式 · 巴塞尔问题 · 高斯积分', desc_en: "Euler's Identity · Basel Problem · Gaussian Integral", meta: '最美的公式一览', meta_en: 'The Most Beautiful Formulas', bg: 'linear-gradient(135deg,#1d1a2e,#4a2c6e)' },
   { to: '/mathematicians', title: '数学家长廊', title_en: 'Mathematicians', desc: '牛顿 · 欧拉 · 高斯 · 拉马努金', desc_en: 'Newton · Euler · Gauss · Ramanujan', meta: '7位数学家的故事', meta_en: 'Stories of 7 Mathematicians', bg: 'linear-gradient(135deg,#1e1a2e,#2a2250,#3a2a60)' },

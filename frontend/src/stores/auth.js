@@ -29,7 +29,11 @@ export const useAuth = defineStore('auth', () => {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
     })
-    if (!r.ok) throw new Error((await r.json()).detail || 'Login failed')
+    if (!r.ok) {
+      let detail = 'Login failed'
+      try { detail = (await r.json()).detail || detail } catch {}
+      throw new Error(detail)
+    }
     const d = await r.json()
     token.value = d.token; user.value = d.user
     localStorage.setItem('mathlearnlab:token', d.token)
@@ -42,7 +46,8 @@ export const useAuth = defineStore('auth', () => {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password, email })
     })
-    const d = await r.json()
+    let d
+    try { d = await r.json() } catch { d = {} }
     if (!r.ok) throw new Error(d.detail || 'Register failed')
     showLogin.value = false
     return d.message || '注册成功，等待审核'

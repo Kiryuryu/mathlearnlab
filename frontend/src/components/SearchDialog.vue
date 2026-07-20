@@ -1,6 +1,6 @@
 <template>
   <div class="search-overlay" @click.self="$emit('close')">
-    <div class="search-modal">
+    <div class="search-modal" ref="modalRef">
       <div class="search-bar">
         <input ref="inputEl" v-model="query" :placeholder="$t('search.placeholder')" @input="onInput" @keydown.escape="$emit('close')" />
         <button class="close-btn" @click="$emit('close')">{{ $t('common.close') }}</button>
@@ -24,6 +24,7 @@
 <script setup>
 import { ref, computed, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useFocusTrap } from '@/utils/focusTrap'
 const { t, locale } = useI18n()
 
 const emit = defineEmits(['close'])
@@ -31,7 +32,9 @@ const query = ref('')
 const results = ref([])
 const loading = ref(false)
 const inputEl = ref(null)
+const modalRef = ref(null)
 let debounceTimer = null
+useFocusTrap(modalRef)
 
 const grouped = computed(() => {
   const g = {}

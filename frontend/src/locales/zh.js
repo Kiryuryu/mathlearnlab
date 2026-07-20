@@ -7,6 +7,7 @@ export default {
     fractal: '分形',
     news: '新闻',
     practice: '练习',
+    bookmarks: '收藏',
   },
   header: {
     login: '登录',
@@ -230,5 +231,17 @@ export default {
     skipToContent: '跳转到内容',
     switchLang: '切换语言',
     toggleTheme: '切换主题',
+    share: '分享',
+    bookmark: '收藏',
+    unbookmark: '取消收藏',
+    bookmarkAdded: '已添加到收藏',
+    bookmarkRemoved: '已移除收藏',
+    linkCopied: '链接已复制',
+    loading: '加载中...',
+  },
+  bookmarks: {
+    title: '我的收藏',
+    subtitle: '收藏的知识点和练习',
+    empty: '还没有收藏，点击页面右侧的 ☆ 按钮添加收藏',
   },
 }
