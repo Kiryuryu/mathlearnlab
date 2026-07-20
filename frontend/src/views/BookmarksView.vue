@@ -41,7 +41,7 @@ async function removeBookmark(id) {
     const r = await fetch(`/api/bookmarks/${id}`, { method: 'DELETE' })
     if (r.ok) {
       bookmarks.value = bookmarks.value.filter(b => b.id !== id)
-      showToast(t('common.bookmarkRemoved') || '已移除')
+      showToast(t('common.bookmarkRemoved') || 'Removed')
     }
   } catch {}
 }

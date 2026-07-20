@@ -43,8 +43,8 @@ const selectedPost = ref(null)
 const renderedContent = ref('')
 
 function stripSummary(s) {
-  const t = stripMarkdown(s)
-  return t.length > 120 ? t.slice(0, 120) + '…' : t
+  const text = stripMarkdown(s)
+  return text.length > 120 ? text.slice(0, 120) + '…' : text
 }
 
 async function fetchPosts() {

@@ -116,12 +116,12 @@ function retry(msg) {
   send()
 }
 
+let pendingSetup = false
 function openPanel() {
   if (!auth.isLoggedIn) { auth.openLogin('login'); return }
-  if (!auth.hasModel) { pendingSetup.value = true; auth.openAiSetup(); return }
+  if (!auth.hasModel) { pendingSetup = true; auth.openAiSetup(); return }
   doOpen()
 }
-let pendingSetup = false
 function doOpen() {
   panelOpen.value = true
   scrollBottom()

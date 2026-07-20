@@ -86,6 +86,8 @@ const heroBgs = {
   integrals: 'linear-gradient(135deg,#0d3b3b,#1a6b5a)',
   series: 'linear-gradient(135deg,#3d1a1a,#8b3a3a)',
   multivariable: 'linear-gradient(135deg,#1a2d3d,#2c5f8b)',
+  'linear-algebra': 'linear-gradient(135deg,#1a1a2e,#2a2a4e)',
+  probability: 'linear-gradient(135deg,#2e1a1a,#4e2a2a)',
 }
 const heroBg = computed(() => heroBgs[topic.value] || 'linear-gradient(135deg,#1a1a2e,#16213e,#0f3460)')
 
@@ -146,7 +148,7 @@ async function toggleBookmark() {
     })
     if (r.ok) {
       isBookmarked.value = !isBookmarked.value
-      showToast(isBookmarked.value ? (t('common.bookmarkAdded') || '已添加收藏') : (t('common.bookmarkRemoved') || '已取消收藏'))
+      showToast(isBookmarked.value ? (t('common.bookmarkAdded') || 'Bookmarked') : (t('common.bookmarkRemoved') || 'Unbookmarked'))
     }
   } catch {}
 }
@@ -157,7 +159,7 @@ function shareLink() {
     navigator.share({ title: exhibitName.value || topic.value, url })
   } else {
     navigator.clipboard.writeText(url).then(() => {
-      showToast(t('common.linkCopied') || '链接已复制')
+      showToast(t('common.linkCopied') || 'Link copied')
     }).catch(() => {
       window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(exhibitName.value || topic.value)}`, '_blank')
     })

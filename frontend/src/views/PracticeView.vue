@@ -61,7 +61,7 @@
 
     <!-- Phase 3: Results -->
     <div v-if="step === 'results' && result" class="results">
-      <div :class="'verdict verdict-'+result.verdict">{{ result.verdict === 'correct' ? '✓ '+$t('practice.correct') : result.verdict === 'partial' ? '≈ '+$t('practice.partial') : '✗ '+$t('practice.incorrect') }}</div>
+      <div :class="'verdict verdict-'+(result.verdict==='partially_correct'?'partial':result.verdict)">{{ result.verdict === 'correct' ? '✓ '+$t('practice.correct') : result.verdict === 'partially_correct' ? '≈ '+$t('practice.partial') : '✗ '+$t('practice.incorrect') }}</div>
       <div class="feedback">
         <div v-if="result.what_is_correct"><strong>{{ $t('practice.whatIsCorrect') }}</strong>{{ result.what_is_correct }}</div>
         <div v-if="result.what_is_wrong"><strong>{{ $t('practice.whatIsWrong') }}</strong>{{ result.what_is_wrong }}</div>
@@ -101,7 +101,7 @@ const imageBase64 = ref(null)
 const result = ref(null)
 const generating = ref(false)
 const gradingProgress = ref(0)
-const gradingMessages = ['正在准备题目...', '正在分析解答...', '正在评分...', '正在生成反馈...']
+const gradingMessages = ['Generating problem...', 'Analyzing solution...', 'Grading...', 'Preparing feedback...']
 
 const renderedStatement = computed(() => renderMarkdown(currentProblem.value?.problem_statement || ''))
 
