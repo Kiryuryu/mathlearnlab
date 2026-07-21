@@ -54,7 +54,7 @@
       </button>
       <div v-if="gradingProgress > 0" class="grading-progress">
         <div class="progress-bar" :style="{ width: gradingProgress + '%' }"></div>
-        <span class="progress-text">{{ gradingMessages[Math.floor(gradingProgress / 25)] || '处理中...' }}</span>
+        <span class="progress-text">{{ gradingMessages.value[Math.floor(gradingProgress / 25)] || (locale.value === 'en' ? 'Processing...' : '处理中...') }}</span>
       </div>
       <button class="btn" @click="step='select';currentProblem=null">{{ $t('practice.backToSelect') }}</button>
     </div>
@@ -73,12 +73,12 @@
         <button class="btn" @click="exportPDF">📄 PDF</button>
       </div>
     </div>
-    <AiSetupGuide v-if="auth.showAiSetup" @close="auth.closeAiSetup" @proceed="pendingAction?.()" />
+    <AiSetupGuide v-if="auth.showAiSetup" @close="auth.closeAiSetup" @proceed="pendingAction.value?.()" />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, defineAsyncComponent } from 'vue'
+import { ref, computed, defineAsyncComponent, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { renderMarkdown } from '@/utils/markdown'
 import { useAuth } from '@/stores/auth'
@@ -92,6 +92,8 @@ const auth = useAuth()
 const { show: showToast } = useToast()
 const pendingAction = ref(null)
 
+onUnmounted(() => { pendingAction.value = null })
+
 const topic = ref('limits')
 const step = ref('select')
 const filter = ref('exam')
@@ -101,7 +103,12 @@ const imageBase64 = ref(null)
 const result = ref(null)
 const generating = ref(false)
 const gradingProgress = ref(0)
-const gradingMessages = ['Generating problem...', 'Analyzing solution...', 'Grading...', 'Preparing feedback...']
+const gradingMessages = computed(() => {
+  const msgs = locale.value === 'en'
+    ? ['Generating problem...', 'Analyzing solution...', 'Grading...', 'Preparing feedback...']
+    : ['正在准备题目...', '正在分析解答...', '正在评分...', '正在生成反馈...']
+  return msgs
+})
 
 const renderedStatement = computed(() => renderMarkdown(currentProblem.value?.problem_statement || ''))
 
@@ -189,7 +196,7 @@ async function submitGradeWithModel() {
 function exportPDF() {
   if (!currentProblem.value) return
   const solution = result.value?.what_is_correct || result.value?.suggestion || ''
-  exportProblemToPDF(currentProblem.value, solution)
+  exportProblemToPDF(currentProblem.value, solution, locale.value)
 }
 </script>
 
