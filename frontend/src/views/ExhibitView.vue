@@ -56,7 +56,6 @@ const vizPlot = ref(null)
 const vizControls = ref(null)
 const contentEl = ref(null)
 const isBookmarked = ref(false)
-let bookmarksLoaded = false
 
 const tabs = [
   { key: 'concept' },
@@ -123,14 +122,13 @@ async function loadContent() {
 watch([topic, activeTab, locale], loadContent, { immediate: true })
 
 async function loadBookmarks() {
-  if (!auth.isLoggedIn || bookmarksLoaded) return
+  if (!auth.isLoggedIn) return
   try {
     const r = await fetch('/api/bookmarks')
     if (r.ok) {
       const d = await r.json()
       const bm = d.bookmarks || []
       isBookmarked.value = bm.some(b => b.route === `/exhibit/${topic.value}`)
-      bookmarksLoaded = true
     }
   } catch {}
 }
@@ -148,7 +146,7 @@ async function toggleBookmark() {
     })
     if (r.ok) {
       isBookmarked.value = !isBookmarked.value
-      showToast(isBookmarked.value ? (t('common.bookmarkAdded') || 'Bookmarked') : (t('common.bookmarkRemoved') || 'Unbookmarked'))
+      showToast(isBookmarked.value ? t('common.bookmarkAdded') : t('common.bookmarkRemoved'))
     }
   } catch {}
 }
@@ -159,7 +157,7 @@ function shareLink() {
     navigator.share({ title: exhibitName.value || topic.value, url })
   } else {
     navigator.clipboard.writeText(url).then(() => {
-      showToast(t('common.linkCopied') || 'Link copied')
+      showToast(t('common.linkCopied'))
     }).catch(() => {
       window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(exhibitName.value || topic.value)}`, '_blank')
     })
