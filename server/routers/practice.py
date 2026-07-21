@@ -115,7 +115,7 @@ async def generate_problem(request: Request, user: dict = Depends(require_user))
     client = AsyncOpenAI(api_key=key, base_url="https://api.deepseek.com")
     try:
         response = await client.chat.completions.create(
-            model="deepseek-chat",
+            model=settings.deepseek_model,
             max_tokens=1500,
             messages=[{"role": "user", "content": prompt}],
         )

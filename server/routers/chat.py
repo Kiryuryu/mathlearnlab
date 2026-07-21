@@ -30,7 +30,7 @@ async def chat_stream(request: Request, user: dict = Depends(require_user)):
     context_route = body.get("context_route", "")
     lang = body.get("lang", "zh")
 
-    api_key = request.headers.get("X-API-Key") or settings.anthropic_api_key
+    api_key = request.headers.get("X-API-Key") or settings.deepseek_api_key
     if not api_key:
         err = "请先配置 API Key（点击右上角圆点按钮）" if lang == "zh" else "Please configure your API Key first"
         raise HTTPException(status_code=401, detail=err)

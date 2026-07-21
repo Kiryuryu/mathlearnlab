@@ -22,12 +22,12 @@ https://www.mathlearnlab.cn
 ### AI 功能
 - 智能出题（基础→进阶→考研→研究生→博士）
 - 纸笔作答 → 拍照上传 → AI 批改
-- 数学聊天助手（DeepSeek V4 / R1）
+- 数学聊天助手（基于 DeepSeek API）
 
 ### 用户系统
 - 注册审核制（管理员邮箱审批）
-- MySQL 持久化存储
-- API Key 本地加密存储
+- MySQL / SQLite 持久化存储
+- API Key 存储在浏览器 localStorage
 
 ### 安全
 - HTTPS（Let's Encrypt）
@@ -42,8 +42,8 @@ https://www.mathlearnlab.cn
 | 前端 | Vue 3 + Vite + Pinia + Vue Router |
 | 后端 | FastAPI (Python) |
 | 数据库 | MySQL / SQLite |
-| AI | DeepSeek API (OpenAI 兼容) |
-| 数学渲染 | MathJax 3 + Plotly.js |
+| AI | DeepSeek API (OpenAI 兼容端点) |
+| 数学渲染 | KaTeX + Plotly.js |
 | 部署 | Alibaba Cloud ECS + nginx + systemd |
 
 ## 本地开发
@@ -51,6 +51,8 @@ https://www.mathlearnlab.cn
 ```bash
 # 后端
 pip install -r requirements.txt
+cp .env.example .env
+# 编辑 .env，填入 DEEPSEEK_API_KEY 和 JWT_SECRET_KEY
 uvicorn server.main:app --reload
 
 # 前端
@@ -77,19 +79,46 @@ mathlearnlab/
 │   ├── routers/         # API 路由
 │   ├── services/        # 业务逻辑
 │   ├── models/          # 数据模型
-│   └── templates/       # Jinja2 模板（旧版，逐步废弃）
+│   └── static/          # 静态文件
 ├── content/             # Markdown 内容
 │   ├── notebooks/       # 教材内容
 │   ├── exhibits/        # 展项 Tab 内容
 │   └── news/            # 博客文章
-├── data/
-│   └── problem_bank/    # 题库 JSON
-└── requirements.txt
+├── data/                # 运行时数据（数据库、用户文件）
+├── requirements.txt     # Python 依赖
+├── .env.example         # 环境变量示例
+└── LICENSE
 ```
+
+## 安全配置
+
+### 环境变量
+
+详见 `.env.example`。生产环境**必须**设置以下变量：
+
+| 变量 | 说明 | 是否必填 |
+|------|------|---------|
+| `JWT_SECRET_KEY` | JWT 签名密钥，用于防止令牌伪造 | 是 |
+| `ADMIN_SECRET` | 管理后台访问密钥 | 是 |
+| `DEEPSEEK_API_KEY` | DeepSeek API 密钥 | 是 |
+| `DATABASE_URL` | 数据库连接字符串 | 否（留空则用 SQLite） |
+| `SMTP_*` | 邮件通知配置 | 否 |
+
+### 密钥生成
+
+```bash
+# JWT 密钥
+python -c "import secrets; print(secrets.token_urlsafe(32))"
+
+# Admin 密钥
+python -c "import secrets; print(secrets.token_urlsafe(32))"
+```
+
+> **警告**：切勿将 `.env` 文件提交到 Git。`.env` 已在 `.gitignore` 中。
 
 ## 许可
 
-MIT License
+MIT License — 见 [LICENSE](LICENSE) 文件。
 
 ## 联系
 

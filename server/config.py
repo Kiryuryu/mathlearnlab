@@ -19,17 +19,25 @@ class Settings(BaseSettings):
     content_dir: str = "content"
     data_dir: str = "data"
 
-    # ── Anthropic API ──
-    anthropic_api_key: str = ""
-    default_model: str = "claude-sonnet-4-20250514"
-    fast_model: str = "claude-haiku-4-5-20251001"
+    # ── AI / DeepSeek API ──
+    deepseek_api_key: str = ""
+    deepseek_model: str = "deepseek-chat"
     max_grading_tokens: int = 2000
     max_chat_tokens: int = 4096
 
     # ── Auth / JWT ──
-    jwt_secret_key: str = os.getenv("JWT_SECRET_KEY", "change-me-in-production")
+    jwt_secret_key: str = ""
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 60 * 24  # 24 hours
+
+    # ── Email / SMTP ──
+    smtp_host: str = ""
+    smtp_user: str = ""
+    smtp_pass: str = ""
+    admin_email: str = ""
+
+    # ── Database ──
+    database_url: str = ""
 
     # ── Museum Exhibits ──
     exhibits: dict = {
@@ -345,13 +353,41 @@ def get_settings_dict() -> dict:
         "debug": s.debug,
         "content_dir": s.content_dir,
         "data_dir": s.data_dir,
-        "default_model": s.default_model,
-        "fast_model": s.fast_model,
-        "exhibits": s.exhibits,
+        "deepseek_model": s.deepseek_model,
+        "exhibits": settings.exhibits,
         "difficulty": s.difficulty,
         "nav_tree": s.nav_tree,
         "gaoshu_subtopics": gaoshu_subtopics,
     }
 
 
-settings = Settings()
+def validate_settings():
+    """Validate required settings. Raises RuntimeError if invalid."""
+    if not Settings().debug:
+        jwt_key = os.getenv("JWT_SECRET_KEY", "")
+        if not jwt_key:
+            raise RuntimeError(
+                "JWT_SECRET_KEY environment variable is required in non-debug mode. "
+                "Generate one with: python -c \"import secrets; print(secrets.token_urlsafe(32))\""
+            )
+    if not os.getenv("DEEPSEEK_API_KEY", ""):
+        raise RuntimeError(
+            "DEEPSEEK_API_KEY environment variable is required. "
+            "Set it to your DeepSeek API key (OpenAI-compatible endpoint)."
+        )
+
+
+# Singleton instance — validated lazily on first access
+_settings_instance = None
+
+
+def get_settings() -> Settings:
+    global _settings_instance
+    if _settings_instance is None:
+        _settings_instance = Settings()
+        if not _settings_instance.debug:
+            validate_settings()
+    return _settings_instance
+
+
+settings = get_settings()

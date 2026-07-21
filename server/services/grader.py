@@ -119,14 +119,14 @@ async def grade_submission(problem: dict, image_bytes: bytes, api_key: str | Non
     image_bytes : bytes
         JPEG/PNG image of the handwritten answer.
     api_key : str or None
-        Anthropic API key. If None, reads from settings.
+        DeepSeek API key. If None, reads from settings.
 
     Returns
     -------
-    dict — grading result with keys: ocr_text, verdict, score,
+    GradingResult — dict with keys: ocr_text, verdict, score,
     what_is_correct, what_is_wrong, key_misconception, suggestion, graded_steps
     """
-    key = api_key or settings.anthropic_api_key
+    key = api_key or settings.deepseek_api_key
     if not key:
         raise ValueError("API key not configured")
 
@@ -136,14 +136,14 @@ async def grade_submission(problem: dict, image_bytes: bytes, api_key: str | Non
     client = AsyncOpenAI(api_key=key, base_url="https://api.deepseek.com")
 
     response = await client.chat.completions.create(
-        model="deepseek-chat",
+        model=settings.deepseek_model,
         max_tokens=settings.max_grading_tokens,
         messages=[{"role": "system", "content": GRADER_SYSTEM_PROMPT}, {"role": "user", "content": message_content}],
     )
 
     raw_text = response.choices[0].message.content
 
-    # Parse JSON (Claude may wrap in ```json fences)
+    # Parse JSON (may wrap in ```json fences)
     if "```json" in raw_text:
         raw_text = raw_text.split("```json")[1].split("```")[0]
     elif "```" in raw_text:
