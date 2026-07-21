@@ -1,41 +1,42 @@
 # MathLearnLab — Full dependencies
 
 # ── Web Framework ──
-fastapi>=0.110
-uvicorn[standard]>=0.29
-pydantic-settings>=2.2
-python-multipart>=0.0.9
-aiofiles>=24.1
+fastapi>=0.110,<1
+uvicorn[standard]>=0.29,<1
+pydantic-settings>=2.2,<3
+python-multipart>=0.0.9,<1
+aiofiles>=24.1,<25
 
 # ── Auth ──
-python-jose[cryptography]>=3.3
+python-jose[cryptography]>=3.3,<4
 
-# ── Anthropic API ──
-anthropic>=0.30
+# ── AI Client (DeepSeek via OpenAI-compatible API) ──
+openai>=1.0,<2
 
 # ── Image processing ──
-Pillow>=10.0
+Pillow>=10.0,<11
 
 # ── Core numerical & symbolic (notebooks) ──
-numpy>=1.26
-scipy>=1.13
-sympy>=1.14
+numpy>=1.26,<2
+scipy>=1.13,<2
+sympy>=1.14,<2
 
 # ── Visualization (notebooks) ──
-matplotlib>=3.8
-plotly>=5.18
-seaborn>=0.13
+matplotlib>=3.8,<4
+plotly>=5.18,<6
+seaborn>=0.13,<1
 
 # ── Interactive widgets (notebooks) ──
-ipywidgets>=8.1
-ipympl>=0.9
+ipywidgets>=8.1,<9
+ipympl>=0.9,<1
 
 # ── Jupyter ecosystem ──
-jupyterlab>=4.0
-notebook>=7.0
-nbformat>=5.9
+jupyterlab>=4.0,<5
+notebook>=7.0,<8
+nbformat>=5.9,<6
 
 # ── Animation support ──
-ipython>=8.20
-pymysql
-openai
+ipython>=8.20,<9
+
+# ── Database ──
+pymysql>=1.1,<2
