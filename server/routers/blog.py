@@ -31,7 +31,7 @@ async def list_posts():
     if not NEWS_DIR.exists():
         return {"posts": []}
     posts = []
-    for md_file in sorted(NEWS_DIR.glob("*.md"), reverse=True):
+    for md_file in NEWS_DIR.glob("*.md"):
         if md_file.name.startswith("._"): continue
         text = md_file.read_text(encoding="utf-8")
         meta, body = parse_frontmatter(text)
@@ -43,6 +43,7 @@ async def list_posts():
             "summary": body[:200].replace("\n", " ") + "...",
             "author": meta.get("author", ""),
         })
+    posts.sort(key=lambda p: p["date"], reverse=True)
     return {"posts": posts}
 
 
