@@ -11,6 +11,7 @@ const routes = [
   { path: '/mathematicians/:key', name: 'mathematician', meta: { titleKey: 'nav.mathematicians' }, component: () => import('@/views/MathematicianView.vue') },
   { path: '/practice/:topic?', name: 'practice', meta: { titleKey: 'nav.practice' }, component: () => import('@/views/PracticeView.vue') },
   { path: '/news', name: 'news', meta: { titleKey: 'nav.news' }, component: () => import('@/views/NewsView.vue') },
+  { path: '/news/:slug', name: 'news-post', meta: { titleKey: 'nav.news' }, component: () => import('@/views/NewsView.vue') },
   { path: '/admin', name: 'admin', meta: { titleKey: 'admin.title' }, component: () => import('@/views/AdminView.vue') },
   { path: '/bookmarks', name: 'bookmarks', meta: { titleKey: 'bookmarks.title' }, component: () => import('@/views/BookmarksView.vue') },
   { path: '/:path(.*)', name: 'not-found', meta: { titleKey: 'notFound.title' }, component: () => import('@/views/NotFoundView.vue') }

@@ -7,7 +7,10 @@
     <div v-if="selectedPost" class="post-detail">
       <button class="back-btn" @click="selectedPost=null">{{ $t('news.back') }}</button>
       <h2>{{ selectedPost.title }}</h2>
-      <div class="post-meta">{{ selectedPost.date }} · {{ selectedPost.category }}</div>
+      <div class="post-meta">
+        <span>{{ selectedPost.date }} · {{ selectedPost.category }}</span>
+        <button class="share-btn" @click.stop="sharePost(selectedPost)">🔗</button>
+      </div>
       <div class="post-content" v-html="renderedContent"></div>
     </div>
 
@@ -18,7 +21,10 @@
         <div v-for="post in posts" :key="post.slug" class="news-card" @click="openPost(post)">
           <div class="news-meta">
             <span class="news-cat">{{ post.category }}</span>
-            <span class="news-date">{{ post.date }}</span>
+            <span class="news-date">
+              {{ post.date }}
+              <button class="card-share-btn" @click.stop="sharePostById(post)" title="分享">🔗</button>
+            </span>
           </div>
           <h3>{{ post.title }}</h3>
           <p class="news-summary">{{ stripSummary(post.summary) }}</p>
@@ -31,9 +37,12 @@
 
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useToast } from '@/utils/toast'
 import { renderMarkdown, stripMarkdown } from '@/utils/markdown'
+const route = useRoute()
+const router = useRouter()
 const { t } = useI18n()
 const { show: showToast } = useToast()
 
@@ -66,7 +75,35 @@ async function openPost(post) {
   } catch(e) { console.warn('Failed to open post', e); showToast(t('news.loadFail')) }
 }
 
-onMounted(fetchPosts)
+async function onMount() {
+  await fetchPosts()
+  // If route has a slug, auto-open that post
+  const slug = route.params.slug
+  if (slug && posts.value.length > 0) {
+    const post = posts.value.find(p => p.slug === slug)
+    if (post) openPost(post)
+  }
+}
+
+onMounted(onMount)
+
+function postUrl(slug) {
+  return window.location.origin + '/news/' + slug
+}
+
+function sharePost(post) {
+  sharePostById(post)
+}
+function sharePostById(post) {
+  const url = postUrl(post.slug)
+  if (navigator.share) {
+    navigator.share({ title: post.title, url })
+  } else {
+    navigator.clipboard.writeText(url).then(() => {
+      showToast(t('common.linkCopied') || '链接已复制')
+    })
+  }
+}
 </script>
 
 <style scoped>
@@ -92,4 +129,7 @@ onMounted(fetchPosts)
 .post-content :deep(.katex-display) { margin:16px 0; overflow-x:auto; overflow-y:hidden; }
 .post-content :deep(code) { background:var(--bg-nav); padding:2px 5px; border-radius:3px; }
 .post-content :deep(pre) { background:var(--bg-nav); border:1px solid var(--border); border-radius:6px; padding:14px 18px; overflow-x:auto; }
+.share-btn, .card-share-btn { background:none; border:none; font-size:15px; cursor:pointer; opacity:0.5; transition:opacity 0.15s; vertical-align:middle; line-height:1; padding:2px; }
+.share-btn:hover, .card-share-btn:hover { opacity:1; }
+.card-share-btn { font-size:13px; margin-left:4px; }
 </style>
