@@ -25,11 +25,11 @@ jobs:
 
       - name: Import check
         run: |
-          python -c "import server.main"
-          python -c "from server.config import Settings"
-          python -c "from server.models.auth import hash_password, verify_password"
-          python -c "from server.services.chat_service import stream_chat"
-          python -c "from server.services.grader import grade_submission"
+          CI=true python -c "import server.main"
+          CI=true python -c "from server.config import Settings"
+          CI=true python -c "from server.models.auth import hash_password, verify_password"
+          CI=true python -c "from server.services.chat_service import stream_chat"
+          CI=true python -c "from server.services.grader import grade_submission"
 
       - name: Run config tests
         run: |
