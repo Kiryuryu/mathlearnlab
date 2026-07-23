@@ -43,7 +43,7 @@ async def list_posts():
             "summary": body[:200].replace("\n", " ") + "...",
             "author": meta.get("author", ""),
         })
-    posts.sort(key=lambda p: p["date"], reverse=True)
+    posts.sort(key=lambda p: (not p["date"], p["date"]), reverse=True)
     return {"posts": posts}
 
 
