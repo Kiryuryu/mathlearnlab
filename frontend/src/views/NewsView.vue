@@ -3,40 +3,38 @@
     <h1>{{ $t('news.title') }}</h1>
     <p class="sub">{{ $t('news.subtitle') }}</p>
 
-    <!-- Post detail -->
-    <div v-if="selectedPost" class="post-detail">
-      <button class="back-btn" @click="selectedPost=null">{{ $t('news.back') }}</button>
-      <h2>{{ selectedPost.title }}</h2>
-      <div class="post-meta">
-        <span>{{ selectedPost.date }} · {{ selectedPost.category }}</span>
-        <button class="share-btn" @click.stop="sharePost(selectedPost)">🔗</button>
-      </div>
-      <div class="post-content" v-html="renderedContent"></div>
-    </div>
-
     <!-- Post list -->
-    <div v-else>
+    <div v-if="!selectedPost" class="news-list">
       <div v-if="loading" class="loading">{{ $t('news.loading') }}</div>
-      <div v-else class="news-list">
-        <div v-for="post in posts" :key="post.slug" class="news-card" @click="openPost(post)">
+      <template v-else>
+        <div v-for="post in posts" :key="post.slug" class="news-card" @click="router.push(`/news/${post.slug}`)">
           <div class="news-meta">
             <span class="news-cat">{{ post.category }}</span>
-            <span class="news-date">
-              {{ post.date }}
-              <button class="card-share-btn" @click.stop="sharePostById(post)" title="分享">🔗</button>
-            </span>
+            <span class="news-date">{{ post.date }}</span>
           </div>
           <h3>{{ post.title }}</h3>
           <p class="news-summary">{{ stripSummary(post.summary) }}</p>
+          <button class="share-btn" @click.stop="sharePostById(post)">🔗 分享</button>
         </div>
         <div v-if="!posts.length" class="empty">{{ $t('news.empty') }}</div>
+      </template>
+    </div>
+
+    <!-- Post detail -->
+    <div v-else class="post-detail">
+      <button class="back-btn" @click="router.push('/news')">{{ $t('news.back') }}</button>
+      <h2>{{ selectedPost.title }}</h2>
+      <div class="post-meta">
+        <span>{{ selectedPost.date }} · {{ selectedPost.category }}</span>
+        <button class="share-btn" @click="sharePost(selectedPost)">🔗 分享</button>
       </div>
+      <div class="post-content" v-html="renderedContent"></div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useToast } from '@/utils/toast'
@@ -48,8 +46,6 @@ const { show: showToast } = useToast()
 
 const posts = ref([])
 const loading = ref(false)
-const selectedPost = ref(null)
-const renderedContent = ref('')
 
 function stripSummary(s) {
   const text = stripMarkdown(s)
@@ -61,49 +57,32 @@ async function fetchPosts() {
   try {
     const r = await fetch('/api/blog/posts')
     posts.value = (await r.json()).posts || []
+    // If route has a slug, auto-load that post
+    const slug = route.params.slug
+    if (slug) {
+      const post = posts.value.find(p => p.slug === slug)
+      if (post) openPost(post)
+    }
   } catch(e) { console.warn('Failed to fetch posts', e); showToast(t('news.loadFail')) }
   loading.value = false
 }
 
 async function openPost(post) {
-  try {
-    const r = await fetch(`/api/blog/posts/${post.slug}`)
-    selectedPost.value = await r.json()
-    renderedContent.value = renderMarkdown(selectedPost.value.content)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-    await nextTick()
-  } catch(e) { console.warn('Failed to open post', e); showToast(t('news.loadFail')) }
+  window.location.href = `/news/${post.slug}`
 }
 
-async function onMount() {
-  await fetchPosts()
-  // If route has a slug, auto-open that post
-  const slug = route.params.slug
-  if (slug && posts.value.length > 0) {
-    const post = posts.value.find(p => p.slug === slug)
-    if (post) openPost(post)
-  }
-}
-
-onMounted(onMount)
-
-function postUrl(slug) {
-  return window.location.origin + '/news/' + slug
-}
-
-function sharePost(post) {
-  sharePostById(post)
-}
 function sharePostById(post) {
-  const url = postUrl(post.slug)
+  const url = `${window.location.origin}/news/${post.slug}`
   if (navigator.share) {
     navigator.share({ title: post.title, url })
   } else {
     navigator.clipboard.writeText(url).then(() => {
       showToast(t('common.linkCopied') || '链接已复制')
-    })
+    }).catch(() => {})
   }
 }
+
+onMounted(fetchPosts)
 </script>
 
 <style scoped>
