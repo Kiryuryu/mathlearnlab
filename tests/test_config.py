@@ -19,8 +19,9 @@ def test_debug_mode_allows_missing_jwt():
         env.pop("SMTP_USER", None)
         env.pop("SMTP_PASS", None)
         env.pop("ADMIN_EMAIL", None)
-        # Pytest sets this; clear it so subprocess doesn't think it's testing
+        # Clear test/CI context so subprocess runs in "production" mode
         env.pop("PYTEST_CURRENT_TEST", None)
+        env.pop("CI", None)
 
         result = subprocess.run(
             [sys.executable, "-c",
@@ -47,6 +48,7 @@ def test_production_requires_jwt():
         env.pop("SMTP_PASS", None)
         env.pop("ADMIN_EMAIL", None)
         env.pop("PYTEST_CURRENT_TEST", None)
+        env.pop("CI", None)
 
         result = subprocess.run(
             [sys.executable, "-c",
@@ -75,6 +77,7 @@ def test_production_requires_deepseek_key():
         env.pop("SMTP_PASS", None)
         env.pop("ADMIN_EMAIL", None)
         env.pop("PYTEST_CURRENT_TEST", None)
+        env.pop("CI", None)
 
         result = subprocess.run(
             [sys.executable, "-c",
@@ -103,6 +106,7 @@ def test_production_with_valid_config_succeeds():
         env.pop("SMTP_PASS", None)
         env.pop("ADMIN_EMAIL", None)
         env.pop("PYTEST_CURRENT_TEST", None)
+        env.pop("CI", None)
 
         result = subprocess.run(
             [sys.executable, "-c",
@@ -129,6 +133,7 @@ def test_settings_has_expected_fields():
         env.pop("SMTP_PASS", None)
         env.pop("ADMIN_EMAIL", None)
         env.pop("PYTEST_CURRENT_TEST", None)
+        env.pop("CI", None)
 
         result = subprocess.run(
             [sys.executable, "-c",
@@ -167,6 +172,7 @@ def test_no_anthropic_references_in_config():
         env.pop("SMTP_PASS", None)
         env.pop("ADMIN_EMAIL", None)
         env.pop("PYTEST_CURRENT_TEST", None)
+        env.pop("CI", None)
 
         result = subprocess.run(
             [sys.executable, "-c",
