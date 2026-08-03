@@ -8,7 +8,7 @@
 | **GitHub 仓库** | `https://github.com/Kiryuryu/mathlearnlab` |
 | **SSH (个人账号)** | `git@github-personal:Kiryuryu/mathlearnlab.git` |
 | **SSH 密钥** | `~/.ssh/id_ed25519_github_personal` |
-| **ECS 登录** | `ssh root@8.137.78.250` (密码: ***REDACTED***) |
+| **ECS 登录** | `ssh root@8.137.78.250` (密码: 见环境变量/密码管理器，勿提交到 git) |
 | **ECS 项目路径** | `/opt/apps/mathlearnlab` |
 
 ## 🔧 ECS 下次更新代码
@@ -16,13 +16,14 @@
 由于 ECS 用 SSH 连 GitHub 需要额外的 deploy key 设置，目前最简单的更新方式是直接从本机 SCP：
 
 ```bash
-# 修改代码后，从 Mac 上传到 ECS:
+# 修改代码后，从 Mac 上传到 ECS（密码从环境变量读）:
 cd /Users/joycezhang/mathlearnlab
-expect -c '
+export DEPLOY_HOST=8.137.78.250 DEPLOY_USER=root DEPLOY_PASS='<你的密码>'
+expect -c "
 spawn scp -r server/ root@8.137.78.250:/opt/apps/mathlearnlab/
-expect "password:" { send "***REDACTED***\r" }
+expect \"password:\" { send \"\$env(DEPLOY_PASS)\r\" }
 expect eof
-'
+"
 
 # 然后重启服务:
 expect /Users/joycezhang/mathlearnlab/scripts/ecs-run.exp "

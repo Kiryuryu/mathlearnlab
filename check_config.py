@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
-import paramiko, json
+"""Check remote server config. Credentials from env vars: DEPLOY_HOST/DEPLOY_USER/DEPLOY_PASS"""
+import os, paramiko, json
+
+HOST = os.environ.get('DEPLOY_HOST', '8.137.78.250')
+USER = os.environ.get('DEPLOY_USER', 'root')
+PASS = os.environ.get('DEPLOY_PASS', '')
 
 ssh = paramiko.SSHClient()
 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-ssh.connect('8.137.78.250', username='root', password='***REDACTED***')
+ssh.connect(HOST, username=USER, password=PASS)
 sftp = ssh.open_sftp()
 
 # Upload a remote script

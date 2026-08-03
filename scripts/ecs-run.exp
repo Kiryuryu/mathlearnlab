@@ -1,9 +1,17 @@
 #!/usr/bin/expect -f
 # ECS deploy helper — use with: expect scripts/ecs-run.exp "command here"
+# Set DEPLOY_HOST / DEPLOY_USER / DEPLOY_PASS env vars before running.
 
 set timeout 180
-set host "root@8.137.78.250"
-set password "***REDACTED***"
+set host [expr {[info exists env(DEPLOY_HOST)] ? $env(DEPLOY_HOST) : "root@8.137.78.250"}]
+if {[info exists env(DEPLOY_USER)]} {
+    set host "$env(DEPLOY_USER)@[lindex [split $host @] end]"
+}
+if {![info exists env(DEPLOY_PASS)]} {
+    puts stderr "ERROR: DEPLOY_PASS env var is required"
+    exit 1
+}
+set password $env(DEPLOY_PASS)
 
 set cmd [lindex $argv 0]
 

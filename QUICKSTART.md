@@ -2,40 +2,28 @@
 
 ## 当前状态
 
-- **ECS `8.137.78.250`** — Python 3.12.4 + venv + systemd + Nginx 已配置好，FastAPI 在运行
-- **GitHub `Kiryuryu/mathlearnlab`** — 代码已 push (commit `e82a1a5`)
-- **`.env`** — 需要你填入真实的 Anthropic API Key
+- **ECS `8.137.78.250`** — Python + venv + systemd + Nginx 已配置好，FastAPI 在运行
+- **GitHub `Kiryuryu/mathlearnlab`** — 代码已 push
+- **`.env`** — 需要你填入真实的 DeepSeek API Key（生产环境还需 `JWT_SECRET_KEY`、`ADMIN_SECRET`）
 
-## 你需要做的（1 分钟）
+## 环境变量
 
-1. 打开 [Anthropic Console](https://console.anthropic.com/) 获取 API Key（或告诉我你的 key 我帮你填上去）
-2. SSH 到 ECS：
-   ```
-   ssh root@8.137.78.250
-   # 密码: ***REDACTED***
-   ```
-3. 编辑 `.env` 填入 Key：
-   ```
-   vi /opt/apps/mathlearnlab/.env
-   # 把 ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
-   # 改成 ANTHROPIC_API_KEY=你的真实key
-   ```
-4. 重启服务：
-   ```
-   systemctl restart mathlearnlab
-   ```
-5. 浏览器打开 `http://8.137.78.250/`
+部署与远程检查脚本（`deploy.py`、`check_config.py`、`scripts/*`）均从环境变量读取凭据，**切勿把密码硬编码进仓库**：
+
+```bash
+export DEPLOY_HOST=8.137.78.250
+export DEPLOY_USER=root
+export DEPLOY_PASS='<你的密码>'
+```
 
 ## 本地开发 → ECS 同步
-
-下次你改了代码，只需要：
 
 ```bash
 # 在你的 Mac 上
 cd ~/mathlearnlab
 git add -A && git commit -m "updates" && git push origin main
 
-# SSH 到 ECS
+# SSH 到 ECS（密码见环境变量/密码管理器）
 ssh root@8.137.78.250
 cd /opt/apps/mathlearnlab
 git pull origin main
