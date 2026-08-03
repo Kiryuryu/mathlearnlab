@@ -4,8 +4,11 @@
       <h1>{{ $t('home.title') }}</h1>
       <p>{{ $t('home.subtitle') }}</p>
     </div>
-    <div class="daily-problem" v-if="daily">
-      <div class="daily-header"><span>{{ $t('home.daily') }}</span><span class="daily-date">{{ today }}</span></div>
+    <div class="daily-problem" v-if="dailyQ">
+      <div class="daily-header">
+        <span>{{ $t('home.daily') }}</span>
+        <span class="daily-date">{{ dailySource === 'ai' ? '✦ AI 出题' : '' }} {{ today }}</span>
+      </div>
       <div class="daily-q" v-html="renderedQ"></div>
       <div class="daily-actions">
         <button class="btn" @click="showHint = true" v-if="!showHint">{{ $t('home.showHint') }}</button>
@@ -20,7 +23,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ExhibitCard from '@/components/ExhibitCard.vue'
 import { renderMarkdown } from '@/utils/markdown'
@@ -43,32 +46,24 @@ const displayCards = computed(() => cards.map(c => ({
   meta: locale.value === 'en' && c.meta_en ? c.meta_en : c.meta,
 })))
 
+// Static fallback bank (higher difficulty, used only if the AI API fails)
 const dailyProbs = [
   // ── 极限 ──
-  { q: '求极限：$\\lim_{x \\to 0} \\frac{\\sin 3x}{x}$', q_en: 'Evaluate: $\\lim_{x \\to 0} \\frac{\\sin 3x}{x}$', answer_en: '3 — because $\\frac{\\sin 3x}{x} = 3\\frac{\\sin 3x}{3x} \\to 3$', answer: '3 — 因为 $\\frac{\\sin 3x}{x} = 3\\frac{\\sin 3x}{3x} \\to 3$' },
-  { q: '求极限：$\\lim_{x \\to \\infty} \\left(1 + \\frac{1}{x}\\right)^x$', q_en: 'Evaluate: $\\lim_{x \\to \\infty} \\left(1 + \\frac{1}{x}\\right)^x$', answer_en: '$e$ — the definition of Euler\'s number', answer: '$e$ — 这就是自然常数 $e$ 的定义' },
-  { q: '判断 $f(x)=\\frac{\\sin x}{x}$ 在 $x=0$ 处如何定义才连续', q_en: 'How to define $f(x)=\\frac{\\sin x}{x}$ at $x=0$ to make it continuous?', answer_en: '$f(0)=1$', answer: '$f(0)=1$（因为 $\\lim_{x\\to0}\\frac{\\sin x}{x}=1$）' },
-  { q: '求极限：$\\lim_{x \\to 0} \\frac{1-\\cos x}{x^2}$', q_en: 'Evaluate: $\\lim_{x \\to 0} \\frac{1-\\cos x}{x^2}$', answer_en: '$\\frac12$ — via $\\frac{1-\\cos x}{x^2} = \\frac{2\\sin^2(x/2)}{x^2} \\to \\frac12$', answer: '$\\frac12$ — 用 $1-\\cos x = 2\\sin^2(x/2)$' },
-  // ── 导数 ──
-  { q: '$f(x)=x^3-3x$ 在 $x=1$ 处是极大值还是极小值？', q_en: '$f(x)=x^3-3x$ at $x=1$: max or min?', answer_en: 'Local minimum. $f\'\'(1)=6>0$', answer: '极小值点。$f\'\'(1)=6>0$' },
-  { q: '求 $f(x)=x\\ln x$ 的导数', q_en: 'Find the derivative of $f(x)=x\\ln x$', answer_en: '$\\ln x + 1$ (product rule)', answer: '$\\ln x + 1$（乘积法则）' },
-  { q: '求 $y=e^{2x}\\cos x$ 的导数', q_en: 'Find $y\'$ for $y=e^{2x}\\cos x$', answer_en: '$e^{2x}(2\\cos x - \\sin x)$', answer: '$e^{2x}(2\\cos x - \\sin x)$（乘积+链式法则）' },
-  { q: '函数 $f(x)=x^4-2x^2$ 有几个驻点？', q_en: 'How many critical points does $f(x)=x^4-2x^2$ have?', answer_en: '3 — at $x=0,\\pm 1$', answer: '3 个 — 在 $x=0,\\pm 1$（$f\'=4x^3-4x=4x(x^2-1)$）' },
+  { q: '求极限：$\\lim_{x \\to 0} \\frac{1-\\cos x}{x^2}$', q_en: 'Evaluate: $\\lim_{x \\to 0} \\frac{1-\\cos x}{x^2}$', answer_en: '$\\frac12$ — via $\\frac{1-\\cos x}{x^2} = \\frac{2\\sin^2(x/2)}{x^2}$', answer: '$\\frac12$ — 用 $1-\\cos x = 2\\sin^2(x/2)$' },
+  { q: '求极限：$\\lim_{x \\to 0} \\frac{e^x - 1 - x}{x^2}$', q_en: 'Evaluate: $\\lim_{x \\to 0} \\frac{e^x - 1 - x}{x^2}$', answer_en: '$\\frac12$ — via Taylor expansion $e^x=1+x+\\frac{x^2}{2}+\\cdots$', answer: '$\\frac12$ — 用泰勒展开 $e^x=1+x+\\frac{x^2}{2}+\\cdots$' },
+  { q: '求极限：$\\lim_{x \\to 0} \\frac{\\tan x - \\sin x}{x^3}$', q_en: 'Evaluate: $\\lim_{x \\to 0} \\frac{\\tan x - \\sin x}{x^3}$', answer_en: '$\\frac12$ — expand $\\tan x, \\sin x$ to $x^3$', answer: '$\\frac12$ — 展开 $\\tan x$、$\\sin x$ 到 $x^3$ 项' },
+  // ── 导数 / 极值 ──
+  { q: '求 $f(x)=x^x$ 的导数', q_en: 'Find $f\'(x)$ for $f(x)=x^x$', answer_en: '$x^x(\\ln x + 1)$ — logarithmic differentiation', answer: '$x^x(\\ln x + 1)$ — 对数求导法' },
+  { q: '函数 $f(x)=x^4-4x^3+6x^2$ 有几个拐点？', q_en: 'How many inflection points does $f(x)=x^4-4x^3+6x^2$ have?', answer_en: '2 — at $x=1\\pm\\frac{\\sqrt3}{3}$', answer: '2 个 — 在 $x=1\\pm\\frac{\\sqrt3}{3}$（$f\'\'=12(x^2-2x+\\frac23)$）' },
+  { q: '证明 $\\arctan x + \\arctan \\frac{1}{x} = \\frac{\\pi}{2}$（$x>0$）', q_en: 'Prove $\\arctan x + \\arctan \\frac{1}{x} = \\frac{\\pi}{2}$ for $x>0$', answer_en: 'Derivative is 0, then check $x=1$', answer: '求导为 0，再代入 $x=1$ 验证常数' },
   // ── 积分 ──
-  { q: '计算 $\\int_0^1 x^2 dx$', q_en: 'Compute $\\int_0^1 x^2 dx$', answer_en: '1/3', answer: '$\\frac13$' },
-  { q: '计算 $\\int \\frac{1}{x} dx$', q_en: 'Compute $\\int \\frac{1}{x} dx$', answer_en: '$\\ln|x| + C$', answer: '$\\ln|x| + C$' },
-  { q: '利用对称性求 $\\int_{-1}^{1} x^3 dx$', q_en: 'Use symmetry to find $\\int_{-1}^{1} x^3 dx$', answer_en: '0 — odd function over symmetric interval', answer: '$0$ — 奇函数在对称区间上积分为零' },
-  { q: '求曲线 $y=\\sin x$ 在 $[0,\\pi]$ 与 $x$ 轴围成的面积', q_en: 'Area between $y=\\sin x$ and the $x$-axis on $[0,\\pi]$', answer_en: '$2$', answer: '$2$（$\\int_0^\\pi \\sin x\\, dx = 2$）' },
-  // ── 级数 ──
-  { q: '$\\sum_{n=0}^{\\infty} \\frac{1}{2^n} = ?$', q_en: '$\\sum_{n=0}^{\\infty} \\frac{1}{2^n} = ?$', answer_en: '2 — geometric series', answer: '2 — 等比级数' },
-  { q: '判断 $\\sum_{n=1}^{\\infty} \\frac{1}{n}$ 是否收敛', q_en: 'Does $\\sum_{n=1}^{\\infty} \\frac{1}{n}$ converge?', answer_en: 'No — the harmonic series diverges', answer: '发散 — 调和级数' },
-  { q: '$\\sum_{n=1}^{\\infty} \\frac{1}{n^2} = ?$（巴塞尔问题）', q_en: '$\\sum_{n=1}^{\\infty} \\frac{1}{n^2} = ?$ (Basel problem)', answer_en: '$\\pi^2/6$ — Euler\'s famous result', answer: '$\\frac{\\pi^2}{6}$ — 欧拉的著名结果' },
-  { q: '$1+2+4+8+\\cdots$ 收敛吗？', q_en: 'Does $1+2+4+8+\\cdots$ converge?', answer_en: 'No — ratio $r=2>1$, diverges', answer: '不收敛 — 公比 $r=2>1$' },
-  // ── 多元 / 综合 ──
-  { q: '$e^{i\\pi} + 1 = ?$', q_en: '$e^{i\\pi} + 1 = ?$', answer_en: '0 — Euler identity', answer: '0 — 欧拉恒等式' },
-  { q: '求 $f(x,y)=x^2+y^2$ 在 $(1,2)$ 处的梯度', q_en: 'Gradient of $f(x,y)=x^2+y^2$ at $(1,2)$', answer_en: '$(2, 4)$', answer: '$(2, 4)$（$\\nabla f=(2x, 2y)$）' },
-  { q: '判断 $f(x)=x^3$ 在 $x=0$ 是否有极值', q_en: 'Does $f(x)=x^3$ have an extremum at $x=0$?', answer_en: 'No — inflection point ($f\'$ does not change sign)', answer: '没有 — 是拐点（$f\'=3x^2$ 不改变符号）' },
-  { q: '$\\int_0^{\\infty} e^{-x} dx = ?$', q_en: '$\\int_0^{\\infty} e^{-x} dx = ?$', answer_en: '$1$ — improper integral', answer: '$1$ — 反常积分' },
+  { q: '计算 $\\int_0^{\\infty} e^{-x^2} dx$', q_en: 'Compute $\\int_0^{\\infty} e^{-x^2} dx$', answer_en: '$\\frac{\\sqrt{\\pi}}{2}$ — Gaussian integral (square it & switch to polar)', answer: '$\\frac{\\sqrt{\\pi}}{2}$ — 高斯积分（平方后转极坐标）' },
+  { q: '计算 $\\int_0^1 x\\ln x\\, dx$', q_en: 'Compute $\\int_0^1 x\\ln x\\, dx$', answer_en: '$-\\frac14$ — integration by parts (limit as $x\\to0^+$ is 0)', answer: '$-\\frac14$ — 分部积分（$x\\to0^+$ 的极限为 0）' },
+  { q: '用对称性求 $\\int_{-\\pi}^{\\pi} x^2\\cos x\\, dx$ 与 $\\int_{-\\pi}^{\\pi} x^3\\cos x\\, dx$ 的关系', q_en: 'Relate $\\int_{-\\pi}^{\\pi} x^2\\cos x\\, dx$ and $\\int_{-\\pi}^{\\pi} x^3\\cos x\\, dx$ using symmetry', answer_en: 'Second is 0 (odd); first is $4\\pi$', answer: '第二个为 0（奇函数）；第一个为 $4\\pi$' },
+  // ── 级数 / 多元 ──
+  { q: '判断 $\\sum_{n=1}^{\\infty} \\frac{(-1)^n}{n}$ 的敛散性', q_en: 'Does $\\sum_{n=1}^{\\infty} \\frac{(-1)^n}{n}$ converge absolutely?', answer_en: 'Converges conditionally (alternating), not absolutely', answer: '条件收敛（交错级数），非绝对收敛' },
+  { q: '求 $f(x,y)=x^2y^2$ 在约束 $x^2+y^2=1$ 下的最大值', q_en: 'Max of $f(x,y)=x^2y^2$ subject to $x^2+y^2=1$', answer_en: '$\\frac14$ — at $x^2=y^2=\\frac12$', answer: '$\\frac14$ — 在 $x^2=y^2=\\frac12$ 处' },
+  { q: '$\\int_0^1 \\int_0^1 \\frac{1}{(1+xy)^2}\\, dy\\, dx$（提示：换序）', q_en: 'Compute $\\int_0^1 \\int_0^1 \\frac{1}{(1+xy)^2}\\, dy\\, dx$', answer_en: '$\\frac12$ — switch integration order', answer: '$\\frac12$ — 交换积分顺序' },
 ]
 
 // Daily seed from LOCAL date (YYYY-MM-DD) so it changes at midnight local time.
@@ -80,14 +75,43 @@ function dailyIndex() {
   return idx
 }
 
-const daily = computed(() => dailyProbs[dailyIndex()])
+// ── Daily problem: AI-generated (via /api/daily/problem), static fallback if API fails ──
+const dailyQ = ref('')
+const dailyAns = ref('')
+const dailySource = ref('ai') // 'ai' | 'fallback'
 const showHint = ref(false)
 const today = new Date().toLocaleDateString(locale.value === 'en' ? 'en-US' : 'zh-CN')
-const renderedQ = computed(() => renderMarkdown(locale.value === 'en' ? daily.value.q_en : daily.value.q))
-const renderedAnswer = computed(() => {
-  const ans = locale.value === 'en' ? daily.value.answer_en : daily.value.answer
-  return renderMarkdown('**' + (locale.value === 'en' ? 'Answer: ' : '解答：') + '**' + ans)
-})
+
+function loadDaily() {
+  fetch('/api/daily/problem')
+    .then(r => r.json())
+    .then(d => {
+      if (d.problem?.problem_statement) {
+        const p = d.problem
+        const steps = (p.solution?.steps || []).map((s, i) => `${i + 1}. ${s}`).join('\n\n')
+        const final = p.solution?.final_answer || ''
+        dailyQ.value = p.problem_statement
+        dailyAns.value = steps ? `**解答思路：**\n\n${steps}${final ? `\n\n**答案：** ${final}` : ''}` : final
+        dailySource.value = 'ai'
+        return
+      }
+      // Fallback to static bank
+      useStaticDaily()
+    })
+    .catch(() => useStaticDaily())
+}
+
+function useStaticDaily() {
+  const p = dailyProbs[dailyIndex()]
+  dailyQ.value = locale.value === 'en' ? p.q_en : p.q
+  dailyAns.value = locale.value === 'en' ? p.answer_en : p.answer
+  dailySource.value = 'fallback'
+}
+
+const renderedQ = computed(() => renderMarkdown(dailyQ.value))
+const renderedAnswer = computed(() => renderMarkdown('**' + (locale.value === 'en' ? 'Answer: ' : '解答：') + '**' + dailyAns.value))
+
+onMounted(loadDaily)
 </script>
 
 <style scoped>
