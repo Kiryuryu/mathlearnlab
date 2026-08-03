@@ -5,6 +5,7 @@ Supports SQLite (default) and MySQL via DATABASE_URL env var.
 
 import os
 import sqlite3
+import threading
 from pathlib import Path
 from contextlib import contextmanager
 from server.models.migrations import apply_pending
@@ -15,6 +16,9 @@ DB_PATH = DATA_DIR / "mathlearnlab.db"
 
 # MySQL config (set DATABASE_URL to use MySQL)
 DATABASE_URL = os.getenv("DATABASE_URL", "")
+
+# Thread-local connection reuse: one MySQL connection per thread (a minimal pool).
+_mysql_local = threading.local()
 
 
 def _get_mysql_conn():
@@ -28,6 +32,15 @@ def _get_mysql_conn():
                            cursorclass=pymysql.cursors.DictCursor)
     # Wrap to provide SQLite-compatible .execute() and .commit() interface
     return _MySQLWrapper(raw)
+
+
+def _mysql_conn():
+    """Get a cached MySQL connection for the current thread, or create one."""
+    conn = getattr(_mysql_local, "conn", None)
+    if conn is None:
+        conn = _get_mysql_conn()
+        _mysql_local.conn = conn
+    return conn
 
 
 class _MySQLWrapper:
@@ -56,13 +69,16 @@ class _MySQLWrapper:
 
 
 def get_db():
-    """Get a database connection (MySQL if configured, else SQLite)."""
+    """Get a (thread-cached) database connection: MySQL if configured, else SQLite."""
     if DATABASE_URL:
-        return _get_mysql_conn()
-    conn = sqlite3.connect(str(DB_PATH))
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("PRAGMA foreign_keys=ON")
+        return _mysql_conn()
+    conn = getattr(_mysql_local, "sqlite", None)
+    if conn is None:
+        conn = sqlite3.connect(str(DB_PATH))
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA foreign_keys=ON")
+        _mysql_local.sqlite = conn
     return conn
 
 
@@ -72,7 +88,8 @@ def db_session():
     try:
         yield conn
     finally:
-        conn.close()
+        # Connection is thread-cached and reused; do NOT close here.
+        pass
 
 
 def init_db():
@@ -114,4 +131,4 @@ def init_db():
         conn.commit()
         apply_pending(conn)
     finally:
-        conn.close()
+        pass  # Connection is thread-cached and reused.

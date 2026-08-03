@@ -143,10 +143,10 @@ async function submitGradeWithModel() {
   } catch(e) { showToast(t('practice.gradeFail')+': '+e.message) }
 }
 
-function exportPDF() {
+async function exportPDF() {
   if (!currentProblem.value) return
   const solution = result.value?.what_is_correct || result.value?.suggestion || ''
-  exportProblemToPDF(currentProblem.value, solution, locale.value)
+  await exportProblemToPDF(currentProblem.value, solution, locale.value)
 }
 </script>
 

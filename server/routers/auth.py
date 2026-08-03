@@ -11,9 +11,17 @@ from server.models.auth import (
     decode_access_token,
     generate_user_id,
 )
+from server.services.ratelimit import is_blocked, record_failure, record_success
 
 router = APIRouter()
 security = HTTPBearer(auto_error=False)
+
+
+def _client_ip(request: Request) -> str:
+    fwd = request.headers.get("X-Forwarded-For", "")
+    if fwd:
+        return fwd.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
 
 
 from pydantic import BaseModel
@@ -62,7 +70,10 @@ async def check_username(username: str):
 
 
 @router.post("/api/auth/register")
-async def register(body: RegisterRequest):
+async def register(body: RegisterRequest, request: Request):
+    ip = _client_ip(request)
+    if is_blocked(ip):
+        raise HTTPException(status_code=429, detail="Too many attempts, please try later")
     if len(body.username) < 3:
         raise HTTPException(status_code=400, detail="Username must be at least 3 characters")
     if len(body.password) < 6:
@@ -95,19 +106,26 @@ async def register(body: RegisterRequest):
 
 
 @router.post("/api/auth/login")
-async def login(body: LoginRequest):
+async def login(body: LoginRequest, request: Request):
+    ip = _client_ip(request)
+    if is_blocked(ip):
+        raise HTTPException(status_code=429, detail="Too many attempts, please try later")
     with db_session() as conn:
         row = conn.execute("SELECT * FROM users WHERE username = ?", (body.username,)).fetchone()
 
     if row is None or not verify_password(body.password, row["password_hash"]):
+        record_failure(ip)
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
     status = row.get("status", "active")
     if status == "pending":
+        record_failure(ip)
         raise HTTPException(status_code=403, detail="Account is pending admin approval")
     if status == "rejected":
+        record_failure(ip)
         raise HTTPException(status_code=403, detail="Account registration was rejected")
 
+    record_success(ip)
     token = create_access_token(row["id"], row["username"])
     return {
         "token": token,

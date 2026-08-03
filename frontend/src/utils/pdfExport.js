@@ -1,6 +1,6 @@
-import { jsPDF } from 'jspdf'
-
-export function exportProblemToPDF(problem, solution = '', lang = 'en') {
+export async function exportProblemToPDF(problem, solution = '', lang = 'en') {
+  // Dynamic import so jspdf + html2canvas stay out of the main bundle.
+  const { jsPDF } = await import('jspdf')
   const doc = new jsPDF()
   const pageWidth = doc.internal.pageSize.getWidth()
   let y = 20
