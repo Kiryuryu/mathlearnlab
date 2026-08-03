@@ -4,10 +4,13 @@ Grade API — OCR handwriting grading endpoint.
 
 import json
 import base64
+import logging
 from pathlib import Path
 from fastapi import APIRouter, Request, HTTPException, Depends
 from server.routers.auth import require_user
 from server.services import grader, history as history_svc
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -75,6 +78,6 @@ async def grade_submission(request: Request, user: dict = Depends(require_user))
             grading_result=result,
         )
     except Exception:
-        pass  # non-critical; user still gets grading result
+        logger.exception("Failed to save grade history for user %s", user["user_id"])
 
     return result

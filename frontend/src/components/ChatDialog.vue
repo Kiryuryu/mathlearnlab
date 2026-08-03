@@ -48,7 +48,6 @@ const panelRef = ref(null)
 useFocusTrap(panelRef)
 
 const chat = useChatStream({
-  getApiKey: () => auth.apiKey,
   getModel: () => auth.model,
   getLang: () => locale.value,
   getContext: () => contextLabel.value ? `${t('chat.contextPrefix')} ${contextLabel.value}` : '',

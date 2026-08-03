@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { renderMarkdown } from '@/utils/markdown'
 import { apiFetch } from '@/utils/api'
 
-export function useChatStream({ getApiKey, getModel, getLang, getContext }) {
+export function useChatStream({ getModel, getLang, getContext }) {
   const messages = ref([])
   const streaming = ref(false)
   const streamText = ref('')

@@ -18,7 +18,7 @@ function friendlyError(err) {
   console.error(err)
 }
 
-app.config.errorHandler = (err, instance, info) => {
+app.config.errorHandler = (err, _instance, _info) => {
   friendlyError(err)
 }
 

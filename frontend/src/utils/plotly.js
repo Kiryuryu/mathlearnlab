@@ -9,7 +9,7 @@ export function loadPlotly() {
     s.src = PLOTLY_SRC
     s.async = true
     s.onload = () => resolve(window.Plotly)
-    s.onerror = (e) => { _promise = null; reject(new Error('Plotly failed to load')) }
+    s.onerror = (_e) => { _promise = null; reject(new Error('Plotly failed to load')) }
     document.head.appendChild(s)
   })
   return _promise

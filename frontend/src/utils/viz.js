@@ -81,7 +81,7 @@ export function museumVizFourier(el, controlsEl, labels) {
   render()
 }
 
-export function museumVizGradient(el, controlsEl) {
+export function museumVizGradient(el, _controlsEl) {
   function f(x,y) { return x*x + 2*y*y }
   const N = 50, xs = [], ys = [], zGrid = []
   for (let i = 0; i <= N; i++) { xs.push(-3+6*i/N); ys.push(-3+6*i/N) }

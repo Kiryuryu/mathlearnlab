@@ -64,6 +64,22 @@ npm run dev
 # 设置环境变量 DATABASE_URL=mysql://user:pass@localhost/mathlearnlab
 ```
 
+## 运行测试
+
+```bash
+# 后端（pytest）
+pip install -r requirements-dev.txt
+DEBUG=true pytest tests/ -v
+
+# 前端（Vitest + ESLint）
+cd frontend
+npm test        # Vitest 单元测试
+npm run lint    # ESLint 检查
+npm run build   # 构建
+```
+
+GitHub Actions（`.github/workflows/ci.yml`）会在 push/PR 时自动运行后端测试、前端 lint、测试和构建。
+
 ## 项目结构
 
 ```
@@ -71,21 +87,27 @@ mathlearnlab/
 ├── frontend/            # Vue 3 SPA
 │   └── src/
 │       ├── views/       # 页面组件
-│       ├── components/  # 通用组件
-│       └── stores/      # Pinia 状态管理
+│       ├── components/  # 通用组件（BaseModal、ExhibitHero、Problem* 等）
+│       ├── utils/       # 工具/composable（api、markdown、useChatStream、viz 等）
+│       ├── stores/      # Pinia 状态管理
+│       └── locales/     # 中英文翻译
 ├── server/
 │   ├── main.py          # FastAPI 入口
-│   ├── config.py        # 配置
-│   ├── routers/         # API 路由
-│   ├── services/        # 业务逻辑
-│   ├── models/          # 数据模型
+│   ├── config.py        # 配置（环境变量 + 校验）
+│   ├── content_data.py  # 静态内容数据（展区、数学家、导航）
+│   ├── routers/         # API 路由（auth、admin、blog、content、practice 等）
+│   ├── services/        # 业务逻辑（deepseek、search、grader、email 等）
+│   ├── models/          # 数据模型与 schema 迁移
 │   └── static/          # 静态文件
 ├── content/             # Markdown 内容
 │   ├── notebooks/       # 教材内容
 │   ├── exhibits/        # 展项 Tab 内容
-│   └── news/            # 博客文章
+│   └── news/            # 新闻文章（frontmatter + Markdown）
 ├── data/                # 运行时数据（数据库、用户文件）
-├── requirements.txt     # Python 依赖
+├── tests/               # 后端 pytest 测试
+├── scripts/             # 工具脚本（new_post、deploy 等）
+├── requirements.txt     # 生产 Python 依赖
+├── requirements-dev.txt # 开发/测试依赖
 ├── .env.example         # 环境变量示例
 └── LICENSE
 ```
