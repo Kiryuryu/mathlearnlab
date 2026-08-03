@@ -5,7 +5,7 @@ Blog API — serve blog posts from markdown files with frontmatter.
 import re
 from pathlib import Path
 from fastapi import APIRouter, HTTPException
-from server.main import CONTENT_DIR
+from server.config import CONTENT_DIR
 
 router = APIRouter()
 NEWS_DIR = CONTENT_DIR / "news"
@@ -23,6 +23,11 @@ def parse_frontmatter(text: str) -> tuple[dict, str]:
                     meta[k.strip()] = v.strip().strip('"').strip("'")
             body = parts[2].strip()
     return meta, body
+
+
+def sort_posts(posts: list[dict]) -> list[dict]:
+    """Sort posts by date descending; posts without a date go last."""
+    return sorted(posts, key=lambda p: p["date"] or "0000-00-00", reverse=True)
 
 
 @router.get("/api/blog/posts")
@@ -43,8 +48,7 @@ async def list_posts():
             "summary": body[:200].replace("\n", " ") + "...",
             "author": meta.get("author", ""),
         })
-    posts.sort(key=lambda p: (not p["date"], p["date"]), reverse=True)
-    return {"posts": posts}
+    return {"posts": sort_posts(posts)}
 
 
 @router.get("/api/blog/posts/{slug}")

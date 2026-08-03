@@ -43,6 +43,7 @@ import { useI18n } from 'vue-i18n'
 import { useAuth } from '@/stores/auth'
 import { renderMarkdown } from '@/utils/markdown'
 import { useFocusTrap } from '@/utils/focusTrap'
+import { apiFetch } from '@/utils/api'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -147,13 +148,9 @@ async function send() {
   const ctx = contextLabel.value ? `${t('chat.contextPrefix')} ${contextLabel.value}` : ''
   abortCtrl = new AbortController()
   try {
-    const r = await fetch('/api/chat/stream', {
+    const r = await apiFetch('/api/chat/stream', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-Key': auth.apiKey || '',
-        'Authorization': `Bearer ${auth.token}`,
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         messages: messages.value.filter(m => m.role !== 'hint').map(m => ({ role: m.role, content: m.content })),
         model: auth.model,

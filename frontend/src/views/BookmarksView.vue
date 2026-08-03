@@ -20,6 +20,7 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from '@/utils/toast'
+import { apiFetch } from '@/utils/api'
 const { t } = useI18n()
 const { show: showToast } = useToast()
 const bookmarks = ref([])
@@ -27,7 +28,7 @@ const loading = ref(true)
 
 async function fetchBookmarks() {
   try {
-    const r = await fetch('/api/bookmarks')
+    const r = await apiFetch('/api/bookmarks')
     if (r.ok) {
       const d = await r.json()
       bookmarks.value = d.bookmarks || []
@@ -38,7 +39,7 @@ async function fetchBookmarks() {
 
 async function removeBookmark(id) {
   try {
-    const r = await fetch(`/api/bookmarks/${id}`, { method: 'DELETE' })
+    const r = await apiFetch(`/api/bookmarks/${id}`, { method: 'DELETE' })
     if (r.ok) {
       bookmarks.value = bookmarks.value.filter(b => b.id !== id)
       showToast(t('common.bookmarkRemoved') || 'Removed')

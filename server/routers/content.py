@@ -3,7 +3,7 @@ Content API — serve raw markdown content and search.
 """
 
 from fastapi import APIRouter, Request
-from server.main import CONTENT_DIR
+from server.config import CONTENT_DIR
 from server.config import settings
 import re, json
 

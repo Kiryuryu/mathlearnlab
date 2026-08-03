@@ -47,6 +47,7 @@ import { ref, computed, onMounted, onUnmounted, watch, defineAsyncComponent } fr
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '@/stores/auth'
+import { setUnauthorizedHandler } from '@/utils/api'
 const LoginDialog = defineAsyncComponent(() => import('@/components/LoginDialog.vue'))
 const SettingsDialog = defineAsyncComponent(() => import('@/components/SettingsDialog.vue'))
 const SearchDialog = defineAsyncComponent(() => import('@/components/SearchDialog.vue'))
@@ -95,6 +96,7 @@ onMounted(() => {
   else if (window.matchMedia('(prefers-color-scheme: dark)').matches)
     document.documentElement.setAttribute('data-theme', 'dark')
   window.addEventListener('scroll', onScroll)
+  setUnauthorizedHandler(() => { if (!auth.isLoggedIn) auth.openLogin('login') })
   if (!auth.isLoggedIn && route.name !== 'admin') setTimeout(() => auth.openLogin(), 300)
 })
 onUnmounted(() => window.removeEventListener('scroll', onScroll))

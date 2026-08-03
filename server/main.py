@@ -6,18 +6,11 @@ Run:
 """
 
 from contextlib import asynccontextmanager
-from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from server.config import settings
+from server.config import settings, CONTENT_DIR, DATA_DIR, STATIC_DIR
 from server.models.database import init_db
-
-# Resolve absolute paths
-BASE_DIR = Path(__file__).resolve().parent.parent
-CONTENT_DIR = BASE_DIR / settings.content_dir
-DATA_DIR = BASE_DIR / settings.data_dir
-STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 
 @asynccontextmanager
@@ -31,7 +24,7 @@ app = FastAPI(title=settings.app_name, version="4.0.0", lifespan=lifespan)
 # ── CORS ──
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://mathlearnlab.cn", "https://www.mathlearnlab.cn", "http://127.0.0.1:5173", "http://127.0.0.1:8000"],
+    allow_origins=[o.strip() for o in settings.cors_origins.split(",") if o.strip()],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -38,6 +38,7 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from '@/utils/toast'
+import { apiFetch } from '@/utils/api'
 const { t, locale } = useI18n()
 const { show: showToast } = useToast()
 
@@ -56,7 +57,7 @@ function formatDate(d) { return d ? new Date(d).toLocaleDateString(locale.value 
 
 async function load() {
   try {
-    const r = await fetch(`/api/admin/users?status=${filter.value}`, {
+    const r = await apiFetch(`/api/admin/users?status=${filter.value}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ secret: secret.value })
@@ -70,7 +71,7 @@ async function load() {
 
 async function approve(id) {
   try {
-    const r = await fetch(`/api/admin/users/${id}/approve`, {
+    const r = await apiFetch(`/api/admin/users/${id}/approve`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ secret: secret.value })
@@ -82,7 +83,7 @@ async function approve(id) {
 
 async function reject(id) {
   try {
-    const r = await fetch(`/api/admin/users/${id}/reject`, {
+    const r = await apiFetch(`/api/admin/users/${id}/reject`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ secret: secret.value })

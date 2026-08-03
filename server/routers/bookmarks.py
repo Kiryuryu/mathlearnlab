@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException
 from server.routers.auth import require_user
-from server.main import DATA_DIR
+from server.config import DATA_DIR
 
 router = APIRouter()
 BOOKMARKS_FILE = DATA_DIR / "bookmarks.json"
