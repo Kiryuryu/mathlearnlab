@@ -111,9 +111,30 @@ def build_generate_prompt(exhibit_name: str, difficulty: str, knowledge_points: 
 
 
 def extract_json(raw: str) -> dict:
-    """Strip code fences and parse the JSON payload."""
-    if "```json" in raw:
-        raw = raw.split("```json")[1].split("```")[0]
-    elif "```" in raw:
-        raw = raw.split("```")[1].split("```")[0]
-    return json.loads(raw.strip())
+    """Parse AI JSON output robustly.
+
+    Strategies in order:
+      1. strip ```json fences
+      2. try json.loads directly
+      3. extract substring from first '{' to last '}'
+    """
+    text = str(raw)
+    if "```json" in text:
+        text = text.split("```json")[1].split("```")[0]
+    elif "```" in text:
+        text = text.split("```")[1].split("```")[0]
+    text = text.strip()
+
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        # Try to salvage: take first '{' to last '}'
+        start = text.find("{")
+        end = text.rfind("}")
+        if start != -1 and end != -1 and end > start:
+            candidate = text[start:end + 1]
+            try:
+                return json.loads(candidate)
+            except json.JSONDecodeError:
+                raise
+        raise

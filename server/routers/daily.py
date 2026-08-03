@@ -62,7 +62,7 @@ async def daily_problem():
     today = date.today().isoformat()  # server-local date
 
     cached = _load_cached(today)
-    if cached:
+    if cached and not cached.get("_error"):
         return {"problem": cached, "generated": False, "date": today}
 
     key = settings.deepseek_api_key
@@ -84,4 +84,6 @@ async def daily_problem():
         _save(today, problem)
         return {"problem": problem, "generated": True, "date": today}
     except Exception as e:
-        return {"error": str(e)[:200], "date": today}
+        # Cache the error briefly so we don't hammer the AI API on every refresh.
+        _save(today, {"_error": True, "_msg": str(e)[:200]})
+        return {"error": "AI generation failed, will retry tomorrow", "date": today}
