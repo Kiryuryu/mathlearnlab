@@ -19,7 +19,8 @@ class AdminSecretRequest(BaseModel):
 
 
 def _check_secret(body: AdminSecretRequest):
-    if body.secret != ADMIN_SECRET:
+    # Constant-time comparison to avoid timing side-channel attacks.
+    if not secrets.compare_digest(body.secret.encode(), ADMIN_SECRET.encode()):
         raise HTTPException(status_code=403, detail="Unauthorized")
 
 

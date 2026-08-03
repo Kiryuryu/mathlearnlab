@@ -23,7 +23,7 @@ import { useToast } from '@/utils/toast'
 import { apiFetch } from '@/utils/api'
 import { useLoading } from '@/utils/useLoading'
 const { t } = useI18n()
-const { show: showToast } = useToast()
+const { show: showToast, handleError } = useToast()
 const bookmarks = ref([])
 const { loading, run } = useLoading(true)
 
@@ -34,7 +34,7 @@ async function fetchBookmarks() {
       const d = await r.json()
       bookmarks.value = d.bookmarks || []
     }
-  }).catch(e => { console.warn('Failed to load bookmarks', e); showToast(t('bookmarks.loadFail') || '加载收藏失败') })
+  }).catch(e => handleError(e, t('bookmarks.loadFail') || '加载收藏失败'))
 }
 
 async function removeBookmark(id) {
@@ -44,7 +44,7 @@ async function removeBookmark(id) {
       bookmarks.value = bookmarks.value.filter(b => b.id !== id)
       showToast(t('common.bookmarkRemoved') || 'Removed')
     }
-  } catch(e) { console.warn('Failed to remove bookmark', e); showToast(t('common.bookmarkRemoved') || 'Removed') }
+  } catch(e) { handleError(e, t('common.bookmarkRemoved') || 'Removed') }
 }
 
 onMounted(fetchBookmarks)

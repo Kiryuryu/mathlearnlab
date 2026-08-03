@@ -40,7 +40,7 @@ import { useI18n } from 'vue-i18n'
 import { useToast } from '@/utils/toast'
 import { apiFetch } from '@/utils/api'
 const { t, locale } = useI18n()
-const { show: showToast } = useToast()
+const { show: showToast, handleError } = useToast()
 
 const secret = ref('')
 const authenticated = ref(false)
@@ -66,7 +66,7 @@ async function load() {
     const d = await r.json()
     users.value = d.users || []
     authenticated.value = true
-  } catch(e) { console.warn('Failed to load users', e); showToast(t('admin.loadFail')) }
+  } catch(e) { handleError(e, t('admin.loadFail')) }
 }
 
 async function approve(id) {
@@ -78,7 +78,7 @@ async function approve(id) {
     })
     if (!r.ok) { showToast(t('admin.actionFail')); return }
     load()
-  } catch(e) { console.warn('Failed to approve user', e); showToast(t('admin.actionFail')) }
+  } catch(e) { handleError(e, t('admin.actionFail')) }
 }
 
 async function reject(id) {
@@ -90,7 +90,7 @@ async function reject(id) {
     })
     if (!r.ok) { showToast(t('admin.actionFail')); return }
     load()
-  } catch(e) { console.warn('Failed to reject user', e); showToast(t('admin.actionFail')) }
+  } catch(e) { handleError(e, t('admin.actionFail')) }
 }
 </script>
 

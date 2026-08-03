@@ -49,10 +49,11 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useLoading } from '@/utils/useLoading'
 const { t, locale } = useI18n()
 const route = useRoute()
 const m = ref(null)
-const loading = ref(false)
+const { loading, run } = useLoading(false)
 const exhibitLabels = computed(() => ({
   limits: t('mathematicians.exLimit'),
   derivatives: t('mathematicians.exDerivative'),
@@ -84,15 +85,11 @@ const displayStory = computed(() => {
   if (!m.value) return ''
   return locale.value === 'en' && m.value.story_en ? m.value.story_en : m.value.story
 })
-onMounted(async () => {
-  loading.value = true
-  try {
-    const r = await fetch('/api/museum/exhibits')
-    const d = await r.json()
-    m.value = d.mathematicians[route.params.key]
-  } catch(e) { console.warn('Failed to load mathematician', e) }
-  loading.value = false
-})
+onMounted(() => run(async () => {
+  const r = await fetch('/api/museum/exhibits')
+  const d = await r.json()
+  m.value = d.mathematicians[route.params.key]
+}).catch(e => console.warn('Failed to load mathematician', e)))
 </script>
 <style scoped>
 .hero { background:linear-gradient(135deg,#1a1a2e,#2d1b69,#1a1a2e); color:#fff; text-align:center; padding:48px 32px 36px; }

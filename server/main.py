@@ -5,12 +5,14 @@ Run:
     uvicorn server.main:app --reload
 """
 
+import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from server.config import settings, CONTENT_DIR, DATA_DIR, STATIC_DIR
 from server.models.database import init_db
+from server.middleware import RequestLogMiddleware
 
 
 @asynccontextmanager
@@ -20,6 +22,10 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title=settings.app_name, version="4.0.0", lifespan=lifespan)
+
+# ── Request logging ──
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
+app.add_middleware(RequestLogMiddleware)
 
 # ── CORS ──
 app.add_middleware(

@@ -10,5 +10,12 @@ export function useToast() {
       if (idx !== -1) toasts.splice(idx, 1)
     }, duration)
   }
-  return { toasts, show }
+
+  // Log + toast a caught error in one call.
+  function handleError(e, msg) {
+    console.warn(msg, e)
+    show(msg)
+  }
+
+  return { toasts, show, handleError }
 }
