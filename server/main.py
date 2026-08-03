@@ -50,9 +50,10 @@ async def museum_exhibits():
     }
 
 # Import and include routers
-from server.routers import content, practice, grade, chat, stats, auth, workshop, blog, bookmarks
+from server.routers import content, practice, grade, chat, stats, auth, admin, workshop, blog, bookmarks
 
 app.include_router(auth.router)
+app.include_router(admin.router)
 app.include_router(content.router)
 app.include_router(practice.router)
 app.include_router(grade.router)

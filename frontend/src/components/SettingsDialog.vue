@@ -1,26 +1,25 @@
 <template>
-  <div class="settings-overlay" @click.self="$emit('close')">
-    <div class="settings-box">
-      <h3>{{ $t('settings.title') }}</h3>
-      <p class="hint">{{ $t('settings.hint') }}</p>
-      <label class="label">{{ $t('settings.model') }}</label>
-      <select v-model="selModel" class="inp">
-        <option value="deepseek-chat">DeepSeek V4</option>
-        <option value="deepseek-reasoner">DeepSeek R1</option>
-      </select>
-      <label class="label">{{ $t('settings.apiKey') }}</label>
-      <input v-model="selKey" type="password" class="inp" :placeholder="$t('settings.keyPlaceholder')" />
-      <div class="actions">
-        <button class="btn-cancel" @click="$emit('close')">{{ $t('settings.cancel') }}</button>
-        <button class="btn-save" @click="save">{{ $t('settings.save') }}</button>
-      </div>
-      <p class="tip"><a href="https://platform.deepseek.com/api_keys" target="_blank">{{ $t('settings.getKey') }}</a></p>
+  <BaseModal panel-class="settings-panel" @close="$emit('close')">
+    <h3>{{ $t('settings.title') }}</h3>
+    <p class="hint">{{ $t('settings.hint') }}</p>
+    <label class="label">{{ $t('settings.model') }}</label>
+    <select v-model="selModel" class="inp">
+      <option value="deepseek-chat">DeepSeek V4</option>
+      <option value="deepseek-reasoner">DeepSeek R1</option>
+    </select>
+    <label class="label">{{ $t('settings.apiKey') }}</label>
+    <input v-model="selKey" type="password" class="inp" :placeholder="$t('settings.keyPlaceholder')" />
+    <div class="actions">
+      <button class="btn-cancel" @click="$emit('close')">{{ $t('settings.cancel') }}</button>
+      <button class="btn-save" @click="save">{{ $t('settings.save') }}</button>
     </div>
-  </div>
+    <p class="tip"><a href="https://platform.deepseek.com/api_keys" target="_blank">{{ $t('settings.getKey') }}</a></p>
+  </BaseModal>
 </template>
 <script setup>
 import { ref } from 'vue'
 import { useAuth } from '@/stores/auth'
+import BaseModal from '@/components/BaseModal.vue'
 const auth = useAuth()
 const emit = defineEmits(['close'])
 const selModel = ref(auth.model || 'deepseek-chat')
@@ -31,8 +30,7 @@ function save() {
 }
 </script>
 <style scoped>
-.settings-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:1000; display:flex; align-items:center; justify-content:center; }
-.settings-box { background:var(--bg-card); border-radius:12px; padding:28px; width:420px; max-width:92vw; box-shadow:0 8px 40px rgba(0,0,0,0.15); }
+.settings-panel { padding:28px; width:420px; max-width:92vw; }
 h3 { font-size:18px; margin:0 0 4px; }
 .hint { font-size:13px; color:var(--text-muted); margin-bottom:16px; line-height:1.6; }
 .label { font-size:13px; color:var(--text-secondary); display:block; margin-bottom:4px; margin-top:12px; }

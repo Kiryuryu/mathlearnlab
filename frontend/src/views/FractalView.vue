@@ -10,7 +10,7 @@
       <button @click="resetView">{{ $t('fractal.reset') }}</button>
     </div>
     <canvas v-show="mode !== 'lorenz'" ref="canvasEl" class="fractal-canvas" @wheel="onWheel" @mousedown="onMouseDown" @click="onClick"></canvas>
-    <div v-show="mode === 'lorenz'" ref="lorenzEl" class="lorenz-plot"></div>
+    <LorenzAttractor v-if="mode === 'lorenz'" />
     <div class="info" v-if="mode !== 'lorenz'">
       <span>{{ $t('fractal.center') }}: {{ cx.toFixed(6) }}+{{ cy.toFixed(6) }}i, {{ $t('fractal.range') }}: {{ range.toExponential(2) }}</span>
       <span>{{ $t('fractal.iter') }}: <input v-model.number="maxIter" @change="redraw" type="number" min="20" max="500" step="10" style="width:60px"></span>
@@ -21,13 +21,12 @@
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { loadPlotly } from '@/utils/plotly'
+import LorenzAttractor from '@/components/LorenzAttractor.vue'
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 
 const mode = ref('mandelbrot')
 const canvasEl = ref(null)
-const lorenzEl = ref(null)
 const maxIter = ref(100)
 const cx = ref(-0.5), cy = ref(0), range = ref(3)
 const juliaCx = ref(-0.7), juliaCy = ref(0.27)
@@ -38,8 +37,7 @@ function setMode(m) {
   mode.value = m
   if (m === 'julia') { cx.value = 0; cy.value = 0; range.value = 3 }
   nextTick(() => {
-    if (m === 'lorenz') drawLorenz()
-    else redraw()
+    if (m !== 'lorenz') redraw()
   })
 }
 
@@ -120,26 +118,7 @@ function renderMainThread(w, h) {
   ctx.putImageData(img, 0, 0)
 }
 
-async function drawLorenz() {
-  if (!lorenzEl.value) return
-  try { await loadPlotly() } catch { return }
-  const sigma=10, rho=28, beta=8/3, dt=0.003
-  let x=0.1, y=0, z=0
-  const xs=[], ys=[], zs=[]
-  for(let i=0;i<15000;i++){
-    x += sigma*(y-x)*dt; y += (x*(rho-z)-y)*dt; z += (x*y-beta*z)*dt
-    if(i>1000){ xs.push(x); ys.push(y); zs.push(z) }
-  }
-  Plotly.newPlot(lorenzEl.value, [{
-    x:xs, y:ys, z:zs, type:'scatter3d', mode:'lines',
-    line:{width:2, color:xs.map((_,i)=>i/xs.length), colorscale:'Viridis'}
-  }], {
-    title: t('fractal.lorenzTitle'),
-    scene:{xaxis:{title:'x'},yaxis:{title:'y'},zaxis:{title:'z'}},
-    margin:{t:40,r:20,b:40,l:20}, paper_bgcolor:'rgba(0,0,0,0)'
-  }, {responsive:true})
-}
-
+// Mouse events
 // Mouse events
 let wheelAccum = 0
 let _onMouseMove, _onMouseUp, _checkInt
@@ -205,6 +184,5 @@ function onClick(e) {
 .fractal-toolbar button.active { background:var(--accent); color:#fff; }
 .hint { font-size:12px; color:var(--text-muted); margin-left:8px; }
 .fractal-canvas { width:100%; aspect-ratio:1; max-height:600px; border:1px solid var(--border); border-radius:8px; cursor:crosshair; }
-.lorenz-plot { width:100%; height:500px; border:1px solid var(--border); border-radius:8px; }
 .info { margin-top:8px; font-size:12px; color:var(--text-muted); display:flex; gap:16px; align-items:center; }
 </style>

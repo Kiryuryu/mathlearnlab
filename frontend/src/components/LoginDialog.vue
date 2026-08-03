@@ -1,46 +1,42 @@
 <template>
-  <div class="login-overlay" @click.self="auth.closeLogin()">
-    <div class="login-box" ref="loginBoxRef">
-      <div class="login-left">
-        <div class="login-logo">{{ $t('header.brand') }}</div>
-        <div class="login-sub">{{ $t('login.guest') }}</div>
-        <button class="guest-btn" @click="auth.closeLogin()">{{ $t('login.guest') }}</button>
+  <BaseModal panel-class="login-panel" @close="auth.closeLogin()">
+    <div class="login-left">
+      <div class="login-logo">{{ $t('header.brand') }}</div>
+      <div class="login-sub">{{ $t('login.guest') }}</div>
+      <button class="guest-btn" @click="auth.closeLogin()">{{ $t('login.guest') }}</button>
+    </div>
+    <div class="login-right">
+      <div class="login-tabs">
+        <span :class="['login-tab', { on: auth.loginTab === 'login' }]" @click="auth.loginTab = 'login'">{{ $t('login.login') }}</span>
+        <span :class="['login-tab', { on: auth.loginTab === 'register' }]" @click="auth.loginTab = 'register'">{{ $t('login.register') }}</span>
       </div>
-      <div class="login-right">
-        <div class="login-tabs">
-          <span :class="['login-tab', { on: auth.loginTab === 'login' }]" @click="auth.loginTab = 'login'">{{ $t('login.login') }}</span>
-          <span :class="['login-tab', { on: auth.loginTab === 'register' }]" @click="auth.loginTab = 'register'">{{ $t('login.register') }}</span>
+      <div v-if="auth.loginTab === 'login'">
+        <input v-model="loginUser" :placeholder="$t('login.username')" class="login-inp" @keyup.enter="handleLogin">
+        <input v-model="loginPass" type="password" :placeholder="$t('login.password')" class="login-inp" @keyup.enter="handleLogin">
+        <p v-if="loginErr" class="login-err">{{ loginErr }}</p>
+        <button class="login-btn" @click="handleLogin">{{ $t('login.login') }}</button>
+      </div>
+      <div v-else>
+        <div class="login-field">
+          <input v-model="regUser" ref="regUserInput" :placeholder="$t('login.usernamePlaceholder')" class="login-inp" @blur="checkUser" @input="userCheckMsg=''">
+          <span v-if="userCheckMsg" class="login-hint" :class="{ err: userCheckErr }">{{ userCheckMsg }}</span>
         </div>
-        <div v-if="auth.loginTab === 'login'">
-          <input v-model="loginUser" :placeholder="$t('login.username')" class="login-inp" @keyup.enter="handleLogin">
-          <input v-model="loginPass" type="password" :placeholder="$t('login.password')" class="login-inp" @keyup.enter="handleLogin">
-          <p v-if="loginErr" class="login-err">{{ loginErr }}</p>
-          <button class="login-btn" @click="handleLogin">{{ $t('login.login') }}</button>
-        </div>
-        <div v-else>
-          <div class="login-field">
-            <input v-model="regUser" ref="regUserInput" :placeholder="$t('login.usernamePlaceholder')" class="login-inp" @blur="checkUser" @input="userCheckMsg=''">
-            <span v-if="userCheckMsg" class="login-hint" :class="{ err: userCheckErr }">{{ userCheckMsg }}</span>
-          </div>
-          <input v-model="regEmail" :placeholder="$t('login.emailPlaceholder')" class="login-inp">
-          <input v-model="regPass" type="password" :placeholder="$t('login.passwordPlaceholder')" class="login-inp">
-          <p v-if="regErr" class="login-err">{{ regErr }}</p>
-          <button class="login-btn" @click="handleRegister">{{ $t('login.register') }}</button>
-        </div>
+        <input v-model="regEmail" :placeholder="$t('login.emailPlaceholder')" class="login-inp">
+        <input v-model="regPass" type="password" :placeholder="$t('login.passwordPlaceholder')" class="login-inp">
+        <p v-if="regErr" class="login-err">{{ regErr }}</p>
+        <button class="login-btn" @click="handleRegister">{{ $t('login.register') }}</button>
       </div>
     </div>
-  </div>
+  </BaseModal>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuth } from '@/stores/auth'
-import { useFocusTrap } from '@/utils/focusTrap'
+import BaseModal from '@/components/BaseModal.vue'
 const auth = useAuth()
 const { t } = useI18n()
-const loginBoxRef = ref(null)
-useFocusTrap(loginBoxRef)
 
 const loginUser = ref(''), loginPass = ref(''), loginErr = ref('')
 const regUser = ref(''), regEmail = ref(''), regPass = ref(''), regErr = ref('')
@@ -86,8 +82,7 @@ async function handleRegister() {
 </script>
 
 <style scoped>
-.login-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:999; display:flex; align-items:center; justify-content:center; }
-.login-box { display:flex; background:var(--bg-card,#fff); border-radius:12px; overflow:hidden; box-shadow:0 8px 40px rgba(0,0,0,0.15); width:480px; max-width:92vw; }
+.login-panel { display:flex; overflow:hidden; width:480px; max-width:92vw; }
 .login-left { width:160px; background:linear-gradient(160deg,#1e2935,#3a5a7c); color:#fff; padding:40px 24px; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; flex-shrink:0; }
 .login-logo { font-size:18px; font-weight:700; letter-spacing:2px; margin-bottom:8px; }
 .login-sub { font-size:12px; opacity:0.7; line-height:1.6; }

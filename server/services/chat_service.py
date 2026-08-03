@@ -2,7 +2,7 @@
 Chat service — SSE streaming chat via DeepSeek (OpenAI-compatible) API.
 """
 
-from openai import AsyncOpenAI
+from server.services.deepseek import stream_chat
 
 ZH_SYSTEM_PROMPT = """你是数学博物馆的 AI 导览员。{context_info}
 
@@ -51,14 +51,12 @@ async def stream_chat(messages: list[dict], system: str | None = None,
         if role in ("user", "assistant"):
             chat_messages.append({"role": role, "content": m.get("content", "")})
 
-    client = AsyncOpenAI(api_key=api_key, base_url="https://api.deepseek.com")
-
     try:
-        stream = await client.chat.completions.create(
+        stream = await stream_chat(
+            chat_messages,
+            api_key=api_key,
             model=model,
-            messages=chat_messages,
             max_tokens=max_tokens or 2048,
-            stream=True,
         )
 
         async for chunk in stream:

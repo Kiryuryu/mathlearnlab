@@ -1,56 +1,55 @@
 <template>
-  <div class="setup-overlay" @click.self="$emit('close')">
-    <div class="setup-modal">
-      <div class="setup-steps">
-        <span v-for="s in steps" :key="s.key" :class="['step-dot', { active: s.key === step, done: stepIdx > s.idx }]">
-          <span v-if="stepIdx > s.idx">✓</span><span v-else>{{ s.idx + 1 }}</span>
-        </span>
-      </div>
+  <BaseModal panel-class="setup-panel" @close="$emit('close')">
+    <div class="setup-steps">
+      <span v-for="s in steps" :key="s.key" :class="['step-dot', { active: s.key === step, done: stepIdx > s.idx }]">
+        <span v-if="stepIdx > s.idx">✓</span><span v-else>{{ s.idx + 1 }}</span>
+      </span>
+    </div>
 
-      <!-- Step 1: Welcome -->
-      <div v-if="step === 'intro'" class="step-content">
-        <h2>{{ $t('setup.welcome') }}</h2>
-        <p>{{ $t('setup.welcomeDesc') }}</p>
-        <button class="btn btn-primary" @click="step = 'model'">{{ $t('setup.next') }}</button>
-        <button class="btn btn-ghost" @click="$emit('close')">{{ $t('setup.skip') }}</button>
-      </div>
+    <!-- Step 1: Welcome -->
+    <div v-if="step === 'intro'" class="step-content">
+      <h2>{{ $t('setup.welcome') }}</h2>
+      <p>{{ $t('setup.welcomeDesc') }}</p>
+      <button class="btn btn-primary" @click="step = 'model'">{{ $t('setup.next') }}</button>
+      <button class="btn btn-ghost" @click="$emit('close')">{{ $t('setup.skip') }}</button>
+    </div>
 
-      <!-- Step 2: Select Model -->
-      <div v-if="step === 'model'" class="step-content">
-        <h2>{{ $t('setup.selectModel') }}</h2>
-        <div class="model-options">
-          <div v-for="m in models" :key="m.id" :class="['model-card', { active: selectedModel === m.id }]" @click="selectedModel = m.id">
-            <div class="model-name">{{ m.name }}</div>
-            <div class="model-desc">{{ locale === 'en' ? m.desc_en : m.desc_zh }}</div>
-          </div>
-        </div>
-        <div class="step-actions">
-          <button class="btn" @click="step = 'intro'">{{ $t('setup.back') }}</button>
-          <button class="btn btn-primary" @click="step = 'key'">{{ $t('setup.next') }}</button>
+    <!-- Step 2: Select Model -->
+    <div v-if="step === 'model'" class="step-content">
+      <h2>{{ $t('setup.selectModel') }}</h2>
+      <div class="model-options">
+        <div v-for="m in models" :key="m.id" :class="['model-card', { active: selectedModel === m.id }]" @click="selectedModel = m.id">
+          <div class="model-name">{{ m.name }}</div>
+          <div class="model-desc">{{ locale === 'en' ? m.desc_en : m.desc_zh }}</div>
         </div>
       </div>
-
-      <!-- Step 3: Enter API Key -->
-      <div v-if="step === 'key'" class="step-content">
-        <h2>{{ $t('setup.enterKey') }}</h2>
-        <p>{{ $t('setup.keyDesc') }}</p>
-        <input v-model="apiKeyInput" :placeholder="$t('setup.keyPlaceholder')" class="setup-input" />
-        <p class="setup-hint">
-          <a href="https://platform.deepseek.com" target="_blank">{{ $t('setup.getKey') }}</a>
-        </p>
-        <div class="step-actions">
-          <button class="btn" @click="step = 'model'">{{ $t('setup.back') }}</button>
-          <button class="btn btn-primary" :disabled="!apiKeyInput.trim()" @click="saveAndProceed">{{ $t('setup.done') }}</button>
-        </div>
+      <div class="step-actions">
+        <button class="btn" @click="step = 'intro'">{{ $t('setup.back') }}</button>
+        <button class="btn btn-primary" @click="step = 'key'">{{ $t('setup.next') }}</button>
       </div>
     </div>
-  </div>
+
+    <!-- Step 3: Enter API Key -->
+    <div v-if="step === 'key'" class="step-content">
+      <h2>{{ $t('setup.enterKey') }}</h2>
+      <p>{{ $t('setup.keyDesc') }}</p>
+      <input v-model="apiKeyInput" :placeholder="$t('setup.keyPlaceholder')" class="setup-input" />
+      <p class="setup-hint">
+        <a href="https://platform.deepseek.com" target="_blank">{{ $t('setup.getKey') }}</a>
+      </p>
+      <div class="step-actions">
+        <button class="btn" @click="step = 'model'">{{ $t('setup.back') }}</button>
+        <button class="btn btn-primary" :disabled="!apiKeyInput.trim()" @click="saveAndProceed">{{ $t('setup.done') }}</button>
+      </div>
+    </div>
+  </BaseModal>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuth } from '@/stores/auth'
+import BaseModal from '@/components/BaseModal.vue'
 
 const { locale } = useI18n()
 const emit = defineEmits(['close', 'proceed'])
@@ -79,18 +78,10 @@ function saveAndProceed() {
 </script>
 
 <style scoped>
-.setup-overlay {
-  position:fixed; inset:0; z-index:1000;
-  background:rgba(0,0,0,0.5);
-  display:flex; align-items:center; justify-content:center;
-}
-.setup-modal {
+.setup-panel {
   width:420px; max-width:90vw;
-  background:var(--bg-card); border-radius:12px;
-  padding:32px; box-shadow:0 20px 60px rgba(0,0,0,0.3);
-  animation:slideUp 0.25s;
+  padding:32px;
 }
-@keyframes slideUp { from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
 .setup-steps { display:flex; justify-content:center; gap:8px; margin-bottom:28px; }
 .step-dot {
   width:28px; height:28px; border-radius:50%;

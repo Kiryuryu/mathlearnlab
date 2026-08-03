@@ -2,10 +2,11 @@
 Workshop API — AI-assisted function plotting via DeepSeek.
 """
 import asyncio
-from fastapi import APIRouter, Request, HTTPException, Depends
 import re
+from fastapi import APIRouter, Request, HTTPException, Depends
 from server.config import settings
 from server.routers.auth import require_user
+from server.services.deepseek import chat_completion
 
 router = APIRouter()
 
@@ -25,9 +26,6 @@ async def workshop_plot(request: Request, user: dict = Depends(require_user)):
     if not key:
         return {"code": None, "explanation": None, "message": "请先登录并配置 DeepSeek API Key"}
 
-    from openai import AsyncOpenAI
-    client = AsyncOpenAI(api_key=key, base_url="https://api.deepseek.com")
-
     code_prompt = f"""根据描述生成 Plotly.js 代码。只输出代码。
 
 描述: {description}
@@ -46,14 +44,8 @@ async def workshop_plot(request: Request, user: dict = Depends(require_user)):
 
     try:
         code_resp, explain_resp = await asyncio.gather(
-            client.chat.completions.create(
-                model="deepseek-chat", max_tokens=1000,
-                messages=[{"role": "user", "content": code_prompt}],
-            ),
-            client.chat.completions.create(
-                model="deepseek-chat", max_tokens=600,
-                messages=[{"role": "user", "content": explain_prompt}],
-            ),
+            chat_completion([{"role": "user", "content": code_prompt}], api_key=key, max_tokens=1000),
+            chat_completion([{"role": "user", "content": explain_prompt}], api_key=key, max_tokens=600),
             return_exceptions=True
         )
 

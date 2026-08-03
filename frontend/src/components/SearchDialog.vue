@@ -1,30 +1,28 @@
 <template>
-  <div class="search-overlay" @click.self="$emit('close')">
-    <div class="search-modal" ref="modalRef">
-      <div class="search-bar">
-        <input ref="inputEl" v-model="query" :placeholder="$t('search.placeholder')" @input="onInput" @keydown.escape="$emit('close')" />
-        <button class="close-btn" @click="$emit('close')">{{ $t('common.close') }}</button>
-      </div>
-      <div class="search-hint" v-if="!query">{{ $t('search.hint') }}</div>
-      <div class="search-loading" v-if="query && loading">{{ $t('search.searching') }}</div>
-      <div class="search-results-wrap" v-if="query && !loading">
-        <div v-if="results.length === 0" class="search-no-results">{{ $t('search.noResults') }}</div>
-        <div v-for="(group, idx) in grouped" :key="idx" class="result-group">
-          <div class="result-group-label">{{ group.section }}</div>
-          <router-link v-for="r in group.items" :key="r.route" :to="r.route" class="search-result-item" @click="$emit('close')">
-            <div class="sr-title">{{ r.title }}</div>
-            <div class="sr-excerpt" v-if="r.excerpt">{{ r.excerpt }}</div>
-          </router-link>
-        </div>
+  <BaseModal panel-class="search-panel" align-top @close="$emit('close')">
+    <div class="search-bar">
+      <input ref="inputEl" v-model="query" :placeholder="$t('search.placeholder')" @input="onInput" />
+      <button class="close-btn" @click="$emit('close')">{{ $t('common.close') }}</button>
+    </div>
+    <div class="search-hint" v-if="!query">{{ $t('search.hint') }}</div>
+    <div class="search-loading" v-if="query && loading">{{ $t('search.searching') }}</div>
+    <div class="search-results-wrap" v-if="query && !loading">
+      <div v-if="results.length === 0" class="search-no-results">{{ $t('search.noResults') }}</div>
+      <div v-for="(group, idx) in grouped" :key="idx" class="result-group">
+        <div class="result-group-label">{{ group.section }}</div>
+        <router-link v-for="r in group.items" :key="r.route" :to="r.route" class="search-result-item" @click="$emit('close')">
+          <div class="sr-title">{{ r.title }}</div>
+          <div class="sr-excerpt" v-if="r.excerpt">{{ r.excerpt }}</div>
+        </router-link>
       </div>
     </div>
-  </div>
+  </BaseModal>
 </template>
 
 <script setup>
 import { ref, computed, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useFocusTrap } from '@/utils/focusTrap'
+import BaseModal from '@/components/BaseModal.vue'
 const { t, locale } = useI18n()
 
 const emit = defineEmits(['close'])
@@ -32,9 +30,7 @@ const query = ref('')
 const results = ref([])
 const loading = ref(false)
 const inputEl = ref(null)
-const modalRef = ref(null)
 let debounceTimer = null
-useFocusTrap(modalRef)
 
 const grouped = computed(() => {
   const g = {}
@@ -69,22 +65,10 @@ defineExpose({ focus: () => nextTick(() => inputEl.value?.focus()) })
 </script>
 
 <style scoped>
-.search-overlay {
-  position: fixed; inset: 0; z-index: 1000;
-  background: rgba(0,0,0,0.5);
-  display: flex; align-items: flex-start; justify-content: center;
-  padding-top: 10vh;
-  animation: fadeIn 0.15s;
-}
-@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-.search-modal {
+.search-panel {
   width: 560px; max-width: 90vw; max-height: 70vh;
-  background: var(--bg-card); border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
   display: flex; flex-direction: column;
-  animation: slideDown 0.2s;
 }
-@keyframes slideDown { from { transform:translateY(-20px); opacity:0; } to { transform:translateY(0); opacity:1; } }
 .search-bar {
   display: flex; gap: 8px; padding: 16px; border-bottom: 1px solid var(--border);
 }

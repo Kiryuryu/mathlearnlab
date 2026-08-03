@@ -1,12 +1,12 @@
 """
-Grading service — OCR handwriting recognition + answer grading via Claude API.
+Grading service — OCR handwriting recognition + answer grading via DeepSeek API.
 Ported from ocr_practice/prompts/grader.py and ocr_practice/utils/api_client.py.
 """
 
 import json
 import base64
-from openai import AsyncOpenAI
 from server.config import settings
+from server.services.deepseek import chat_completion
 
 # ── System prompt (verbatim from origin) ──
 
@@ -133,12 +133,10 @@ async def grade_submission(problem: dict, image_bytes: bytes, api_key: str | Non
     image_b64 = base64.b64encode(image_bytes).decode("utf-8")
     message_content = build_grading_message(problem, image_b64)
 
-    client = AsyncOpenAI(api_key=key, base_url="https://api.deepseek.com")
-
-    response = await client.chat.completions.create(
-        model=settings.deepseek_model,
+    response = await chat_completion(
+        [{"role": "system", "content": GRADER_SYSTEM_PROMPT}, {"role": "user", "content": message_content}],
+        api_key=api_key,
         max_tokens=settings.max_grading_tokens,
-        messages=[{"role": "system", "content": GRADER_SYSTEM_PROMPT}, {"role": "user", "content": message_content}],
     )
 
     raw_text = response.choices[0].message.content

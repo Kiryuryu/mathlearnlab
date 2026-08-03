@@ -11,7 +11,7 @@ from fastapi import APIRouter, HTTPException, Request, Depends
 from pydantic import BaseModel
 from server.config import settings
 from server.routers.auth import require_user
-from openai import AsyncOpenAI
+from server.services.deepseek import chat_completion
 
 router = APIRouter()
 
@@ -112,12 +112,11 @@ async def generate_problem(request: Request, user: dict = Depends(require_user))
 
 只输出 JSON，不要其他内容。确保 problem_statement 使用正确的 LaTeX 语法（$...$ 或 $$...$$）。"""
 
-    client = AsyncOpenAI(api_key=key, base_url="https://api.deepseek.com")
     try:
-        response = await client.chat.completions.create(
-            model=settings.deepseek_model,
+        response = await chat_completion(
+            [{"role": "user", "content": prompt}],
+            api_key=key,
             max_tokens=1500,
-            messages=[{"role": "user", "content": prompt}],
         )
         raw = response.choices[0].message.content
         if "```json" in raw:
