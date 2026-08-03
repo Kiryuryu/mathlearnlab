@@ -71,7 +71,7 @@ defineExpose({ scrollBottom })
 </script>
 
 <style scoped>
-.chat-msgs { flex:1; overflow-y:auto; padding:16px 16px 12px; display:flex; flex-direction:column; gap:14px; }
+.chat-msgs { flex:1; min-height:0; overflow-y:auto; padding:16px 16px 12px; display:flex; flex-direction:column; gap:14px; }
 .msg { display:flex; flex-direction:column; }
 .msg.user { align-items:flex-end; }
 .msg.hint { align-items:center; }

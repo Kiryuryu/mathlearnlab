@@ -48,6 +48,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
   background: var(--bg-card); border-radius: 12px;
   box-shadow: 0 20px 60px rgba(0,0,0,0.3);
   animation: baseSlideIn 0.2s;
+  max-width: 94vw;
+  box-sizing: border-box;
 }
 @keyframes baseSlideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 </style>

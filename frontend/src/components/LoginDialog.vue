@@ -94,9 +94,9 @@ async function handleRegister() {
 </script>
 
 <style scoped>
-.login-panel { display:flex; overflow:hidden; width:500px; max-width:92vw; border-radius:16px; }
+.login-panel { display:flex; overflow:hidden; width:500px; max-width:94vw; border-radius:16px; }
 .login-left {
-  width:180px; flex-shrink:0;
+  width:190px; flex-shrink:0; min-width:190px;
   background:linear-gradient(165deg,#1a2530 0%,#22344a 55%,#3a5a7c 100%);
   color:#fff; padding:40px 26px;
   display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;
@@ -121,7 +121,7 @@ async function handleRegister() {
   font-size:12px; cursor:pointer; transition:all 0.2s;
 }
 .guest-btn:hover { background:rgba(255,255,255,0.12); color:#fff; border-color:rgba(255,255,255,0.4); }
-.login-right { flex:1; padding:36px 32px; }
+.login-right { flex:1; min-width:0; padding:36px 32px; }
 .login-tabs { display:flex; gap:24px; margin-bottom:28px; }
 .login-tab {
   font-size:14px; color:var(--text-muted); cursor:pointer; padding-bottom:6px;
@@ -147,5 +147,14 @@ async function handleRegister() {
 .login-hint { font-size:11px; display:block; margin:4px 0 0; padding-left:2px; }
 .login-hint.err { color:var(--accent-error); }
 .login-hint:not(.err) { color:var(--accent-correct); }
-@media(max-width:480px) { .login-left { width:140px; padding:32px 18px; } .login-right { padding:28px 20px; } }
+@media(max-width:520px) {
+  .login-panel { flex-direction:column; }
+  .login-left { width:100%; min-width:0; padding:22px 18px; flex-direction:row; gap:14px; justify-content:flex-start; }
+  .login-left::before { display:none; }
+  .brand-mark { width:40px; height:40px; margin-bottom:0; flex-shrink:0; }
+  .login-logo { margin-bottom:0; font-size:15px; }
+  .login-sub, .login-guest { display:none; }
+  .guest-btn { margin-top:0; margin-left:auto; padding:5px 14px; }
+  .login-right { padding:24px 20px; }
+}
 </style>
