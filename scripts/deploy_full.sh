@@ -19,26 +19,22 @@ echo "[0/4] Building Vue SPA..."
 echo "[1/4] Copying files..."
 expect <<EOF > /dev/null
 set timeout 60
-spawn scp -o StrictHostKeyChecking=no -r server/models server/routers server/services server/config.py server/content_data.py server/main.py server/static-spa requirements.txt ${SSH_HOST}:${APP_DIR}/
+spawn scp -o StrictHostKeyChecking=no -r server/models server/routers server/services server/middleware.py server/config.py server/content_data.py server/main.py server/static-spa requirements.txt ${SSH_HOST}:${APP_DIR}/
 expect "password:" { send "${PASS}\r" }
 expect eof
 EOF
 
-expect <<EOF > /dev/null
-set timeout 30
-spawn scp -o StrictHostKeyChecking=no nginx.conf ${SSH_HOST}:/etc/nginx/conf.d/mathlearnlab.conf
-expect "password:" { send "${PASS}\r" }
-expect eof
-EOF
-
-# 2. Install deps & restart
+# 2. Install deps, clear pycache & restart
 echo "[2/4] Installing deps & restarting API..."
 expect <<EOF
 set timeout 180
-spawn ssh -o StrictHostKeyChecking=no ${SSH_HOST} {source ${APP_DIR}/venv/bin/activate && pip install -r ${APP_DIR}/requirements.txt -q 2>&1 | tail -2 && systemctl restart mathlearnlab && sleep 3 && systemctl status mathlearnlab --no-pager | head -5}
+spawn ssh -o StrictHostKeyChecking=no ${SSH_HOST} {find ${APP_DIR}/server -name __pycache__ -type d -exec rm -rf {} + 2>/dev/null; source ${APP_DIR}/venv/bin/activate && pip install -r ${APP_DIR}/requirements.txt -q 2>&1 | tail -2 && systemctl restart mathlearnlab && sleep 3 && systemctl status mathlearnlab --no-pager | head -5}
 expect "password:" { send "${PASS}\r" }
 expect eof
 EOF
+
+# NOTE: nginx config (/etc/nginx/conf.d/mathlearnlab-ssl.conf) is managed manually,
+# not uploaded here, to avoid clobbering the live SSL/CSP config with a stale local file.
 
 # 3. Reload nginx
 echo "[3/4] Reloading nginx..."

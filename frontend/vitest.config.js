@@ -7,7 +7,7 @@ export default defineConfig({
     alias: { '@': new URL('./src', import.meta.url).pathname },
   },
   test: {
-    environment: 'node',
+    environment: 'jsdom',
     include: ['src/**/*.test.js'],
   },
 })

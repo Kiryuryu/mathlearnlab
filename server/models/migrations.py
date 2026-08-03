@@ -9,8 +9,15 @@ def _mig_0001(conn):
     conn.commit()
 
 
+def _mig_0002(conn):
+    """Index grade_records.timestamp for fast recent-history queries."""
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_grade_ts ON grade_records(timestamp)")
+    conn.commit()
+
+
 MIGRATIONS = [
     ("0001_add_users_status_column", _mig_0001),
+    ("0002_grade_records_timestamp_index", _mig_0002),
 ]
 
 
