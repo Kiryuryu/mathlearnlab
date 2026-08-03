@@ -20,7 +20,9 @@
       />
       <form class="chat-input" @submit.prevent="onSend">
         <input v-model="input" :placeholder="$t('chat.placeholder')" :disabled="chat.streaming" @keydown.enter.prevent="onSend" />
-        <button type="submit" :disabled="!input.trim() || chat.streaming">{{ $t('chat.send') }}</button>
+        <button type="submit" :disabled="!input.trim() || chat.streaming" :aria-label="$t('chat.send')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+        </button>
       </form>
     </div>
   </div>
@@ -91,36 +93,50 @@ function onRetry(msg) {
 <style scoped>
 .chat-fab {
   position:fixed; bottom:80px; right:32px; z-index:100;
-  width:44px; height:44px; border-radius:50%;
-  background:var(--accent); color:#fff; border:none;
+  width:48px; height:48px; border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),#2c4a68); color:#fff; border:none;
   display:flex; align-items:center; justify-content:center;
-  cursor:pointer; box-shadow:0 4px 16px rgba(0,0,0,0.2);
-  transition:transform 0.2s;
+  cursor:pointer; box-shadow:0 6px 20px rgba(26,29,34,0.25);
+  transition:transform 0.2s, box-shadow 0.2s;
 }
-.chat-fab:hover { transform:scale(1.08); }
+.chat-fab:hover { transform:scale(1.08); box-shadow:0 8px 26px rgba(26,29,34,0.3); }
 .chat-overlay {
   position:fixed; inset:0; z-index:500;
   display:flex; align-items:flex-end; justify-content:flex-end;
   padding:16px; pointer-events:none;
 }
 .chat-panel {
-  width:380px; max-width:calc(100vw - 32px);
-  height:520px; max-height:calc(100vh - 100px);
+  width:400px; max-width:calc(100vw - 32px);
+  height:540px; max-height:calc(100vh - 100px);
   background:var(--bg-card); border:1px solid var(--border);
-  border-radius:12px; box-shadow:0 8px 40px rgba(0,0,0,0.15);
+  border-radius:16px; box-shadow:0 12px 48px rgba(0,0,0,0.18);
   display:flex; flex-direction:column; pointer-events:auto;
-  animation:slideUp 0.2s;
+  animation:slideUp 0.25s;
 }
-@keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
-header { display:flex; align-items:center; gap:6px; padding:14px 16px; border-bottom:1px solid var(--border); flex-shrink:0; }
-header h3 { margin:0; font-size:15px; }
-.chat-context { font-size:11px; color:var(--text-muted); flex:1; text-align:right; }
-.chat-header-btn { background:none; border:none; font-size:14px; cursor:pointer; padding:2px 4px; opacity:0.5; }
+@keyframes slideUp { from{transform:translateY(24px);opacity:0} to{transform:translateY(0);opacity:1} }
+header {
+  display:flex; align-items:center; gap:8px; padding:16px 18px;
+  border-bottom:1px solid var(--border); flex-shrink:0;
+}
+header h3 { margin:0; font-size:15px; font-weight:600; }
+.chat-context { font-size:11px; color:var(--text-muted); flex:1; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.chat-header-btn { background:none; border:none; font-size:14px; cursor:pointer; padding:3px 5px; opacity:0.45; transition:opacity 0.15s; }
 .chat-header-btn:hover { opacity:1; }
 .chat-close { background:none; border:none; font-size:16px; cursor:pointer; color:var(--text-muted); padding:4px; }
-.chat-input { display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--border); flex-shrink:0; }
-.chat-input input { flex:1; padding:8px 12px; border:1px solid var(--border); border-radius:20px; font-size:13px; outline:none; background:var(--bg-input); color:var(--text-primary); }
+.chat-close:hover { color:var(--text-primary); }
+.chat-input { display:flex; gap:8px; padding:12px 14px; border-top:1px solid var(--border); flex-shrink:0; align-items:center; }
+.chat-input input {
+  flex:1; padding:9px 16px; border:1px solid var(--border); border-radius:22px;
+  font-size:13px; outline:none; background:var(--bg-input); color:var(--text-primary);
+  transition:border-color 0.15s;
+}
 .chat-input input:focus { border-color:var(--accent); }
-.chat-input button { padding:8px 16px; border:none; border-radius:20px; background:var(--accent); color:#fff; font-size:13px; cursor:pointer; }
-.chat-input button:disabled { opacity:0.4; cursor:not-allowed; }
+.chat-input button {
+  width:38px; height:38px; flex-shrink:0; padding:0; border:none; border-radius:50%;
+  background:var(--accent); color:#fff; font-size:15px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:opacity 0.15s, transform 0.1s;
+}
+.chat-input button:hover { opacity:0.9; transform:scale(1.05); }
+.chat-input button:disabled { opacity:0.35; cursor:not-allowed; transform:none; }
 </style>

@@ -1,9 +1,13 @@
 <template>
   <BaseModal panel-class="login-panel" @close="auth.closeLogin()">
     <div class="login-left">
+      <div class="brand-mark">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M9 19c0-5 3-9 6-11"/><path d="M14 19c0-4 1.5-7 3-9"/></svg>
+      </div>
       <div class="login-logo">{{ $t('header.brand') }}</div>
-      <div class="login-sub">{{ $t('login.guest') }}</div>
-      <button class="guest-btn" @click="auth.closeLogin()">{{ $t('login.guest') }}</button>
+      <div class="login-sub">{{ $t('header.subtitle') }}</div>
+      <div class="login-guest">{{ $t('login.guest') }}</div>
+      <button class="guest-btn" @click="auth.closeLogin()">→ {{ $t('login.guest') }}</button>
     </div>
     <div class="login-right">
       <div class="login-tabs">
@@ -11,18 +15,26 @@
         <span :class="['login-tab', { on: auth.loginTab === 'register' }]" @click="auth.loginTab = 'register'">{{ $t('login.register') }}</span>
       </div>
       <div v-if="auth.loginTab === 'login'">
-        <input v-model="loginUser" :placeholder="$t('login.username')" class="login-inp" @keyup.enter="handleLogin">
-        <input v-model="loginPass" type="password" :placeholder="$t('login.password')" class="login-inp" @keyup.enter="handleLogin">
+        <div class="field">
+          <input v-model="loginUser" :placeholder="$t('login.username')" class="login-inp" @keyup.enter="handleLogin">
+        </div>
+        <div class="field">
+          <input v-model="loginPass" type="password" :placeholder="$t('login.password')" class="login-inp" @keyup.enter="handleLogin">
+        </div>
         <p v-if="loginErr" class="login-err">{{ loginErr }}</p>
         <button class="login-btn" @click="handleLogin">{{ $t('login.login') }}</button>
       </div>
       <div v-else>
-        <div class="login-field">
+        <div class="field">
           <input v-model="regUser" ref="regUserInput" :placeholder="$t('login.usernamePlaceholder')" class="login-inp" @blur="checkUser" @input="userCheckMsg=''">
           <span v-if="userCheckMsg" class="login-hint" :class="{ err: userCheckErr }">{{ userCheckMsg }}</span>
         </div>
-        <input v-model="regEmail" :placeholder="$t('login.emailPlaceholder')" class="login-inp">
-        <input v-model="regPass" type="password" :placeholder="$t('login.passwordPlaceholder')" class="login-inp">
+        <div class="field">
+          <input v-model="regEmail" :placeholder="$t('login.emailPlaceholder')" class="login-inp">
+        </div>
+        <div class="field">
+          <input v-model="regPass" type="password" :placeholder="$t('login.passwordPlaceholder')" class="login-inp">
+        </div>
         <p v-if="regErr" class="login-err">{{ regErr }}</p>
         <button class="login-btn" @click="handleRegister">{{ $t('login.register') }}</button>
       </div>
@@ -82,22 +94,58 @@ async function handleRegister() {
 </script>
 
 <style scoped>
-.login-panel { display:flex; overflow:hidden; width:480px; max-width:92vw; }
-.login-left { width:160px; background:linear-gradient(160deg,#1e2935,#3a5a7c); color:#fff; padding:40px 24px; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; flex-shrink:0; }
-.login-logo { font-size:18px; font-weight:700; letter-spacing:2px; margin-bottom:8px; }
-.login-sub { font-size:12px; opacity:0.7; line-height:1.6; }
-.guest-btn { background:none; border:1px solid rgba(255,255,255,0.3); color:rgba(255,255,255,0.7); padding:6px 14px; border-radius:6px; font-size:12px; cursor:pointer; margin-top:16px; }
-.login-right { flex:1; padding:32px 28px; }
-.login-tabs { display:flex; gap:20px; margin-bottom:24px; }
-.login-tab { font-size:15px; color:var(--text-muted); cursor:pointer; padding-bottom:4px; border-bottom:2px solid transparent; transition:all 0.15s; }
+.login-panel { display:flex; overflow:hidden; width:500px; max-width:92vw; border-radius:16px; }
+.login-left {
+  width:180px; flex-shrink:0;
+  background:linear-gradient(165deg,#1a2530 0%,#22344a 55%,#3a5a7c 100%);
+  color:#fff; padding:40px 26px;
+  display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;
+  position:relative;
+}
+.login-left::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(circle at 20% 10%, rgba(255,255,255,0.08), transparent 60%);
+}
+.brand-mark {
+  width:52px; height:52px; border-radius:14px;
+  background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.18);
+  display:flex; align-items:center; justify-content:center;
+  margin-bottom:16px; box-shadow:0 4px 16px rgba(0,0,0,0.2);
+}
+.login-logo { font-size:17px; font-weight:700; letter-spacing:2px; margin-bottom:6px; font-family:var(--font-heading); }
+.login-sub { font-size:11px; opacity:0.65; line-height:1.7; }
+.login-guest { font-size:11px; opacity:0.45; margin-top:24px; }
+.guest-btn {
+  margin-top:8px; background:none; border:1px solid rgba(255,255,255,0.25);
+  color:rgba(255,255,255,0.8); padding:6px 16px; border-radius:20px;
+  font-size:12px; cursor:pointer; transition:all 0.2s;
+}
+.guest-btn:hover { background:rgba(255,255,255,0.12); color:#fff; border-color:rgba(255,255,255,0.4); }
+.login-right { flex:1; padding:36px 32px; }
+.login-tabs { display:flex; gap:24px; margin-bottom:28px; }
+.login-tab {
+  font-size:14px; color:var(--text-muted); cursor:pointer; padding-bottom:6px;
+  border-bottom:2px solid transparent; transition:all 0.15s; letter-spacing:0.5px;
+}
 .login-tab.on { color:var(--accent); border-bottom-color:var(--accent); font-weight:600; }
-.login-inp { width:100%; padding:10px 12px; margin-bottom:10px; border:1px solid var(--border); border-radius:6px; font-size:14px; background:var(--bg-input); color:var(--text-primary); outline:none; }
-.login-inp:focus { border-color:var(--accent); }
-.login-btn { width:100%; padding:10px; background:var(--accent); color:#fff; border:none; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; }
-.login-btn:hover { opacity:0.9; }
-.login-err { font-size:12px; color:var(--accent-error); text-align:center; margin:0 0 6px; }
-.login-field { position:relative; }
-.login-hint { font-size:11px; display:block; margin:-6px 0 8px; padding-left:2px; }
+.field { margin-bottom:14px; position:relative; }
+.login-inp {
+  width:100%; padding:11px 14px; border:1px solid var(--border); border-radius:10px;
+  font-size:14px; background:var(--bg-input); color:var(--text-primary); outline:none;
+  transition:border-color 0.15s, box-shadow 0.15s;
+}
+.login-inp:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(74,106,138,0.12); }
+.login-btn {
+  width:100%; padding:12px; margin-top:6px;
+  background:var(--accent); color:#fff; border:none; border-radius:10px;
+  font-size:15px; font-weight:600; cursor:pointer; letter-spacing:1px;
+  transition:opacity 0.15s, transform 0.1s;
+}
+.login-btn:hover { opacity:0.92; transform:translateY(-1px); }
+.login-btn:active { transform:translateY(0); }
+.login-err { font-size:12px; color:var(--accent-error); text-align:center; margin:0 0 8px; }
+.login-hint { font-size:11px; display:block; margin:4px 0 0; padding-left:2px; }
 .login-hint.err { color:var(--accent-error); }
 .login-hint:not(.err) { color:var(--accent-correct); }
+@media(max-width:480px) { .login-left { width:140px; padding:32px 18px; } .login-right { padding:28px 20px; } }
 </style>
