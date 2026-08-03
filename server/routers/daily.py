@@ -78,6 +78,7 @@ async def daily_problem():
             [{"role": "user", "content": prompt}],
             api_key=key,
             max_tokens=1500,
+            json_mode=True,
         )
         problem = extract_json(response.choices[0].message.content)
         problem["id"] = gen_id

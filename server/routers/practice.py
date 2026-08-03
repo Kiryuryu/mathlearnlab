@@ -53,6 +53,7 @@ async def generate_problem(request: Request, user: dict = Depends(require_user))
             [{"role": "user", "content": prompt}],
             api_key=key,
             max_tokens=1500,
+            json_mode=True,
         )
         problem = extract_json(response.choices[0].message.content)
         record_generated(problem, gen_id, topic_key, difficulty)
