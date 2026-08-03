@@ -243,5 +243,6 @@ export default {
     title: 'My Bookmarks',
     subtitle: 'Saved exhibits and practice problems',
     empty: 'No bookmarks yet. Click the ☆ button on exhibit pages to save.',
+    loadFail: 'Failed to load bookmarks',
   },
 }

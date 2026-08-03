@@ -10,8 +10,9 @@ router = APIRouter()
 
 
 @router.get("/api/content/{path:path}")
-async def get_content(path: str, lang: str = "zh"):
-    """Return raw markdown content for a given path. Supports ?lang=en for English."""
+def get_content(path: str, lang: str = "zh"):
+    """Return raw markdown content for a given path. Supports ?lang=en for English.
+    Sync def so FastAPI runs it in a worker thread (non-blocking)."""
     filepath = CONTENT_DIR / f"{path}.md"
     if lang != "zh":
         en_path = CONTENT_DIR / "en" / f"{path}.md"
@@ -29,6 +30,6 @@ async def get_content(path: str, lang: str = "zh"):
 
 
 @router.get("/api/search")
-async def search_content(q: str = "", lang: str = "zh"):
+def search_content(q: str = "", lang: str = "zh"):
     """Search across all markdown content and exhibit/mathematician metadata."""
     return {"results": search_all(q, lang)}

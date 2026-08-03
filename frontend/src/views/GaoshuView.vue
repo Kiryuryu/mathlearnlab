@@ -18,6 +18,7 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ExhibitCard from '@/components/ExhibitCard.vue'
+import { useLoading } from '@/utils/useLoading'
 
 const { locale } = useI18n()
 const subtopics = ref([])
@@ -30,25 +31,21 @@ const bgs = [
 ]
 const exhibitKeys = ['limits','derivatives','integrals','series','multivariable']
 
-const loading = ref(false)
-onMounted(async () => {
-  loading.value = true
-  try {
-    const r = await fetch('/api/museum/exhibits')
-    const d = await r.json()
-    subtopics.value = exhibitKeys.map((key, i) => {
-      const ex = d.exhibits[key]
-      return {
-        key,
-        label: locale.value === 'en' && ex.en ? ex.en : ex.zh,
-        question: locale.value === 'en' && ex.big_question_en ? ex.big_question_en : ex.big_question,
-        historian: ex.historian,
-        bg: bgs[i],
-      }
-    })
-  } catch(e) { console.warn('Failed to load exhibits', e) }
-  loading.value = false
-})
+const { loading, run } = useLoading(false)
+onMounted(() => run(async () => {
+  const r = await fetch('/api/museum/exhibits')
+  const d = await r.json()
+  subtopics.value = exhibitKeys.map((key, i) => {
+    const ex = d.exhibits[key]
+    return {
+      key,
+      label: locale.value === 'en' && ex.en ? ex.en : ex.zh,
+      question: locale.value === 'en' && ex.big_question_en ? ex.big_question_en : ex.big_question,
+      historian: ex.historian,
+      bg: bgs[i],
+    }
+  })
+}).catch(e => console.warn('Failed to load exhibits', e)))
 </script>
 
 <style scoped>

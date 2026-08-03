@@ -3,12 +3,45 @@ Blog API — serve blog posts from markdown files with frontmatter.
 """
 
 import re
+import time
 from pathlib import Path
 from fastapi import APIRouter, HTTPException
 from server.config import CONTENT_DIR
 
 router = APIRouter()
 NEWS_DIR = CONTENT_DIR / "news"
+
+# Simple list cache: rebuild only when directory contents change.
+_posts_cache = []
+_posts_cache_ts = 0.0
+_CACHE_TTL = 30
+
+
+def _list_cached():
+    global _posts_cache, _posts_cache_ts
+    now = time.monotonic()
+    if _posts_cache and now - _posts_cache_ts < _CACHE_TTL:
+        return _posts_cache
+    _posts_cache_ts = now
+    posts = []
+    if NEWS_DIR.exists():
+        for md_file in NEWS_DIR.glob("*.md"):
+            if md_file.name.startswith("._"): continue
+            try:
+                text = md_file.read_text(encoding="utf-8")
+                meta, body = parse_frontmatter(text)
+                posts.append({
+                    "slug": md_file.stem,
+                    "title": meta.get("title", md_file.stem),
+                    "date": meta.get("date", ""),
+                    "category": meta.get("category", "数学"),
+                    "summary": body[:200].replace("\n", " ") + "...",
+                    "author": meta.get("author", ""),
+                })
+            except Exception:
+                continue
+    _posts_cache = sort_posts(posts)
+    return _posts_cache
 
 
 def parse_frontmatter(text: str) -> tuple[dict, str]:
@@ -31,28 +64,13 @@ def sort_posts(posts: list[dict]) -> list[dict]:
 
 
 @router.get("/api/blog/posts")
-async def list_posts():
-    """List all blog posts with summaries."""
-    if not NEWS_DIR.exists():
-        return {"posts": []}
-    posts = []
-    for md_file in NEWS_DIR.glob("*.md"):
-        if md_file.name.startswith("._"): continue
-        text = md_file.read_text(encoding="utf-8")
-        meta, body = parse_frontmatter(text)
-        posts.append({
-            "slug": md_file.stem,
-            "title": meta.get("title", md_file.stem),
-            "date": meta.get("date", ""),
-            "category": meta.get("category", "数学"),
-            "summary": body[:200].replace("\n", " ") + "...",
-            "author": meta.get("author", ""),
-        })
-    return {"posts": sort_posts(posts)}
+def list_posts():
+    """List all blog posts with summaries (cached)."""
+    return {"posts": _list_cached()}
 
 
 @router.get("/api/blog/posts/{slug}")
-async def get_post(slug: str):
+def get_post(slug: str):
     """Get a single blog post with full content."""
     filepath = NEWS_DIR / f"{slug}.md"
     if not filepath.exists() or filepath.name.startswith("._"):

@@ -21,20 +21,20 @@ import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from '@/utils/toast'
 import { apiFetch } from '@/utils/api'
+import { useLoading } from '@/utils/useLoading'
 const { t } = useI18n()
 const { show: showToast } = useToast()
 const bookmarks = ref([])
-const loading = ref(true)
+const { loading, run } = useLoading(true)
 
 async function fetchBookmarks() {
-  try {
+  await run(async () => {
     const r = await apiFetch('/api/bookmarks')
     if (r.ok) {
       const d = await r.json()
       bookmarks.value = d.bookmarks || []
     }
-  } catch {}
-  loading.value = false
+  }).catch(e => { console.warn('Failed to load bookmarks', e); showToast(t('bookmarks.loadFail') || '加载收藏失败') })
 }
 
 async function removeBookmark(id) {
@@ -44,7 +44,7 @@ async function removeBookmark(id) {
       bookmarks.value = bookmarks.value.filter(b => b.id !== id)
       showToast(t('common.bookmarkRemoved') || 'Removed')
     }
-  } catch {}
+  } catch(e) { console.warn('Failed to remove bookmark', e); showToast(t('common.bookmarkRemoved') || 'Removed') }
 }
 
 onMounted(fetchBookmarks)

@@ -243,5 +243,6 @@ export default {
     title: '我的收藏',
     subtitle: '收藏的知识点和练习',
     empty: '还没有收藏，点击页面右侧的 ☆ 按钮添加收藏',
+    loadFail: '加载收藏失败',
   },
 }

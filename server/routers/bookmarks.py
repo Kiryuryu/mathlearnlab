@@ -27,13 +27,13 @@ def _save_bookmarks(data):
 
 
 @router.get("/api/bookmarks")
-async def get_bookmarks(user: dict = Depends(require_user)):
+def get_bookmarks(user: dict = Depends(require_user)):
     data = _load_bookmarks()
     return {"bookmarks": data.get(user["user_id"], [])}
 
 
 @router.post("/api/bookmarks")
-async def add_bookmark(body: dict, user: dict = Depends(require_user)):
+def add_bookmark(body: dict, user: dict = Depends(require_user)):
     data = _load_bookmarks()
     uid = user["user_id"]
     if uid not in data:
@@ -50,7 +50,7 @@ async def add_bookmark(body: dict, user: dict = Depends(require_user)):
 
 
 @router.delete("/api/bookmarks/{bookmark_id}")
-async def remove_bookmark(bookmark_id: str, user: dict = Depends(require_user)):
+def remove_bookmark(bookmark_id: str, user: dict = Depends(require_user)):
     data = _load_bookmarks()
     uid = user["user_id"]
     if uid in data:
