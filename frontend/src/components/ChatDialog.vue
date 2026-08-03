@@ -8,27 +8,19 @@
       <header>
         <h3>{{ $t('chat.title') }}</h3>
         <span class="chat-context" v-if="contextLabel">{{ contextLabel }}</span>
-        <button v-if="messages.length" class="chat-header-btn" @click="clearConversation" :title="$t('chat.clear')">🗑</button>
+        <button v-if="chat.hasMessages" class="chat-header-btn" @click="chat.clear()" :title="$t('chat.clear')">🗑</button>
         <button class="chat-close" @click="panelOpen = false">✕</button>
       </header>
-      <div class="chat-msgs" ref="msgList" @scroll="onScroll">
-        <div v-for="m in messages" :key="m.id" :class="['msg', m.role]">
-          <div class="bubble" v-html="m.html"></div>
-          <div v-if="m.role === 'assistant' && !m.isStreaming" class="msg-actions">
-            <button class="msg-action-btn" @click="copyContent(m.content)" :title="$t('chat.copy')">📋</button>
-            <button v-if="m.isError" class="msg-action-btn" @click="retry(m)" :title="$t('chat.retry')">🔄</button>
-          </div>
-        </div>
-        <div v-if="streaming" class="msg assistant">
-          <div class="bubble" v-html="rendered(streamText)"></div>
-        </div>
-        <div v-if="messages.length === 0 && !streaming" class="msg hint">
-          <div class="bubble">{{ $t('chat.hint') }}</div>
-        </div>
-      </div>
-      <form class="chat-input" @submit.prevent="send">
-        <input v-model="input" :placeholder="$t('chat.placeholder')" :disabled="streaming" @keydown.enter.prevent="send" />
-        <button type="submit" :disabled="!input.trim() || streaming">{{ $t('chat.send') }}</button>
+      <ChatMessageList
+        :messages="chat.messages"
+        :streaming="chat.streaming"
+        :stream-text="chat.streamText"
+        @copy="chat.copy"
+        @retry="onRetry"
+      />
+      <form class="chat-input" @submit.prevent="onSend">
+        <input v-model="input" :placeholder="$t('chat.placeholder')" :disabled="chat.streaming" @keydown.enter.prevent="onSend" />
+        <button type="submit" :disabled="!input.trim() || chat.streaming">{{ $t('chat.send') }}</button>
       </form>
     </div>
   </div>
@@ -37,29 +29,30 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuth } from '@/stores/auth'
-import { renderMarkdown } from '@/utils/markdown'
 import { useFocusTrap } from '@/utils/focusTrap'
-import { apiFetch } from '@/utils/api'
+import { useChatStream } from '@/utils/useChatStream'
+import ChatMessageList from '@/components/ChatMessageList.vue'
+import AiSetupGuide from '@/components/AiSetupGuide.vue'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const route = useRoute()
 const auth = useAuth()
 
 const panelOpen = ref(false)
 const input = ref('')
-const messages = ref([])
-const streaming = ref(false)
-const streamText = ref('')
-const msgList = ref(null)
 const panelRef = ref(null)
-let msgId = 0
-let abortCtrl = null
-let userScrolledUp = false
 useFocusTrap(panelRef)
+
+const chat = useChatStream({
+  getApiKey: () => auth.apiKey,
+  getModel: () => auth.model,
+  getLang: () => locale.value,
+  getContext: () => contextLabel.value ? `${t('chat.contextPrefix')} ${contextLabel.value}` : '',
+})
 
 const contextLabel = computed(() => {
   const name = route.name
@@ -73,137 +66,26 @@ const contextLabel = computed(() => {
   return labels[name] || ''
 })
 
-function onScroll() {
-  const el = msgList.value
-  if (!el) return
-  const threshold = 80
-  userScrolledUp = el.scrollHeight - el.scrollTop - el.clientHeight > threshold
-}
-
-function addMsg(role, content, opts = {}) {
-  const id = ++msgId
-  const m = { id, role, content, html: renderMarkdown(content), isError: !!opts.isError, isStreaming: false }
-  messages.value.push(m)
-  return m
-}
-
-function rendered(text) {
-  return renderMarkdown(text)
-}
-
-function scrollBottom() {
-  if (userScrolledUp) return
-  nextTick(() => {
-    const el = msgList.value
-    if (el) el.scrollTop = el.scrollHeight
-  })
-}
-
-function clearConversation() {
-  messages.value = []
-}
-
-function copyContent(text) {
-  navigator.clipboard.writeText(text).catch(() => {})
-}
-
-function retry(msg) {
-  const idx = messages.value.indexOf(msg)
-  if (idx < 0) return
-  const userMsg = messages.value.slice(0, idx).filter(m => m.role === 'user').pop()
-  if (!userMsg) return
-  messages.value.splice(idx)
-  input.value = userMsg.content
-  send()
-}
-
 let pendingSetup = false
 function openPanel() {
   if (!auth.isLoggedIn) { auth.openLogin('login'); return }
   if (!auth.hasModel) { pendingSetup = true; auth.openAiSetup(); return }
-  doOpen()
-}
-function doOpen() {
   panelOpen.value = true
-  scrollBottom()
 }
 function finishSetup() {
   auth.closeAiSetup()
-  if (pendingSetup) { pendingSetup = false; doOpen() }
+  if (pendingSetup) { pendingSetup = false; panelOpen.value = true }
 }
 
-watch(panelOpen, (v) => {
-  if (v) scrollBottom()
-})
-
-async function send() {
+function onSend() {
   const text = input.value.trim()
-  if (!text || streaming.value) return
+  if (!text || chat.streaming.value) return
   input.value = ''
-  addMsg('user', text)
-  streamText.value = ''
-  streaming.value = true
-  scrollBottom()
+  chat.sendText(text)
+}
 
-  const ctx = contextLabel.value ? `${t('chat.contextPrefix')} ${contextLabel.value}` : ''
-  abortCtrl = new AbortController()
-  try {
-    const r = await apiFetch('/api/chat/stream', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        messages: messages.value.filter(m => m.role !== 'hint').map(m => ({ role: m.role, content: m.content })),
-        model: auth.model,
-        context_route: ctx,
-        lang: t('chat.lang'),
-      }),
-      signal: abortCtrl.signal,
-    })
-    if (!r.ok) {
-      const err = await r.json().catch(() => ({ detail: t('chat.error') }))
-      addMsg('assistant', `**${t('chat.error')}** ${err.detail || t('chat.error')}`, { isError: true })
-      streaming.value = false
-      scrollBottom()
-      return
-    }
-
-    const reader = r.body.getReader()
-    const decoder = new TextDecoder()
-    let buf = ''
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) break
-      buf += decoder.decode(value, { stream: true })
-      const lines = buf.split('\n\n')
-      buf = lines.pop() || ''
-      for (const line of lines) {
-        if (!line.startsWith('data: ')) continue
-        const data = line.slice(6)
-        if (data === '[DONE]') break
-        try {
-          const parsed = JSON.parse(data)
-          if (parsed.error) {
-            streamText.value = `**${t('chat.error')}** ${parsed.error}`
-            break
-          }
-        } catch {
-          streamText.value += data
-        }
-      }
-      scrollBottom()
-    }
-  } catch(e) {
-    if (e.name !== 'AbortError') {
-      addMsg('assistant', `**${t('chat.error')}** ${e.message}`, { isError: true })
-    }
-  }
-  if (streamText.value) {
-    addMsg('assistant', streamText.value)
-  }
-  streamText.value = ''
-  streaming.value = false
-  abortCtrl = null
-  scrollBottom()
+function onRetry(msg) {
+  chat.retry(msg, (text) => { input.value = text })
 }
 </script>
 
@@ -237,19 +119,6 @@ header h3 { margin:0; font-size:15px; }
 .chat-header-btn { background:none; border:none; font-size:14px; cursor:pointer; padding:2px 4px; opacity:0.5; }
 .chat-header-btn:hover { opacity:1; }
 .chat-close { background:none; border:none; font-size:16px; cursor:pointer; color:var(--text-muted); padding:4px; }
-.chat-msgs { flex:1; overflow-y:auto; padding:12px 16px; display:flex; flex-direction:column; gap:8px; }
-.msg { display:flex; flex-direction:column; }
-.msg.user { align-items:flex-end; }
-.msg.hint { align-items:center; }
-.msg.hint .bubble { background:var(--bg-nav); color:var(--text-muted); font-size:12px; text-align:center; }
-.bubble { max-width:85%; padding:8px 14px; border-radius:12px; font-size:14px; line-height:1.6; word-wrap:break-word; }
-.bubble :deep(p) { margin:4px 0; }
-.bubble :deep(.katex-display) { margin:6px 0; overflow-x:auto; }
-.user .bubble { background:var(--accent); color:#fff; border-radius:12px 12px 4px 12px; }
-.assistant .bubble { background:var(--bg-nav); color:var(--text-primary); border-radius:12px 12px 12px 4px; }
-.msg-actions { display:flex; gap:4px; margin-top:4px; padding-left:8px; }
-.msg-action-btn { background:none; border:none; font-size:12px; cursor:pointer; opacity:0.4; padding:2px; }
-.msg-action-btn:hover { opacity:1; }
 .chat-input { display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--border); flex-shrink:0; }
 .chat-input input { flex:1; padding:8px 12px; border:1px solid var(--border); border-radius:20px; font-size:13px; outline:none; background:var(--bg-input); color:var(--text-primary); }
 .chat-input input:focus { border-color:var(--accent); }

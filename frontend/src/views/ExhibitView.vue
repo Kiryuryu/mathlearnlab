@@ -1,14 +1,13 @@
 <template>
   <div class="exhibit-page" v-if="exhibit">
-    <div class="exhibit-hero" :style="{background: heroBg}">
-      <h1>{{ exhibitName }}</h1>
-      <p class="big-q">{{ exhibitBigQ }}</p>
-      <p class="historian">{{ $t('exhibit.historian') }}{{ exhibit.historian }}</p>
-      <p class="beauty">{{ exhibitBeauty }}</p>
-    </div>
-    <nav class="tabs">
-      <a v-for="t in tabs" :key="t.key" :href="'?tab='+t.key" :class="['tab', { active: activeTab === t.key }]" @click.prevent="activeTab = t.key">{{ $t('exhibit.' + t.key) }}</a>
-    </nav>
+    <ExhibitHero
+      :name="exhibitName"
+      :big-q="exhibitBigQ"
+      :historian="exhibit.historian"
+      :beauty="exhibitBeauty"
+      :hero-bg="heroBg"
+    />
+    <ExhibitTabs :tabs="tabs" :active="activeTab" @change="activeTab = $event" />
     <div class="tab-content">
       <div class="exhibit-actions">
         <button class="action-btn" @click="shareLink" :title="$t('common.share')">🔗</button>
@@ -44,6 +43,8 @@ import { renderMarkdown } from '@/utils/markdown'
 import { useAuth } from '@/stores/auth'
 import { useToast } from '@/utils/toast'
 import { apiFetch } from '@/utils/api'
+import ExhibitHero from '@/components/ExhibitHero.vue'
+import ExhibitTabs from '@/components/ExhibitTabs.vue'
 
 const { t, locale } = useI18n()
 const route = useRoute()
@@ -191,15 +192,6 @@ function initViz() {
 </script>
 
 <style scoped>
-.exhibit-hero { color:#fff; text-align:center; padding:60px 40px 40px; }
-.exhibit-hero h1 { font-size:36px; margin:0 0 12px; }
-.big-q { font-size:17px; opacity:0.8; margin-bottom:8px; }
-.historian { font-size:13px; opacity:0.5; margin-bottom:16px; }
-.beauty { font-size:14px; padding:10px 24px; background:rgba(255,255,255,0.1); border-radius:20px; display:inline-block; }
-.tabs { display:flex; justify-content:center; gap:0; border-bottom:1px solid var(--border); background:var(--bg-nav); position:sticky; top:0; z-index:10; }
-.tab { padding:12px 20px; font-size:14px; color:var(--text-secondary); text-decoration:none; border-bottom:2px solid transparent; transition:all 0.15s; }
-.tab:hover { color:var(--accent); }
-.tab.active { color:var(--accent); border-bottom-color:var(--accent); font-weight:600; }
 .tab-content { max-width:800px; margin:0 auto; padding:32px 40px; }
 .exhibit-actions { position:fixed; top:100px; right:20px; display:flex; flex-direction:column; gap:8px; z-index:20; }
 .action-btn { width:40px; height:40px; border-radius:50%; border:1px solid var(--border); background:var(--bg-card); color:var(--text-secondary); cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; transition:all 0.15s; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
@@ -219,5 +211,5 @@ function initViz() {
 .viz-wrap h4 { margin-bottom:12px; }
 .viz-plot { width:100%; height:420px; }
 .viz-ctrls { text-align:center; margin-top:8px; font-size:13px; }
-@media(max-width:768px) { .tabs { overflow-x:auto; justify-content:flex-start; } .tab { padding:10px 14px; font-size:13px; white-space:nowrap; } .tab-content { padding:20px 16px; } .exhibit-hero { padding:32px 16px; } .exhibit-hero h1 { font-size:24px; } }
+@media(max-width:768px) { .tab-content { padding:20px 16px; } }
 </style>

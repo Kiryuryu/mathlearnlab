@@ -7,6 +7,7 @@ import os
 import sqlite3
 from pathlib import Path
 from contextlib import contextmanager
+from server.models.migrations import apply_pending
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 DATA_DIR = BASE_DIR / "data"
@@ -74,25 +75,6 @@ def db_session():
         conn.close()
 
 
-def _migration_versions():
-    """Return (version, migration_fn) pairs to apply in order."""
-    return [
-        ("0001_add_users_status_column", _mig_0001),
-    ]
-
-
-def _mig_0001(conn):
-    """Add status column to users if missing."""
-    conn.execute("ALTER TABLE users ADD COLUMN status TEXT NOT NULL DEFAULT 'pending'")
-    conn.commit()
-
-
-def _applied_migrations(conn) -> set:
-    conn.execute("CREATE TABLE IF NOT EXISTS schema_migrations (version TEXT PRIMARY KEY, applied_at TEXT NOT NULL DEFAULT (datetime('now')))")
-    conn.commit()
-    return {row[0] for row in conn.execute("SELECT version FROM schema_migrations").fetchall()}
-
-
 def init_db():
     """Create tables and apply pending schema migrations (idempotent)."""
     if DATABASE_URL:
@@ -130,17 +112,6 @@ def init_db():
             CREATE INDEX IF NOT EXISTS idx_grade_topic ON grade_records(user_id, topic_key);
         """)
         conn.commit()
-
-        # Apply pending migrations
-        applied = _applied_migrations(conn)
-        for version, fn in _migration_versions():
-            if version in applied:
-                continue
-            try:
-                fn(conn)
-            except Exception:
-                pass  # column may already exist (e.g. legacy DB); mark as applied
-            conn.execute("INSERT OR IGNORE INTO schema_migrations (version) VALUES (?)", (version,))
-            conn.commit()
+        apply_pending(conn)
     finally:
         conn.close()

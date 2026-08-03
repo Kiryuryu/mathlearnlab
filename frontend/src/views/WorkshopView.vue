@@ -30,6 +30,7 @@
 import { ref, computed, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { loadPlotly } from '@/utils/plotly'
+import { ev1, ev2 } from '@/utils/exprEval'
 
 const { t } = useI18n()
 const mode = ref('2d')
@@ -57,15 +58,6 @@ const presets = computed(() => presetDefs.map(g => ({
   ...g,
   label: t('workshop.preset' + g.key.charAt(0).toUpperCase() + g.key.slice(1)),
 })))
-
-function ev1(expr, x) {
-  const s = expr.replace(/\^/g,'**').replace(/sin\(/g,'Math.sin(').replace(/cos\(/g,'Math.cos(').replace(/exp\(/g,'Math.exp(').replace(/sqrt\(/g,'Math.sqrt(').replace(/abs\(/g,'Math.abs(').replace(/pi/gi,'Math.PI').replace(/\be\b/gi,'Math.E')
-  return Function('x','return '+s)(x)
-}
-function ev2(expr, x, y) {
-  const s = expr.replace(/\^/g,'**').replace(/sin\(/g,'Math.sin(').replace(/cos\(/g,'Math.cos(').replace(/exp\(/g,'Math.exp(').replace(/sqrt\(/g,'Math.sqrt(').replace(/abs\(/g,'Math.abs(').replace(/pi/gi,'Math.PI')
-  return Function('x','y','return '+s)(x, y)
-}
 
 async function plot() {
   if (!plotEl.value) return
