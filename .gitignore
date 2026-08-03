@@ -1,6 +1,10 @@
 # Environment (contains secrets)
 .env
 
+# Deployment scripts (contain credentials)
+deploy.py
+deploy/
+
 # Python
 __pycache__/
 *.pyc
