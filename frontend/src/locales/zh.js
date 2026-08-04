@@ -71,6 +71,8 @@ export default {
     vizTangent: '切点 x =',
     vizRectangles: '矩形数 n =',
     vizHarmonics: '谐波数 N =',
+    vizAngle: '旋转角 θ',
+    vizEuler: '欧拉公式 e^{iθ} = cos θ + i·sin θ',
   },
   gaoshu: {
     title: '展区',

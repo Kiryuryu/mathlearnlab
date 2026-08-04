@@ -26,8 +26,11 @@
       <div v-else v-html="content" ref="contentEl" class="content-fade"></div>
       <div class="viz-wrap" v-if="activeTab === 'concept' || activeTab === 'explore'">
         <h4>{{ $t('exhibit.explore') }}</h4>
-        <div ref="vizPlot" class="viz-plot"></div>
-        <div ref="vizControls" class="viz-ctrls"></div>
+        <EulerSpiral v-if="topic === 'derivatives' && activeTab === 'explore'" />
+        <template v-else>
+          <div ref="vizPlot" class="viz-plot"></div>
+          <div ref="vizControls" class="viz-ctrls"></div>
+        </template>
       </div>
     </div>
   </div>
@@ -45,6 +48,7 @@ import { useToast } from '@/utils/toast'
 import { apiFetch } from '@/utils/api'
 import ExhibitHero from '@/components/ExhibitHero.vue'
 import ExhibitTabs from '@/components/ExhibitTabs.vue'
+import EulerSpiral from '@/components/EulerSpiral.vue'
 
 const { t, locale } = useI18n()
 const route = useRoute()

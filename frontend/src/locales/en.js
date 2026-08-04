@@ -101,6 +101,8 @@ export default {
     vizTangent: 'Tangent x =',
     vizRectangles: 'Rectangles n =',
     vizHarmonics: 'Harmonics N =',
+    vizAngle: 'Rotation angle θ',
+    vizEuler: "Euler's formula e^{iθ} = cos θ + i·sin θ",
     historian: 'Key figures: ',
   },
   gaoshu: {
