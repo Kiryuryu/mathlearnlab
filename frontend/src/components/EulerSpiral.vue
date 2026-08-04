@@ -1,92 +1,200 @@
 <template>
   <div class="euler-spiral">
-    <div ref="plotEl" class="spiral-plot"></div>
+    <canvas ref="canvas" class="spiral-canvas" :width="W" :height="H"></canvas>
     <div class="spiral-ctrls">
-      <label>{{ $t('exhibit.vizAngle') }}: <span class="ang-val">{{ angle.toFixed(1) }}°</span></label>
-      <input type="range" :min="0" :max="720" :step="1" v-model.number="angle" class="spiral-slider">
+      <div class="ctrl-row">
+        <button class="play-btn" @click="togglePlay">{{ playing ? '⏸' : '▶' }}</button>
+        <label>{{ $t('exhibit.vizAngle') }}:</label>
+        <input type="range" :min="0" :max="720" :step="1" v-model.number="angle" class="spiral-slider">
+        <span class="ang-val">{{ angle.toFixed(0) }}°</span>
+      </div>
       <div class="live-coords">
         <span class="coord">cos θ = {{ cosVal.toFixed(4) }}</span>
         <span class="coord">sin θ = {{ sinVal.toFixed(4) }}</span>
-        <span class="coord">{{ isFull ? 'e^{iπ} = -1 ✓' : '' }}</span>
+        <span v-if="isFull" class="coord highlight">e<sup>iπ</sup> = −1</span>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { loadPlotly } from '@/utils/plotly'
 
 const { t } = useI18n()
-const plotEl = ref(null)
-const angle = ref(180) // degrees
+
+const W = 560
+const H = 400
+const canvas = ref(null)
+const angle = ref(180)
+const playing = ref(false)
+let animId = null
 
 const theta = computed(() => (angle.value * Math.PI) / 180)
 const cosVal = computed(() => Math.cos(theta.value))
 const sinVal = computed(() => Math.sin(theta.value))
-const isFull = computed(() => Math.abs(angle.value - 180) < 0.5)
+const isFull = computed(() => Math.abs(angle.value - 180) < 1)
 
-function render() {
-  if (!plotEl.value || typeof Plotly === 'undefined') return
-  // 3D helix: x = cos t (real), y = sin t (imag), z = t (angle)
-  const N = 600
-  const ts = []
-  for (let i = 0; i <= N; i++) ts.push((i / N) * Math.PI * 4) // 0..4π
-  const xs = ts.map(v => Math.cos(v))
-  const ys = ts.map(v => Math.sin(v))
-  const zs = ts
-
-  const ang = theta.value
-  // helix segment up to current angle
-  const segN = Math.max(2, Math.floor((ang / (Math.PI * 4)) * N))
-  const hxs = xs.slice(0, segN + 1)
-  const hys = ys.slice(0, segN + 1)
-  const hzs = zs.slice(0, segN + 1)
-
-  const data = [
-    // Full helix (dim)
-    { x: xs, y: ys, z: zs, type: 'scatter3d', mode: 'lines', line: { color: 'rgba(120,140,160,0.25)', width: 1.5 }, showlegend: false },
-    // Active segment (bright)
-    { x: hxs, y: hys, z: hzs, type: 'scatter3d', mode: 'lines', line: { color: '#4a6a8a', width: 4 }, showlegend: false },
-    // Current point on helix
-    { x: [Math.cos(ang)], y: [Math.sin(ang)], z: [ang], type: 'scatter3d', mode: 'markers', marker: { color: '#d06868', size: 8 }, showlegend: false },
-    // Projection down to complex plane (z=0): vertical dashed line
-    { x: [Math.cos(ang), Math.cos(ang)], y: [Math.sin(ang), Math.sin(ang)], z: [ang, 0], type: 'scatter3d', mode: 'lines', line: { color: 'rgba(160,104,80,0.6)', width: 2, dash: 'dot' }, showlegend: false },
-    // Unit circle on z=0 plane
-    { x: xs, y: ys, z: Array(xs.length).fill(0), type: 'scatter3d', mode: 'lines', line: { color: 'rgba(104,160,120,0.35)', width: 2 }, showlegend: false },
-    // Projected point on circle
-    { x: [Math.cos(ang)], y: [Math.sin(ang)], z: [0], type: 'scatter3d', mode: 'markers', marker: { color: '#3d6b4f', size: 7 }, showlegend: false },
-  ]
-
-  const layout = {
-    title: t('exhibit.vizEuler'),
-    scene: {
-      xaxis: { title: 'Re (cos θ)', range: [-1.4, 1.4] },
-      yaxis: { title: 'Im (sin θ)', range: [-1.4, 1.4] },
-      zaxis: { title: 'θ (rad)' },
-      aspectmode: 'cube',
-      camera: { eye: { x: 1.6, y: 1.6, z: 1.1 } },
-    },
-    margin: { t: 40, r: 10, b: 10, l: 10 },
-    paper_bgcolor: 'rgba(0,0,0,0)',
+function togglePlay() {
+  playing.value = !playing.value
+  if (playing.value) {
+    angle.value = 0
+    animate()
+  } else {
+    window.cancelAnimationFrame(animId)
   }
-  Plotly.react(plotEl.value, data, layout, { responsive: true })
 }
 
-onMounted(async () => {
-  try { await loadPlotly() } catch { return }
-  render()
-})
+function animate() {
+  if (!playing.value) return
+  angle.value += 1.5
+  if (angle.value > 720) { playing.value = false; angle.value = 720; return }
+  animId = window.requestAnimationFrame(animate)
+}
 
-watch(angle, render)
+function draw() {
+  const c = canvas.value
+  if (!c) return
+  const ctx = c.getContext('2d')
+  const dpr = window.devicePixelRatio || 1
+  c.width = W * dpr
+  c.height = H * dpr
+  c.style.width = W + 'px'
+  c.style.height = H + 'px'
+  ctx.scale(dpr, dpr)
+
+  const cx = W / 2
+  const cy = H / 2
+  const R = 130 // unit circle radius in px
+  const ang = theta.value
+
+  // Clear
+  ctx.clearRect(0, 0, W, H)
+
+  // --- Grid ---
+  ctx.strokeStyle = 'rgba(120,140,160,0.12)'
+  ctx.lineWidth = 1
+  // horizontal axis (Re)
+  ctx.beginPath(); ctx.moveTo(cx - R - 40, cy); ctx.lineTo(cx + R + 40, cy); ctx.stroke()
+  // vertical axis (Im)
+  ctx.beginPath(); ctx.moveTo(cx, cy - R - 40); ctx.lineTo(cx, cy + R + 40); ctx.stroke()
+
+  // --- Unit circle ---
+  ctx.beginPath()
+  ctx.arc(cx, cy, R, 0, Math.PI * 2)
+  ctx.strokeStyle = 'rgba(100,160,130,0.4)'
+  ctx.lineWidth = 2
+  ctx.stroke()
+
+  // --- Spiral trace (angle sweep) ---
+  if (ang > 0) {
+    ctx.beginPath()
+    const steps = Math.min(600, Math.floor(ang / (Math.PI * 2) * 120))
+    for (let i = 0; i <= steps; i++) {
+      const a = (i / steps) * ang
+      const spiralR = R + (a / (Math.PI * 2)) * 22 // spiral expands outward
+      const x = cx + spiralR * Math.cos(a)
+      const y = cy - spiralR * Math.sin(a)
+      if (i === 0) ctx.moveTo(x, y)
+      else ctx.lineTo(x, y)
+    }
+    ctx.strokeStyle = 'rgba(74,106,138,0.5)'
+    ctx.lineWidth = 2
+    ctx.stroke()
+  }
+
+  // --- Current spiral point ---
+  const spiralR = R + (ang / (Math.PI * 2)) * 22
+  const px = cx + spiralR * Math.cos(ang)
+  const py = cy - spiralR * Math.sin(ang)
+  ctx.beginPath()
+  ctx.arc(px, py, 6, 0, Math.PI * 2)
+  ctx.fillStyle = '#d06868'
+  ctx.fill()
+  ctx.strokeStyle = '#fff'
+  ctx.lineWidth = 2
+  ctx.stroke()
+
+  // --- Projection line (spiral point → circle point) ---
+  const cxP = cx + R * Math.cos(ang)
+  const cyP = cy - R * Math.sin(ang)
+  ctx.setLineDash([4, 4])
+  ctx.beginPath()
+  ctx.moveTo(px, py)
+  ctx.lineTo(cxP, cyP)
+  ctx.strokeStyle = 'rgba(160,104,80,0.5)'
+  ctx.lineWidth = 1.5
+  ctx.stroke()
+  ctx.setLineDash([])
+
+  // --- Projection line down to axis ---
+  ctx.setLineDash([3, 3])
+  ctx.beginPath()
+  ctx.moveTo(cxP, cyP)
+  ctx.lineTo(cxP, cy)
+  ctx.strokeStyle = 'rgba(120,140,160,0.3)'
+  ctx.lineWidth = 1
+  ctx.stroke()
+  ctx.beginPath()
+  ctx.moveTo(cxP, cyP)
+  ctx.lineTo(cx, cyP)
+  ctx.stroke()
+  ctx.setLineDash([])
+
+  // --- Unit circle point ---
+  ctx.beginPath()
+  ctx.arc(cxP, cyP, 5, 0, Math.PI * 2)
+  ctx.fillStyle = '#3d6b4f'
+  ctx.fill()
+  ctx.strokeStyle = '#fff'
+  ctx.lineWidth = 2
+  ctx.stroke()
+
+  // --- Angle arc ---
+  if (ang > 0.05) {
+    const arcR = 30
+    ctx.beginPath()
+    ctx.arc(cx, cy, arcR, 0, -ang, true) // CCW for positive angle
+    ctx.strokeStyle = 'rgba(200,160,80,0.6)'
+    ctx.lineWidth = 2
+    ctx.stroke()
+    // angle label
+    const labelA = ang / 2
+    const lx = cx + (arcR + 14) * Math.cos(-labelA)
+    const ly = cy + (arcR + 14) * Math.sin(-labelA)
+    ctx.fillStyle = 'rgba(200,160,80,0.85)'
+    ctx.font = '11px sans-serif'
+    ctx.textAlign = 'center'
+    ctx.fillText('θ', lx, ly + 4)
+  }
+
+  // --- Axis labels ---
+  ctx.fillStyle = 'rgba(120,140,160,0.7)'
+  ctx.font = '12px sans-serif'
+  ctx.textAlign = 'center'
+  ctx.fillText('Re (cos θ)', cx + R + 30, cy + 16)
+  ctx.fillText('Im (sin θ)', cx, cy - R - 28)
+  ctx.fillText('0', cx + 8, cy + 16)
+  ctx.fillText('1', cx + R + 4, cy + 16)
+  ctx.fillText('−1', cx - R - 12, cy + 16)
+  ctx.fillText('i', cx + 10, cy - R - 6)
+  ctx.fillText('−i', cx + 12, cy + R + 14)
+}
+
+onMounted(() => { draw() })
+watch(angle, draw)
+onUnmounted(() => { if (animId) window.cancelAnimationFrame(animId) })
 </script>
 
 <style scoped>
-.spiral-plot { width: 100%; height: 440px; }
-.spiral-ctrls { text-align: center; margin-top: 8px; font-size: 13px; color: var(--text-secondary); }
-.ang-val { font-weight: 600; color: var(--accent); }
-.spiral-slider { width: 320px; max-width: 90%; margin: 4px 0 8px; accent-color: var(--accent); }
-.live-coords { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; font-family: var(--font-mono); font-size: 12px; }
-.coord { background: var(--bg-nav); padding: 3px 10px; border-radius: 12px; }
+.spiral-canvas { display:block; margin:0 auto; max-width:100%; border-radius:8px; }
+.spiral-ctrls { text-align:center; margin-top:10px; font-size:13px; color:var(--text-secondary); }
+.ctrl-row { display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; }
+.ang-val { font-weight:600; color:var(--accent); min-width:40px; font-family:var(--font-mono); }
+.spiral-slider { width:280px; max-width:60%; accent-color:var(--accent); }
+.play-btn { background:none; border:1px solid var(--border); border-radius:6px; padding:4px 10px; cursor:pointer; font-size:14px; transition:all 0.15s; }
+.play-btn:hover { background:var(--bg-card); border-color:var(--accent); }
+.live-coords { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; font-family:var(--font-mono); font-size:12px; margin-top:6px; }
+.coord { background:var(--bg-nav); padding:3px 10px; border-radius:12px; }
+.coord.highlight { background:rgba(208,104,104,0.12); color:var(--accent); font-weight:600; }
 </style>
