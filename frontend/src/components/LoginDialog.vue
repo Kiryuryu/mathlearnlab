@@ -94,7 +94,6 @@ async function handleRegister() {
 </script>
 
 <style scoped>
-.login-panel { display:flex; overflow:hidden; width:580px !important; max-width:94vw; border-radius:16px; }
 .login-left {
   width:210px; flex-shrink:0; min-width:210px;
   background:linear-gradient(165deg,#1a2530 0%,#22344a 55%,#3a5a7c 100%);
@@ -156,5 +155,9 @@ async function handleRegister() {
   .login-sub, .login-guest { display:none; }
   .guest-btn { margin-top:0; margin-left:auto; padding:5px 14px; }
   .login-right { padding:24px 20px; }
+}
+:deep(.base-panel.login-panel) {
+  display:flex; overflow:hidden; width:580px; max-width:94vw; border-radius:16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
 }
 </style>

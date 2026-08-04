@@ -1,6 +1,7 @@
 <template>
   <div class="euler-spiral">
-    <canvas ref="canvas" class="spiral-canvas" :width="W" :height="H"></canvas>
+    <div v-if="webglOk === false" class="no-webgl">⚠ WebGL 不可用，3D 可视化需要浏览器支持 WebGL</div>
+    <div ref="plotEl" class="spiral-plot"></div>
     <div class="spiral-ctrls">
       <div class="ctrl-row">
         <button class="play-btn" @click="togglePlay">{{ playing ? '⏸' : '▶' }}</button>
@@ -22,173 +23,119 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
-
-const W = 560
-const H = 400
-const canvas = ref(null)
+const plotEl = ref(null)
 const angle = ref(180)
 const playing = ref(false)
+const webglOk = ref(null)
 let animId = null
+let plotlyLoaded = false
 
 const theta = computed(() => (angle.value * Math.PI) / 180)
 const cosVal = computed(() => Math.cos(theta.value))
 const sinVal = computed(() => Math.sin(theta.value))
 const isFull = computed(() => Math.abs(angle.value - 180) < 1)
 
-function togglePlay() {
-  playing.value = !playing.value
-  if (playing.value) {
-    angle.value = 0
-    animate()
-  } else {
-    window.cancelAnimationFrame(animId)
-  }
+function checkWebGL() {
+  try {
+    const c = document.createElement('canvas')
+    return !!(c.getContext('webgl') || c.getContext('experimental-webgl'))
+  } catch { return false }
 }
 
+function togglePlay() {
+  playing.value = !playing.value
+  if (playing.value) { angle.value = 0; animate() }
+  else { window.cancelAnimationFrame(animId) }
+}
 function animate() {
   if (!playing.value) return
-  angle.value += 1.5
+  angle.value += 1.2
   if (angle.value > 720) { playing.value = false; angle.value = 720; return }
   animId = window.requestAnimationFrame(animate)
 }
 
-function draw() {
-  const c = canvas.value
-  if (!c) return
-  const ctx = c.getContext('2d')
-  const dpr = window.devicePixelRatio || 1
-  c.width = W * dpr
-  c.height = H * dpr
-  c.style.width = W + 'px'
-  c.style.height = H + 'px'
-  ctx.scale(dpr, dpr)
+function buildTraces(ang) {
+  const N = 800
+  const maxAngle = Math.PI * 4
+  const ts = Array.from({ length: N + 1 }, (_, i) => (i / N) * maxAngle)
+  const xs = ts.map(v => Math.cos(v))
+  const ys = ts.map(v => Math.sin(v))
+  const zs = ts
 
-  const cx = W / 2
-  const cy = H / 2
-  const R = 130 // unit circle radius in px
-  const ang = theta.value
+  const segN = Math.max(2, Math.floor((ang / maxAngle) * N))
+  const hxs = xs.slice(0, segN + 1)
+  const hys = ys.slice(0, segN + 1)
+  const hzs = zs.slice(0, segN + 1)
 
-  // Clear
-  ctx.clearRect(0, 0, W, H)
-
-  // --- Grid ---
-  ctx.strokeStyle = 'rgba(120,140,160,0.12)'
-  ctx.lineWidth = 1
-  // horizontal axis (Re)
-  ctx.beginPath(); ctx.moveTo(cx - R - 40, cy); ctx.lineTo(cx + R + 40, cy); ctx.stroke()
-  // vertical axis (Im)
-  ctx.beginPath(); ctx.moveTo(cx, cy - R - 40); ctx.lineTo(cx, cy + R + 40); ctx.stroke()
-
-  // --- Unit circle ---
-  ctx.beginPath()
-  ctx.arc(cx, cy, R, 0, Math.PI * 2)
-  ctx.strokeStyle = 'rgba(100,160,130,0.4)'
-  ctx.lineWidth = 2
-  ctx.stroke()
-
-  // --- Spiral trace (angle sweep) ---
-  if (ang > 0) {
-    ctx.beginPath()
-    const steps = Math.min(600, Math.floor(ang / (Math.PI * 2) * 120))
-    for (let i = 0; i <= steps; i++) {
-      const a = (i / steps) * ang
-      const spiralR = R + (a / (Math.PI * 2)) * 22 // spiral expands outward
-      const x = cx + spiralR * Math.cos(a)
-      const y = cy - spiralR * Math.sin(a)
-      if (i === 0) ctx.moveTo(x, y)
-      else ctx.lineTo(x, y)
-    }
-    ctx.strokeStyle = 'rgba(74,106,138,0.5)'
-    ctx.lineWidth = 2
-    ctx.stroke()
-  }
-
-  // --- Current spiral point ---
-  const spiralR = R + (ang / (Math.PI * 2)) * 22
-  const px = cx + spiralR * Math.cos(ang)
-  const py = cy - spiralR * Math.sin(ang)
-  ctx.beginPath()
-  ctx.arc(px, py, 6, 0, Math.PI * 2)
-  ctx.fillStyle = '#d06868'
-  ctx.fill()
-  ctx.strokeStyle = '#fff'
-  ctx.lineWidth = 2
-  ctx.stroke()
-
-  // --- Projection line (spiral point → circle point) ---
-  const cxP = cx + R * Math.cos(ang)
-  const cyP = cy - R * Math.sin(ang)
-  ctx.setLineDash([4, 4])
-  ctx.beginPath()
-  ctx.moveTo(px, py)
-  ctx.lineTo(cxP, cyP)
-  ctx.strokeStyle = 'rgba(160,104,80,0.5)'
-  ctx.lineWidth = 1.5
-  ctx.stroke()
-  ctx.setLineDash([])
-
-  // --- Projection line down to axis ---
-  ctx.setLineDash([3, 3])
-  ctx.beginPath()
-  ctx.moveTo(cxP, cyP)
-  ctx.lineTo(cxP, cy)
-  ctx.strokeStyle = 'rgba(120,140,160,0.3)'
-  ctx.lineWidth = 1
-  ctx.stroke()
-  ctx.beginPath()
-  ctx.moveTo(cxP, cyP)
-  ctx.lineTo(cx, cyP)
-  ctx.stroke()
-  ctx.setLineDash([])
-
-  // --- Unit circle point ---
-  ctx.beginPath()
-  ctx.arc(cxP, cyP, 5, 0, Math.PI * 2)
-  ctx.fillStyle = '#3d6b4f'
-  ctx.fill()
-  ctx.strokeStyle = '#fff'
-  ctx.lineWidth = 2
-  ctx.stroke()
-
-  // --- Angle arc ---
-  if (ang > 0.05) {
-    const arcR = 30
-    ctx.beginPath()
-    ctx.arc(cx, cy, arcR, 0, -ang, true) // CCW for positive angle
-    ctx.strokeStyle = 'rgba(200,160,80,0.6)'
-    ctx.lineWidth = 2
-    ctx.stroke()
-    // angle label
-    const labelA = ang / 2
-    const lx = cx + (arcR + 14) * Math.cos(-labelA)
-    const ly = cy + (arcR + 14) * Math.sin(-labelA)
-    ctx.fillStyle = 'rgba(200,160,80,0.85)'
-    ctx.font = '11px sans-serif'
-    ctx.textAlign = 'center'
-    ctx.fillText('θ', lx, ly + 4)
-  }
-
-  // --- Axis labels ---
-  ctx.fillStyle = 'rgba(120,140,160,0.7)'
-  ctx.font = '12px sans-serif'
-  ctx.textAlign = 'center'
-  ctx.fillText('Re (cos θ)', cx + R + 30, cy + 16)
-  ctx.fillText('Im (sin θ)', cx, cy - R - 28)
-  ctx.fillText('0', cx + 8, cy + 16)
-  ctx.fillText('1', cx + R + 4, cy + 16)
-  ctx.fillText('−1', cx - R - 12, cy + 16)
-  ctx.fillText('i', cx + 10, cy - R - 6)
-  ctx.fillText('−i', cx + 12, cy + R + 14)
+  const cx = Math.cos(ang), sy = Math.sin(ang)
+  return [
+    // Full helix (dim)
+    { x: xs, y: ys, z: zs, type: 'scatter3d', mode: 'lines',
+      line: { color: 'rgba(120,140,160,0.2)', width: 1.5 }, showlegend: false },
+    // Active segment (bright)
+    { x: hxs, y: hys, z: hzs, type: 'scatter3d', mode: 'lines',
+      line: { color: '#4a6a8a', width: 5 }, showlegend: false },
+    // Current point on helix
+    { x: [cx], y: [sy], z: [ang], type: 'scatter3d', mode: 'markers',
+      marker: { color: '#d06868', size: 8 }, showlegend: false },
+    // Projection line: helix point → circle point
+    { x: [cx, cx], y: [sy, sy], z: [ang, 0], type: 'scatter3d', mode: 'lines',
+      line: { color: 'rgba(160,104,80,0.5)', width: 2, dash: 'dot' }, showlegend: false },
+    // Unit circle on z=0
+    { x: xs, y: ys, z: Array(N + 1).fill(0), type: 'scatter3d', mode: 'lines',
+      line: { color: 'rgba(104,160,120,0.3)', width: 2 }, showlegend: false },
+    // Projected point on circle
+    { x: [cx], y: [sy], z: [0], type: 'scatter3d', mode: 'markers',
+      marker: { color: '#3d6b4f', size: 7 }, showlegend: false },
+    // Re axis line
+    { x: [-1.5, 1.5], y: [0, 0], z: [0, 0], type: 'scatter3d', mode: 'lines',
+      line: { color: 'rgba(180,60,60,0.25)', width: 1.5 }, showlegend: false },
+    // Im axis line
+    { x: [0, 0], y: [-1.5, 1.5], z: [0, 0], type: 'scatter3d', mode: 'lines',
+      line: { color: 'rgba(60,120,180,0.25)', width: 1.5 }, showlegend: false },
+  ]
 }
 
-onMounted(() => { draw() })
-watch(angle, draw)
+function render() {
+  if (!plotEl.value || typeof Plotly === 'undefined') return
+  const data = buildTraces(theta.value)
+  const layout = {
+    scene: {
+      xaxis: { title: 'Re (cos θ)', range: [-1.5, 1.5], gridcolor: 'rgba(120,140,160,0.12)' },
+      yaxis: { title: 'Im (sin θ)', range: [-1.5, 1.5], gridcolor: 'rgba(120,140,160,0.12)' },
+      zaxis: { title: 'θ (rad)', gridcolor: 'rgba(120,140,160,0.12)' },
+      aspectmode: 'cube',
+      camera: { eye: { x: 1.8, y: 1.8, z: 1.2 } },
+    },
+    margin: { t: 10, r: 10, b: 10, l: 10 },
+    paper_bgcolor: 'rgba(0,0,0,0)',
+  }
+  Plotly.react(plotEl.value, data, layout, { responsive: true })
+}
+
+onMounted(async () => {
+  webglOk.value = checkWebGL()
+  if (!webglOk.value) return
+  try {
+    const { loadPlotly } = await import('@/utils/plotly')
+    await loadPlotly()
+    plotlyLoaded = true
+    await new Promise(r => setTimeout(r, 50))
+    render()
+  } catch (e) {
+    console.warn('Plotly load failed:', e)
+    webglOk.value = false
+  }
+})
+
+watch(angle, () => { if (plotlyLoaded) render() })
 onUnmounted(() => { if (animId) window.cancelAnimationFrame(animId) })
 </script>
 
 <style scoped>
-.spiral-canvas { display:block; margin:0 auto; max-width:100%; border-radius:8px; }
-.spiral-ctrls { text-align:center; margin-top:10px; font-size:13px; color:var(--text-secondary); }
+.spiral-plot { width: 100%; height: 460px; }
+.no-webgl { text-align:center; padding:20px; color:var(--text-muted); font-size:13px; background:var(--bg-nav); border-radius:8px; margin-bottom:8px; }
+.spiral-ctrls { text-align:center; margin-top:8px; font-size:13px; color:var(--text-secondary); }
 .ctrl-row { display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; }
 .ang-val { font-weight:600; color:var(--accent); min-width:40px; font-family:var(--font-mono); }
 .spiral-slider { width:280px; max-width:60%; accent-color:var(--accent); }
