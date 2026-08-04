@@ -94,7 +94,7 @@ async function handleRegister() {
 </script>
 
 <style scoped>
-.login-panel { display:flex; overflow:hidden; width:580px; max-width:94vw; border-radius:16px; }
+.login-panel { display:flex; overflow:hidden; width:580px !important; max-width:94vw; border-radius:16px; }
 .login-left {
   width:210px; flex-shrink:0; min-width:210px;
   background:linear-gradient(165deg,#1a2530 0%,#22344a 55%,#3a5a7c 100%);
