@@ -92,13 +92,19 @@ onMounted(() => run(async () => {
 }).catch(e => console.warn('Failed to load mathematician', e)))
 </script>
 <style scoped>
-.hero { background:linear-gradient(135deg,#1a1a2e,#2d1b69,#1a1a2e); color:#fff; text-align:center; padding:48px 32px 36px; }
-.portrait { width:120px; height:120px; border-radius:50%; margin:0 auto 20px; overflow:hidden; border:3px solid rgba(255,255,255,0.3); background:rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center; }
-.avatar { font-size:48px; font-weight:700; color:rgba(255,255,255,0.8); font-family:var(--font-heading); }
+.hero {
+  background: radial-gradient(90% 70% at 50% 0%, #eef0f4 0%, transparent 70%), linear-gradient(180deg, #f1efe7 0%, #f6f3ec 100%);
+  color: var(--text-primary);
+  text-align:center;
+  padding:48px 32px 36px;
+  border-bottom: 1px solid var(--border);
+}
+.portrait { width:120px; height:120px; border-radius:50%; margin:0 auto 20px; overflow:hidden; border:3px solid var(--border); background:var(--bg-card); display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-card); }
+.avatar { font-size:48px; font-weight:700; color:var(--accent); font-family:var(--font-heading); }
 .photo-img { width:100%; height:100%; object-fit:cover; }
-.hero h1 { font-size:32px; margin:0 0 8px; color:#fff; }
-.years { opacity:0.5; color:#fff; }
-.contrib { opacity:0.8; margin-top:8px; font-size:16px; color:#fff; }
+.hero h1 { font-size:32px; margin:0 0 8px; color:var(--text-primary); }
+.years { color:var(--text-muted); font-variant-numeric:tabular-nums; }
+.contrib { color:var(--text-secondary); margin-top:8px; font-size:16px; }
 .content { max-width:720px; margin:0 auto; padding:32px 20px 64px; }
 blockquote { border-left:3px solid var(--accent-warm); padding:12px 20px; background:var(--bg-nav); border-radius:0 8px 8px 0; font-style:italic; color:var(--text-secondary); margin:20px 0; }
 section { margin:28px 0; }

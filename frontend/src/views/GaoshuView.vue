@@ -1,6 +1,7 @@
 <template>
   <div class="gaoshu-page">
     <div class="gaoshu-hero">
+      <p class="hero-eyebrow">{{ $t('exhibit.museum') }}</p>
       <h1>{{ $t('gaoshu.title') }}</h1>
       <p>{{ $t('gaoshu.subtitle') }}</p>
     </div>
@@ -22,12 +23,13 @@ import { useLoading } from '@/utils/useLoading'
 
 const { locale } = useI18n()
 const subtopics = ref([])
+// Paper-plate accent bands per chapter (muted book-cloth colors)
 const bgs = [
-  'linear-gradient(135deg,#1a1d22,#1e2935,#2a3d54)',
-  'linear-gradient(135deg,#1e1a2e,#2a2250,#3a2a60)',
-  'linear-gradient(135deg,#1a2528,#1a3532,#1a4540)',
-  'linear-gradient(135deg,#2a1a1e,#4a2528,#5a2a2e)',
-  'linear-gradient(135deg,#1a1d22,#1e2935,#2a3d54)',
+  '#4a6b8a',
+  '#8a6f3d',
+  '#6b7a4a',
+  '#7a5a6b',
+  '#5a6b6b',
 ]
 const exhibitKeys = ['limits','derivatives','integrals','series','multivariable']
 
@@ -49,12 +51,27 @@ onMounted(() => run(async () => {
 </script>
 
 <style scoped>
-.gaoshu-hero { background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460,#1a5276); color:#fff; text-align:center; padding:60px 40px 40px; }
-.gaoshu-hero h1 { font-size:40px; margin:0 0 8px; }
-.gaoshu-hero p { opacity:0.7; }
-.gaoshu-content { max-width:1100px; margin:0 auto; padding:32px 20px; }
-.sub-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
+.gaoshu-hero {
+  background: radial-gradient(90% 70% at 50% 0%, #eef0f4 0%, transparent 70%), linear-gradient(180deg, #f1efe7 0%, #f6f3ec 100%);
+  color: var(--text-primary);
+  text-align: center;
+  padding: 56px 40px 44px;
+  border-bottom: 1px solid var(--border);
+}
+.hero-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--accent-warm);
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+.gaoshu-hero h1 { font-size: 38px; margin: 0 0 10px; }
+.gaoshu-hero p:not(.hero-eyebrow) { color: var(--text-secondary); }
+.gaoshu-content { max-width:1200px; margin:0 auto; padding:36px 20px; }
+.sub-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:20px; }
 .loading-wrap { text-align:center; padding:80px 0; }
 .spinner { display:inline-block; width:32px; height:32px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.6s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg) } }
+@media(max-width:768px) { .gaoshu-hero { padding:36px 16px; } .gaoshu-hero h1 { font-size:26px; } }
 </style>

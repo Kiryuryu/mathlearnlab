@@ -1,13 +1,14 @@
 <template>
   <div>
     <div class="hero">
+      <p class="hero-eyebrow">{{ $t('home.eyebrow') }}</p>
       <h1>{{ $t('home.title') }}</h1>
-      <p>{{ $t('home.subtitle') }}</p>
+      <p class="hero-sub">{{ $t('home.subtitle') }}</p>
     </div>
     <div class="daily-problem" v-if="dailyQ">
       <div class="daily-header">
-        <span>{{ $t('home.daily') }}</span>
-        <span class="daily-date">{{ dailySource === 'ai' ? '✦ AI 出题' : '' }} {{ today }}</span>
+        <span class="daily-label">✦ {{ $t('home.daily') }}</span>
+        <span class="daily-date">{{ dailySource === 'ai' ? 'AI 出题' : '' }} {{ today }}</span>
       </div>
       <div class="daily-q" v-html="renderedQ"></div>
       <div class="daily-actions">
@@ -115,16 +116,24 @@ onMounted(loadDaily)
 </script>
 
 <style scoped>
-.hero { text-align:center; padding:48px 32px 24px; }
-.hero h1 { font-size:32px; margin:0; }
-.hero p { color:var(--text-secondary); max-width:640px; margin:12px auto; font-size:15px; }
-.daily-problem { max-width:640px; margin:0 auto 24px; background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:24px; box-shadow:0 1px 2px rgba(26,29,34,0.04); }
-.daily-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
-.daily-header span:first-child { font-size:12px; color:var(--accent); font-weight:600; }
-.daily-date { font-size:11px; color:var(--text-muted); }
-.daily-q { font-size:15px; line-height:1.8; }
-.daily-actions { margin-top:12px; display:flex; gap:8px; align-items:center; }
-.daily-hint { margin-top:8px; padding:10px; background:var(--bg-nav); border-radius:6px; font-size:13px; color:var(--text-secondary); line-height:1.6; }
-.card-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:20px; padding:32px; max-width:1400px; margin:0 auto; }
-@media(max-width:768px) { .card-grid { grid-template-columns:1fr; padding:16px; } }
+.hero { text-align:center; padding:56px 32px 28px; }
+.hero-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--accent-warm);
+  margin: 0 0 12px;
+  font-weight: 600;
+}
+.hero h1 { font-size: 38px; margin: 0; }
+.hero-sub { color:var(--text-secondary); max-width:640px; margin:14px auto; font-size:15px; }
+.daily-problem { max-width:680px; margin:0 auto 28px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:26px 28px; box-shadow:var(--shadow-card); }
+.daily-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.daily-label { font-size:12px; color:var(--accent); font-weight:600; letter-spacing:0.04em; }
+.daily-date { font-size:11px; color:var(--text-muted); font-variant-numeric:tabular-nums; }
+.daily-q { font-size:15px; line-height:1.9; }
+.daily-actions { margin-top:14px; display:flex; gap:8px; align-items:center; }
+.daily-hint { margin-top:8px; padding:10px 14px; background:var(--bg-nav); border-radius:var(--radius); font-size:13px; color:var(--text-secondary); line-height:1.7; }
+.card-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:22px; padding:36px; max-width:1400px; margin:0 auto; }
+@media(max-width:768px) { .card-grid { grid-template-columns:1fr; padding:16px; } .hero h1 { font-size:28px; } }
 </style>

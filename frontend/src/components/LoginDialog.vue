@@ -96,14 +96,16 @@ async function handleRegister() {
 <style scoped>
 .login-left {
   width:210px; flex-shrink:0; min-width:210px;
-  background:linear-gradient(165deg,#1a2530 0%,#22344a 55%,#3a5a7c 100%);
+  background:#2c3343;
   color:#fff; padding:40px 26px;
   display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;
   position:relative;
 }
 .login-left::before {
   content:''; position:absolute; inset:0; pointer-events:none;
-  background:radial-gradient(circle at 20% 10%, rgba(255,255,255,0.08), transparent 60%);
+  background:
+    radial-gradient(circle at 30% 15%, rgba(255,255,255,0.09), transparent 55%),
+    repeating-linear-gradient(45deg, transparent 0 14px, rgba(255,255,255,0.015) 14px 15px);
 }
 .brand-mark {
   width:52px; height:52px; border-radius:14px;

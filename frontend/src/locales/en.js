@@ -51,6 +51,7 @@ export default {
     keyPlaceholder: 'sk-...',
   },
   home: {
+    eyebrow: 'Interactive Math Museum',
     title: 'Math Museum',
     subtitle: 'Know What, Know Why',
 
@@ -90,6 +91,7 @@ export default {
     diffPhd: 'PhD',
   },
   exhibit: {
+    museum: 'Math Museum · Exhibit',
     concept: 'Core Concepts',
     applications: 'Applications',
     history: 'History',
@@ -111,6 +113,7 @@ export default {
     sections: 'Five Exhibits',
   },
   mathematicians: {
+    eyebrow: 'Math Museum · Gallery',
     title: 'Mathematicians Gallery',
     subtitle: 'Mathematics is not just formulas — it is human stories',
     back: '← Back to Gallery',
@@ -126,6 +129,7 @@ export default {
     exMultivariable: 'Multivariable',
   },
   gallery: {
+    eyebrow: 'Math Museum · Beauty',
     title: 'Mathematical Beauty',
     subtitle: 'The most stunning results in calculus',
     enterExhibits: 'Enter Exhibits',

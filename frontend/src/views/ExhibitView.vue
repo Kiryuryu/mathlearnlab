@@ -2,10 +2,12 @@
   <div class="exhibit-page" v-if="exhibit">
     <ExhibitHero
       :name="exhibitName"
+      :eyebrow="heroEyebrow"
       :big-q="exhibitBigQ"
       :historian="exhibit.historian"
       :beauty="exhibitBeauty"
       :hero-bg="heroBg"
+      :hero-border="heroBorder"
     />
     <ExhibitTabs :tabs="tabs" :active="activeTab" @change="activeTab = $event" />
     <div class="tab-content">
@@ -77,6 +79,7 @@ const exhibitName = computed(() => {
   if (!exhibit.value) return ''
   return locale.value === 'en' && exhibit.value.en ? exhibit.value.en : exhibit.value.zh
 })
+const heroEyebrow = computed(() => t('exhibit.museum'))
 const exhibitBigQ = computed(() => {
   if (!exhibit.value) return ''
   return locale.value === 'en' && exhibit.value.big_question_en ? exhibit.value.big_question_en : exhibit.value.big_question
@@ -87,15 +90,16 @@ const exhibitBeauty = computed(() => {
 })
 
 const heroBgs = {
-  limits: 'linear-gradient(135deg,#1a1a2e,#16213e,#0f3460)',
-  derivatives: 'linear-gradient(135deg,#2d1b69,#5b2c8e)',
-  integrals: 'linear-gradient(135deg,#0d3b3b,#1a6b5a)',
-  series: 'linear-gradient(135deg,#3d1a1a,#8b3a3a)',
-  multivariable: 'linear-gradient(135deg,#1a2d3d,#2c5f8b)',
-  'linear-algebra': 'linear-gradient(135deg,#1a1a2e,#2a2a4e)',
-  probability: 'linear-gradient(135deg,#2e1a1a,#4e2a2a)',
+  limits: 'radial-gradient(90% 70% at 50% 0%, #eef0f4 0%, transparent 70%), linear-gradient(180deg, #f1efe7 0%, #f6f3ec 100%)',
+  derivatives: 'radial-gradient(90% 70% at 50% 0%, #f2eef1 0%, transparent 70%), linear-gradient(180deg, #f1efe7 0%, #f6f3ec 100%)',
+  integrals: 'radial-gradient(90% 70% at 50% 0%, #edf2ee 0%, transparent 70%), linear-gradient(180deg, #f1efe7 0%, #f6f3ec 100%)',
+  series: 'radial-gradient(90% 70% at 50% 0%, #f4f0ec 0%, transparent 70%), linear-gradient(180deg, #f1efe7 0%, #f6f3ec 100%)',
+  multivariable: 'radial-gradient(90% 70% at 50% 0%, #eef1f4 0%, transparent 70%), linear-gradient(180deg, #f1efe7 0%, #f6f3ec 100%)',
+  'linear-algebra': 'radial-gradient(90% 70% at 50% 0%, #f0f0f4 0%, transparent 70%), linear-gradient(180deg, #f1efe7 0%, #f6f3ec 100%)',
+  probability: 'radial-gradient(90% 70% at 50% 0%, #f4f0ee 0%, transparent 70%), linear-gradient(180deg, #f1efe7 0%, #f6f3ec 100%)',
 }
-const heroBg = computed(() => heroBgs[topic.value] || 'linear-gradient(135deg,#1a1a2e,#16213e,#0f3460)')
+const heroBg = computed(() => heroBgs[topic.value] || 'linear-gradient(180deg, #f1efe7 0%, #f6f3ec 100%)')
+const heroBorder = computed(() => 'var(--border)')
 
 async function loadContent() {
   loading.value = true

@@ -51,6 +51,7 @@ export default {
     keyPlaceholder: 'sk-...',
   },
   home: {
+    eyebrow: 'Interactive Math Museum',
     title: '数学博物馆',
     subtitle: '知其然，知其所以然',
 
@@ -59,6 +60,7 @@ export default {
     goPractice: '去练习',
   },
   exhibit: {
+    museum: '数学博物馆 · 展区',
     concept: '核心概念',
     applications: '应用案例',
     history: '思想脉络',
@@ -80,6 +82,7 @@ export default {
     sections: '五大展区',
   },
   mathematicians: {
+    eyebrow: 'Math Museum · Gallery',
     title: '数学家长廊',
     subtitle: '数学不只是公式，更是人的故事',
     back: '← 返回数学家长廊',
@@ -95,6 +98,7 @@ export default {
     relatedExhibits: '关联展区',
   },
   gallery: {
+    eyebrow: 'Math Museum · Beauty',
     title: '数学之美',
     subtitle: '汇集微积分中最令人惊叹的结论',
     enterExhibits: '进入展区',

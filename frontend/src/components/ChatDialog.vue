@@ -94,12 +94,12 @@ function onRetry(msg) {
 .chat-fab {
   position:fixed; bottom:80px; right:32px; z-index:100;
   width:48px; height:48px; border-radius:50%;
-  background:linear-gradient(135deg,var(--accent),#2c4a68); color:#fff; border:none;
+  background:var(--accent); color:#fff; border:none;
   display:flex; align-items:center; justify-content:center;
-  cursor:pointer; box-shadow:0 6px 20px rgba(26,29,34,0.25);
+  cursor:pointer; box-shadow:var(--shadow-elevated);
   transition:transform 0.2s, box-shadow 0.2s;
 }
-.chat-fab:hover { transform:scale(1.08); box-shadow:0 8px 26px rgba(26,29,34,0.3); }
+.chat-fab:hover { transform:scale(1.08); box-shadow:0 8px 26px rgba(80,70,50,0.2); }
 .chat-overlay {
   position:fixed; inset:0; z-index:500;
   display:flex; align-items:flex-end; justify-content:flex-end;
