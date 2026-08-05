@@ -43,7 +43,6 @@ python3 -m uvicorn server.main:app --reload
 
 ## 🔑 API Key
 
-1. 点右上角「钥」按钮
-2. 填入你的 Anthropic API Key (`sk-ant-api03-...`)
-3. Key 仅存浏览器 localStorage
-4. 没有 Key？去 https://console.anthropic.com/ 注册
+1. AI 功能（出题/批改/聊天）基于 DeepSeek API
+2. 服务端通过环境变量 `DEEPSEEK_API_KEY` 配置（在 ECS `.env` 中）
+3. 没有 Key？去 https://platform.deepseek.com/ 注册获取

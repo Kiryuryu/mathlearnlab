@@ -1,6 +1,6 @@
 """
-Chat API — SSE streaming chat with Claude.
-API key comes from client (X-API-Key header), not server config.
+Chat API — SSE streaming chat with DeepSeek.
+API key comes from server config (DEEPSEEK_API_KEY), not client.
 """
 
 from fastapi import APIRouter, Request, HTTPException, Depends
@@ -14,7 +14,7 @@ router = APIRouter()
 
 @router.post("/api/chat/stream")
 async def chat_stream(request: Request, user: dict = Depends(require_user)):
-    """Stream a chat conversation with Claude via SSE."""
+    """Stream a chat conversation with DeepSeek via SSE."""
     try:
         body = await request.json()
     except Exception:

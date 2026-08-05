@@ -25,17 +25,6 @@ venv/
 # Claude
 .claude/
 
-# Flutter
-client/.dart_tool/
-client/.packages
-client/.pub/
-client/build/
-client/.flutter-plugins*
-client/pubspec.lock
-
 # Build output
 site/
 server/static-spa/
-
-# Jupyter notebooks (legacy source; content is served from content/notebooks/*.md)
-notebooks/

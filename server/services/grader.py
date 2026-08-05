@@ -11,7 +11,7 @@ from server.services.prompts import GRADER_SYSTEM_PROMPT, build_grading_message
 
 
 async def grade_submission(problem: dict, image_bytes: bytes, api_key: str | None = None) -> dict:
-    """Grade a handwritten submission via Claude Vision API.
+    """Grade a handwritten submission via DeepSeek Vision API.
 
     Parameters
     ----------

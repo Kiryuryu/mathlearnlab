@@ -83,10 +83,12 @@ cp .env.example .env
 vi .env
 ```
 
-编辑 `.env`，填入你的 Anthropic API Key：
+编辑 `.env`，填入你的 DeepSeek API Key 等环境变量：
 
 ```
-ANTHROPIC_API_KEY=sk-ant-api03-你的真实key
+DEEPSEEK_API_KEY=sk-你的真实key
+JWT_SECRET_KEY=运行 python -c "import secrets; print(secrets.token_urlsafe(32))" 生成
+ADMIN_SECRET=运行 python -c "import secrets; print(secrets.token_urlsafe(32))" 生成
 DEBUG=false
 CONTENT_DIR=content
 DATA_DIR=data

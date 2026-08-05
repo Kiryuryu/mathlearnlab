@@ -126,10 +126,15 @@ watch([route, locale], () => {
 .nav-overlay { display:none; }
 @media(max-width:768px) {
   .hamburger { display:inline-flex; }
-  .museum-nav { display:none; flex-direction:column; position:absolute; top:56px; left:0; right:0; background:var(--bg-card); border-bottom:1px solid var(--border); z-index:100; padding:8px 0; }
+  .museum-nav { display:none; flex-direction:column; position:absolute; top:48px; left:0; right:0; background:var(--bg-card); border-bottom:1px solid var(--border); z-index:100; padding:8px 0; max-height:calc(100vh - 48px); overflow-y:auto; }
   .museum-nav.nav-open { display:flex; }
   .museum-nav .nav-sep { display:none; }
   .museum-nav a { padding:10px 20px; border:none; border-radius:0; }
   .nav-overlay { display:block; position:fixed; inset:0; z-index:99; background:rgba(0,0,0,0.3); }
+}
+@media(max-width:480px) {
+  .app-subtitle { display:none; }
+  .header-left { gap:8px; }
+  .app-brand { font-size:15px; letter-spacing:0.2px; }
 }
 </style>

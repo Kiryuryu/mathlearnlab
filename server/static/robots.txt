@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /bookmarks
+Disallow: /api/
+
+Sitemap: https://www.mathlearnlab.cn/sitemap.xml
