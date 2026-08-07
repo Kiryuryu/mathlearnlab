@@ -98,7 +98,13 @@ async function aiGenerateWithModel() {
       body: JSON.stringify({ topic_key: topic.value, difficulty: filter.value })
     })
     if (r.status === 401) { auth.openLogin('login'); generating.value = false; return }
-    currentProblem.value = (await r.json()).problem
+    const d = await r.json().catch(() => ({}))
+    if (!r.ok || !d.problem) {
+      showToast(t('practice.generateFail') + ': ' + (d.detail || t('practice.emptyProblem')))
+      generating.value = false
+      return
+    }
+    currentProblem.value = d.problem
     step.value = 'solve'
   } catch(e) { showToast(t('practice.generateFail')+': '+e.message) }
   generating.value = false

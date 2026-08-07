@@ -188,6 +188,7 @@ export default {
     tryAnother: '再做一题',
     redo: '重做此题',
     generateFail: '生成失败',
+    emptyProblem: '未获取到题目，请检查 API Key 是否有效或稍后重试',
     gradeFail: '批改失败',
     diffBasic: '基础',
     diffAdvanced: '进阶',

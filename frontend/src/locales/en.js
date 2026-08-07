@@ -87,6 +87,7 @@ export default {
     tryAnother: 'Next Problem',
     redo: 'Retry',
     generateFail: 'Generation failed',
+    emptyProblem: 'No problem returned. Please check your API key or try again later.',
     gradeFail: 'Grading failed',
     diffBasic: 'Basic',
     diffAdvanced: 'Advanced',
