@@ -77,7 +77,20 @@ async function checkUser() {
 
 async function handleLogin() {
   if (!loginUser.value || !loginPass.value) { loginErr.value = t('login.fillRequired'); return }
-  try { await auth.doLogin(loginUser.value, loginPass.value) } catch(e) { loginErr.value = e.message }
+  try {
+    await auth.doLogin(loginUser.value, loginPass.value)
+  } catch(e) {
+    // Friendly messages for account-status cases (backend returns 403 with an English detail).
+    if (e.status === 403 && /pending/i.test(e.message || '')) {
+      loginErr.value = t('login.pendingApproval')
+    } else if (e.status === 403 && /rejected/i.test(e.message || '')) {
+      loginErr.value = t('login.rejectedApproval')
+    } else if (e.status === 429) {
+      loginErr.value = t('login.tooManyAttempts')
+    } else {
+      loginErr.value = e.message
+    }
+  }
 }
 async function handleRegister() {
   if (!regUser.value || !regPass.value) { regErr.value = t('login.fillRequired'); return }

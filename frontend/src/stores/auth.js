@@ -32,7 +32,10 @@ export const useAuth = defineStore('auth', () => {
     if (!r.ok) {
       let detail = 'Login failed'
       try { detail = (await r.json()).detail || detail } catch {}
-      throw new Error(detail)
+      // Attach the HTTP status so the dialog can show a friendly message.
+      const err = new Error(detail)
+      err.status = r.status
+      throw err
     }
     const d = await r.json()
     token.value = d.token; user.value = d.user
