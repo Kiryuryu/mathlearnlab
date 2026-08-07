@@ -44,6 +44,8 @@ export default {
     title: 'AI Model Settings',
     hint: 'Configure your AI model to use AI-powered problem generation, grading, chat, and plotting',
     model: 'Model',
+    v4Desc: 'General chat, fast responses',
+    r1Desc: 'Deep reasoning, best for hard problems',
     apiKey: 'DeepSeek API Key',
     cancel: 'Cancel',
     save: 'Save',

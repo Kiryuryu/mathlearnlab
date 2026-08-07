@@ -44,6 +44,8 @@ export default {
     title: 'AI 模型配置',
     hint: '配置后即可使用 AI 出题、批改、聊天、绘图等功能',
     model: '模型',
+    v4Desc: '通用对话，快速响应',
+    r1Desc: '深度推理，适合难题',
     apiKey: 'DeepSeek API Key',
     cancel: '取消',
     save: '保存',

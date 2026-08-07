@@ -100,19 +100,8 @@ onMounted(() => {
 })
 onUnmounted(() => window.removeEventListener('scroll', onScroll))
 
-// Prompt guests to register/login — but never on /admin (no login needed there).
-// Route-based so navigating between pages keeps the dialog state correct.
-let loginPromptTimer = null
-watch(route, (r) => {
-  if (auth.isLoggedIn) return
-  if (r.name === 'admin') {
-    auth.closeLogin()
-    return
-  }
-  if (!auth.showLogin) {
-    loginPromptTimer = setTimeout(() => { if (!auth.isLoggedIn && route.name !== 'admin') auth.openLogin() }, 400)
-  }
-}, { immediate: true })
+// Guests can browse freely; the login dialog only opens on demand (header button / protected action).
+// No auto-popup, so navigation and content are never blocked by a modal overlay.
 
 watch([route, locale], () => {
   const titleKey = route.meta?.titleKey
