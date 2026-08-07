@@ -78,7 +78,7 @@ function saveAndProceed() {
 </script>
 
 <style scoped>
-.setup-panel {
+:deep(.base-panel.setup-panel) {
   width:420px; max-width:90vw;
   padding:32px;
 }
