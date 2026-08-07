@@ -74,7 +74,7 @@ function redraw() {
     range: range.value,
     maxIter: maxIter.value,
     juliaCx: juliaCx.value, juliaCy: juliaCy.value,
-  }, [new SharedArrayBuffer(0)])
+  })
 }
 
 function renderMainThread(w, h) {
