@@ -127,13 +127,12 @@ onMounted(loadDaily)
 }
 .hero h1 { font-size: 38px; margin: 0; }
 .hero-sub { color:var(--text-secondary); max-width:640px; margin:14px auto; font-size:15px; }
-.daily-problem { max-width:680px; margin:0 auto 28px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:26px 28px; box-shadow:var(--shadow-card); }
-.daily-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.daily-problem { max-width:680px; margin:0 auto 28px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:26px 28px; box-shadow:var(--shadow-card); }.daily-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
 .daily-label { font-size:12px; color:var(--accent); font-weight:600; letter-spacing:0.04em; }
 .daily-date { font-size:11px; color:var(--text-muted); font-variant-numeric:tabular-nums; }
 .daily-q { font-size:15px; line-height:1.9; }
 .daily-actions { margin-top:14px; display:flex; gap:8px; align-items:center; }
 .daily-hint { margin-top:8px; padding:10px 14px; background:var(--bg-nav); border-radius:var(--radius); font-size:13px; color:var(--text-secondary); line-height:1.7; }
 .card-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:22px; padding:36px; max-width:1400px; margin:0 auto; }
-@media(max-width:768px) { .card-grid { grid-template-columns:1fr; padding:16px; } .hero h1 { font-size:28px; } }
+@media(max-width:768px) { .card-grid { grid-template-columns:1fr; padding:16px; } .hero h1 { font-size:28px; } .daily-problem { margin-left:16px; margin-right:16px; padding:20px; } }
 </style>

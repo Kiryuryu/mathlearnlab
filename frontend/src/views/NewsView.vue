@@ -20,7 +20,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useToast } from '@/utils/toast'
@@ -43,24 +43,6 @@ async function fetchPosts() {
   try {
     const r = await fetch('/api/blog/posts')
     posts.value = (await r.json()).posts || []
-
-    // If we're on a detail route, auto-load that post
-    const slug = route.params.slug
-    if (slug) {
-      const post = posts.value.find(p => p.slug === slug)
-      if (post) {
-        selectedPost.value = post
-        renderedContent.value = ''
-        try {
-          const cr = await fetch(`/api/blog/posts/${slug}`)
-          const cd = await cr.json()
-          renderedContent.value = renderMarkdown(cd.content || '')
-        } catch {}
-      } else {
-        // Slug not in list — redirect to list view
-        window.location.href = '/news'
-      }
-    }
   } catch(e) {
     console.warn('Failed to fetch posts', e)
     showToast(t('news.loadFail'))
@@ -68,11 +50,33 @@ async function fetchPosts() {
   loading.value = false
 }
 
-function goToPost(post) {
-  window.location.href = `/news/${post.slug}`
+async function loadPost(slug) {
+  if (!slug) { selectedPost.value = null; renderedContent.value = ''; return }
+  const post = posts.value.find(p => p.slug === slug)
+  if (post) {
+    selectedPost.value = post
+    renderedContent.value = ''
+    try {
+      const cr = await fetch(`/api/blog/posts/${slug}`)
+      const cd = await cr.json()
+      renderedContent.value = renderMarkdown(cd.content || '')
+    } catch {}
+  } else {
+    window.location.href = '/news'
+  }
 }
 
-onMounted(fetchPosts)
+function goToPost(post) {
+  router.push(`/news/${post.slug}`)
+}
+
+// React to route changes: enter detail on /news/:slug, show list on /news
+watch(() => route.params.slug, (slug) => { loadPost(slug || undefined) }, { immediate: false })
+
+onMounted(async () => {
+  await fetchPosts()
+  loadPost(route.params.slug || undefined)
+})
 </script>
 
 <style scoped>
