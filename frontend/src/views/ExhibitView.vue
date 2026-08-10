@@ -9,7 +9,14 @@
       :hero-bg="heroBg"
       :hero-border="heroBorder"
     />
-    <ExhibitTabs :tabs="tabs" :active="activeTab" @change="activeTab = $event" />
+    <nav class="tabs">
+      <a
+        v-for="tk in tabs"
+        :key="tk.key"
+        :class="['tab', { active: activeTab === tk.key }]"
+        @click.prevent="changeTab(tk.key)"
+      >{{ t('exhibit.' + tk.key) }}</a>
+    </nav>
     <div class="tab-content">
       <div class="exhibit-actions">
         <button class="action-btn" @click="shareLink" :title="$t('common.share')">🔗</button>
@@ -47,7 +54,7 @@
 
 <script setup>
 import { ref, watch, onMounted, nextTick, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { loadPlotly } from '@/utils/plotly'
 import { museumViz } from '@/utils/viz'
@@ -56,12 +63,12 @@ import { useAuth } from '@/stores/auth'
 import { useToast } from '@/utils/toast'
 import { apiFetch } from '@/utils/api'
 import ExhibitHero from '@/components/ExhibitHero.vue'
-import ExhibitTabs from '@/components/ExhibitTabs.vue'
 import EulerSpiral from '@/components/EulerSpiral.vue'
 import ManimVideo from '@/components/ManimVideo.vue'
 
 const { t, locale } = useI18n()
 const route = useRoute()
+const router = useRouter()
 const auth = useAuth()
 const { show: showToast } = useToast()
 const topic = computed(() => route.params.topic)
@@ -73,6 +80,12 @@ const vizPlot = ref(null)
 const vizControls = ref(null)
 const contentEl = ref(null)
 const isBookmarked = ref(false)
+
+// Switching tabs keeps the URL in sync so links can be shared/bookmarked with the right tab.
+function changeTab(tab) {
+  activeTab.value = tab
+  router.replace({ query: { ...route.query, tab } })
+}
 
 // Manim beauty animations embedded per exhibit (explore tab)
 const manimVideo = computed(() => {
@@ -160,6 +173,11 @@ async function loadContent() {
 
 watch([topic, activeTab, locale], loadContent, { immediate: true })
 
+// Keep tab state in sync when URL changes via back/forward or direct link.
+watch(() => route.query.tab, (tab) => {
+  if (tab && tab !== activeTab.value) activeTab.value = tab
+})
+
 async function loadBookmarks() {
   if (!auth.isLoggedIn) return
   try {
@@ -229,6 +247,11 @@ function initViz() {
 
 <style scoped>
 .tab-content { max-width:800px; margin:0 auto; padding:32px 40px; }
+.tabs { display:flex; justify-content:center; gap:0; border-bottom:1px solid var(--border); background:var(--bg-nav); position:sticky; top:0; z-index:10; }
+.tab { padding:12px 20px; font-size:14px; color:var(--text-secondary); text-decoration:none; border-bottom:2px solid transparent; transition:all 0.15s; cursor:pointer; }
+.tab:hover { color:var(--accent); }
+.tab.active { color:var(--accent); border-bottom-color:var(--accent); font-weight:600; }
+@media(max-width:768px) { .tabs { overflow-x:auto; justify-content:flex-start; } .tab { padding:10px 14px; font-size:13px; white-space:nowrap; } }
 .exhibit-actions { position:fixed; top:100px; right:20px; display:flex; flex-direction:column; gap:8px; z-index:20; }
 .action-btn { width:40px; height:40px; border-radius:50%; border:1px solid var(--border); background:var(--bg-card); color:var(--text-secondary); cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; transition:all 0.15s; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
 .action-btn:hover { border-color:var(--accent); color:var(--accent); }
