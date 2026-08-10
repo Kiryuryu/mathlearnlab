@@ -21,10 +21,10 @@ import { useI18n } from 'vue-i18n'
 const { locale } = useI18n()
 const base = '/static/videos/'
 const videos = [
-  { src: base + 'euler_identity.mp4', poster: base + 'euler_identity.jpg', title: () => locale.value === 'en' ? "Euler's Identity" : '欧拉恒等式', desc: () => locale.value === 'en' ? 'e^(iπ) + 1 = 0 — rotating on the unit circle' : 'e^(iπ)+1=0 —— 单位圆上的旋转' },
-  { src: base + 'fourier_series.mp4', poster: base + 'fourier_series.jpg', title: () => locale.value === 'en' ? 'Fourier Series' : '傅里叶级数', desc: () => locale.value === 'en' ? 'Square wave from sines' : '用正弦波拼出方波' },
-  { src: base + 'riemann_sum.mp4', poster: base + 'riemann_sum.jpg', title: () => locale.value === 'en' ? 'Riemann Sum' : '黎曼和', desc: () => locale.value === 'en' ? 'Rectangles → integral' : '矩形逼近 → 定积分' },
-  { src: base + 'fractal_zoom.mp4', poster: base + 'fractal_zoom.jpg', title: () => locale.value === 'en' ? 'Self-Similarity' : '自相似', desc: () => locale.value === 'en' ? 'Fractal zoom' : '分形缩放' },
+  { src: base + 'EulerIdentity.mp4', poster: base + 'EulerIdentity.jpg', title: () => locale.value === 'en' ? "Euler's Identity" : '欧拉恒等式', desc: () => locale.value === 'en' ? 'e^(iπ) + 1 = 0 — rotating on the unit circle' : 'e^(iπ)+1=0 —— 单位圆上的旋转' },
+  { src: base + 'FourierSeries.mp4', poster: base + 'FourierSeries.jpg', title: () => locale.value === 'en' ? 'Fourier Series' : '傅里叶级数', desc: () => locale.value === 'en' ? 'Square wave from sines' : '用正弦波拼出方波' },
+  { src: base + 'RiemannSum.mp4', poster: base + 'RiemannSum.jpg', title: () => locale.value === 'en' ? 'Riemann Sum' : '黎曼和', desc: () => locale.value === 'en' ? 'Rectangles → integral' : '矩形逼近 → 定积分' },
+  { src: base + 'FractalZoom.mp4', poster: base + 'FractalZoom.jpg', title: () => locale.value === 'en' ? 'Self-Similarity' : '自相似', desc: () => locale.value === 'en' ? 'Fractal zoom' : '分形缩放' },
 ]
 </script>
 
