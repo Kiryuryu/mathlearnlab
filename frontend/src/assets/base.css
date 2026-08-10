@@ -784,54 +784,6 @@ details summary {
 }
 
 /* ── Exhibit detail page ── */
-.exhibit-hero {
-  position: relative;
-  padding: 60px 40px 40px;
-  color: #fff;
-  text-align: center;
-  min-height: 240px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.exhibit-hero h1 {
-  font-size: 36px;
-  margin: 0 0 12px;
-  color: #fff;
-  font-family: var(--font-heading);
-}
-.exhibit-hero .big-question {
-  font-size: 17px;
-  opacity: 0.8;
-  margin-bottom: 8px;
-}
-.exhibit-hero .historian-line {
-  font-size: 13px;
-  opacity: 0.5;
-  margin-bottom: 16px;
-}
-.exhibit-hero .beauty-moment {
-  font-size: 14px;
-  padding: 10px 24px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 20px;
-  display: inline-block;
-  backdrop-filter: blur(10px);
-}
-
-.exhibit-content {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 32px 40px;
-}
-
-.exhibit-actions {
-  text-align: center;
-  padding: 0 0 48px;
-}
-
 /* ── Floating Chat Button ── */
 .chat-float-btn {
   position: fixed;
@@ -1260,9 +1212,6 @@ p.pointer { color: #fff; font-family: var(--font-mono); }
 /* ── Mobile responsive ── */
 @media (max-width: 768px) {
   .gallery-grid { grid-template-columns: 1fr; padding: 16px; }
-  .exhibit-hero { padding: 32px 16px; }
-  .exhibit-hero h1 { font-size: 24px; }
-  .exhibit-content { padding: 20px 16px; }
   .chat-popup { width: calc(100vw - 16px); height: calc(100vh - 120px); right: 8px; bottom: 80px; border-radius: 12px; }
   .chat-float-btn { bottom: 16px; right: 16px; }
   .gaoshu-timeline { padding-left: 12px; }
@@ -1423,8 +1372,6 @@ p.pointer { color: #fff; font-family: var(--font-mono); }
 [data-theme="dark"] .timeline-dot { box-shadow: 0 0 0 3px #1a1814; }
 
 /* ── Dark Mode — Exhibit hero overlay text ── */
-[data-theme="dark"] .exhibit-hero h1,
-[data-theme="dark"] .exhibit-hero p { text-shadow: 0 1px 4px rgba(0,0,0,0.4); }
 
 /* ── Search ── */
 .search-container {
@@ -1494,9 +1441,6 @@ p.pointer { color: #fff; font-family: var(--font-mono); }
 /* ── Mobile responsive ── */
 @media (max-width: 768px) {
   .gallery-grid { grid-template-columns: 1fr; padding: 16px; }
-  .exhibit-hero { padding: 32px 16px; }
-  .exhibit-hero h1 { font-size: 24px; }
-  .exhibit-content { padding: 20px 16px; }
   .chat-popup { width: calc(100vw - 16px); height: calc(100vh - 120px); right: 8px; bottom: 80px; border-radius: 12px; }
   .chat-float-btn { bottom: 16px; right: 16px; }
 

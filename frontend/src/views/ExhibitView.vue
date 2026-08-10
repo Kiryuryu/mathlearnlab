@@ -33,6 +33,13 @@
           <div ref="vizPlot" class="viz-plot"></div>
           <div ref="vizControls" class="viz-ctrls"></div>
         </template>
+        <ManimVideo
+          v-if="manimVideo"
+          :src="manimVideo.src"
+          :poster="manimVideo.poster"
+          :title="manimVideo.title"
+          :desc="manimVideo.desc"
+        />
       </div>
     </div>
   </div>
@@ -51,6 +58,7 @@ import { apiFetch } from '@/utils/api'
 import ExhibitHero from '@/components/ExhibitHero.vue'
 import ExhibitTabs from '@/components/ExhibitTabs.vue'
 import EulerSpiral from '@/components/EulerSpiral.vue'
+import ManimVideo from '@/components/ManimVideo.vue'
 
 const { t, locale } = useI18n()
 const route = useRoute()
@@ -65,6 +73,26 @@ const vizPlot = ref(null)
 const vizControls = ref(null)
 const contentEl = ref(null)
 const isBookmarked = ref(false)
+
+// Manim beauty animations embedded per exhibit (explore tab)
+const manimVideo = computed(() => {
+  const base = '/static/videos/'
+  const V = {
+    derivatives: {
+      src: base + 'EulerIdentity.mp4', poster: base + 'EulerIdentity.jpg',
+      title: t('exhibit.animEuler'), desc: t('exhibit.animEulerDesc'),
+    },
+    integrals: {
+      src: base + 'RiemannSum.mp4', poster: base + 'RiemannSum.jpg',
+      title: t('exhibit.animRiemann'), desc: t('exhibit.animRiemannDesc'),
+    },
+    series: {
+      src: base + 'FourierSeries.mp4', poster: base + 'FourierSeries.jpg',
+      title: t('exhibit.animFourier'), desc: t('exhibit.animFourierDesc'),
+    },
+  }
+  return V[topic.value] || null
+})
 
 const tabs = [
   { key: 'concept' },
