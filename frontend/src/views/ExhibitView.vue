@@ -33,13 +33,11 @@
         <div class="skeleton skeleton-block"></div>
       </div>
       <div v-else v-html="content" ref="contentEl" class="content-fade"></div>
-      <div class="viz-wrap" v-if="activeTab === 'concept' || activeTab === 'explore'">
+      <div class="viz-wrap" v-if="activeTab === 'explore'" :data-viz-ready="vizReady ? '1' : '0'">
         <h4>{{ $t('exhibit.explore') }}</h4>
-        <EulerSpiral v-if="topic === 'derivatives' && activeTab === 'explore'" />
-        <template v-else>
-          <div ref="vizPlot" class="viz-plot"></div>
-          <div ref="vizControls" class="viz-ctrls"></div>
-        </template>
+        <div ref="vizPlot" class="viz-plot"></div>
+        <div ref="vizControls" class="viz-ctrls"></div>
+        <EulerSpiral v-if="topic === 'derivatives'" />
         <ManimVideo
           v-if="manimVideo"
           :src="manimVideo.src"
@@ -221,28 +219,40 @@ function shareLink() {
   }
 }
 
-// Plotly viz (lazy-loaded on demand)
-let vizInited = false
-onMounted(async () => {
-  try {
-    await loadPlotly()
-    await nextTick()
-    if (!vizInited && vizPlot.value) { vizInited = true; initViz() }
-  } catch(e) { console.warn('Plotly init failed', e) }
-})
-
-function initViz() {
-  if (typeof Plotly === 'undefined' || !vizPlot.value) return
-  const t = topic.value
-  const el = vizPlot.value
-  const ctrls = vizControls.value
-  const labels = { epsilon: t('exhibit.vizEpsilon'), tangent: t('exhibit.vizTangent'), rectangles: t('exhibit.vizRectangles'), harmonics: t('exhibit.vizHarmonics') }
-  if (t === 'limits') museumViz.epsilon(el, ctrls, labels)
-  else if (t === 'derivatives') museumViz.tangent(el, ctrls, labels)
-  else if (t === 'integrals') museumViz.riemann(el, ctrls, labels)
-  else if (t === 'series') museumViz.fourier(el, ctrls, labels)
-  else if (t === 'multivariable') museumViz.gradient(el, ctrls)
+// Plotly viz (lazy-loaded on demand). Inlined directly (no helper function) so the
+// build's tree-shaker cannot drop the Plotly.react side effects.
+let vizTimer = null
+let vizTopic = null
+const vizReady = ref(false)
+function vizLabels() {
+  return { epsilon: t('exhibit.vizEpsilon'), tangent: t('exhibit.vizTangent'), rectangles: t('exhibit.vizRectangles'), harmonics: t('exhibit.vizHarmonics') }
 }
+async function runViz() {
+  if (activeTab.value !== 'explore') return
+  clearTimeout(vizTimer)
+  vizTimer = setTimeout(async () => {
+    try {
+      await loadPlotly()
+      await nextTick()
+      const el = vizPlot.value
+      const ctrls = vizControls.value
+      if (!el) { runViz(); return }
+      const tp = topic.value
+      if (vizTopic === tp) return
+      vizTopic = tp
+      const lbl = vizLabels()
+      if (tp === 'limits') { museumViz.epsilon(el, ctrls, lbl, window.Plotly) }
+      else if (tp === 'derivatives') { museumViz.tangent(el, ctrls, lbl, window.Plotly) }
+      else if (tp === 'integrals') { museumViz.riemann(el, ctrls, lbl, window.Plotly) }
+      else if (tp === 'series') { museumViz.fourier(el, ctrls, lbl, window.Plotly) }
+      else if (tp === 'multivariable') { museumViz.gradient(el, ctrls, window.Plotly) }
+      vizReady.value = true
+    } catch(e) { console.warn('Plotly init failed', e) }
+  }, 120)
+}
+watch([activeTab, loading], runViz)
+watch(topic, () => { vizTopic = null; runViz() })
+onMounted(runViz)
 </script>
 
 <style scoped>
