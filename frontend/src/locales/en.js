@@ -137,6 +137,8 @@ export default {
     eyebrow: 'Math Museum · Beauty',
     title: 'Mathematical Beauty',
     subtitle: 'The most stunning results in calculus',
+    videos: 'Animations',
+    hoverPlay: 'Hover to play',
     enterExhibits: 'Enter Exhibits',
   },
   workshop: {

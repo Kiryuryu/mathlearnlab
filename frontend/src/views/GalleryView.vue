@@ -9,12 +9,14 @@
         <div class="card-body"><p class="formula">{{ g.formula }}</p><h2>{{ g.title }}</h2><p class="desc">{{ g.desc }}</p></div>
       </router-link>
     </div>
+    <BeautyVideos />
     <router-link to="/gaoshu" class="cta">{{ $t('gallery.enterExhibits') }}</router-link>
   </div>
 </template>
 <script setup>
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import BeautyVideos from '@/components/BeautyVideos.vue'
 const { locale } = useI18n()
 const rawItems = [
   { title:'欧拉恒等式', title_en:"Euler's Identity", formula:'e^(iπ) + 1 = 0', desc:'五个最重要的数学常数', desc_en:'The five most important constants united', accent:'#4a6b8a', to:'/exhibit/derivatives?tab=beauty' },
