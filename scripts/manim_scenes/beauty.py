@@ -33,7 +33,7 @@ class EulerIdentity(Scene):
         z_label.add_updater(lambda m: m.next_to(z_dot, UR, buff=0.1))
 
         self.add(z_dot, radius_line, trace, z_label)
-        self.play(Rotating(z_dot, radians=2 * TAU, about_point=ORIGIN, run_time=6, rate_func=linear))
+        self.play(Rotating(z_dot, angle=2 * TAU, about_point=ORIGIN, run_time=6, rate_func=linear))
         self.wait(0.5)
 
         # Stop rotation, show final position at θ = π → e^(iπ) = -1
