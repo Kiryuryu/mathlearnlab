@@ -139,6 +139,7 @@ export default {
     subtitle: 'The most stunning results in calculus',
     videos: 'Animations',
     hoverPlay: 'Hover to play',
+    close: 'Close',
     enterExhibits: 'Enter Exhibits',
   },
   workshop: {

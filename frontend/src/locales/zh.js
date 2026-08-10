@@ -107,6 +107,7 @@ export default {
     subtitle: '汇集微积分中最令人惊叹的结论',
     videos: '动画演示',
     hoverPlay: '悬停播放',
+    close: '关闭',
     enterExhibits: '进入展区',
   },
   workshop: {
