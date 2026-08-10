@@ -66,14 +66,14 @@ exhibits: dict = {
                       "big_question_en": "What does multiplying a matrix by a vector actually do?",
                       "beauty": "特征向量是矩阵变换下\"方向不变\"的向量——它们揭示了系统的本质",
                       "beauty_en": "Eigenvectors are vectors whose direction is preserved by the transformation — they reveal the essence of the system",
-                      "notebook": "02-xiandai/01-linear-algebra"},
+                      "notebook": "notebooks/02-xiandai/01-linear-algebra"},
     "probability":   {"zh": "概率论 — 不确定性的科学", "en": "Probability — The Science of Uncertainty",
                       "historian": "帕斯卡、伯努利、柯尔莫哥洛夫",
                       "big_question": "如何用数学描述\"随机\"？",
                       "big_question_en": "How do we describe randomness mathematically?",
                       "beauty": "大数定律：随机中蕴含着确定性——大量独立随机事件的平均值总是趋近于期望值",
                       "beauty_en": "The Law of Large Numbers: randomness contains certainty — the average of many independent events approaches the expected value",
-                      "notebook": "03-gailvlun/01-probability"},
+                      "notebook": "notebooks/03-gailvlun/01-probability"},
 }
 
 # ── Math Quotes ──

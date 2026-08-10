@@ -31,7 +31,7 @@ const bgs = [
   '#7a5a6b',
   '#5a6b6b',
 ]
-const exhibitKeys = ['limits','derivatives','integrals','series','multivariable']
+const exhibitKeys = ['limits','derivatives','integrals','series','multivariable','linear-algebra','probability']
 
 const { loading, run } = useLoading(false)
 onMounted(() => run(async () => {
