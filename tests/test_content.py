@@ -56,10 +56,10 @@ def test_notebook_not_in_exhibits():
 
 
 def test_exhibits_metadata_shape():
-    """Every gaoshu exhibit carries the navigation metadata the single-page redesign relies on."""
+    """Every parented exhibit carries the navigation metadata the redesign relies on."""
     from server.content_data import exhibits, mathematicians
     for key, ex in exhibits.items():
-        if ex.get("parent") != "gaoshu":
+        if not ex.get("parent"):
             continue
         # mathematician links must point at real mathematician keys
         assert "mathematicians" in ex, f"{key} missing mathematicians links"
@@ -70,3 +70,21 @@ def test_exhibits_metadata_shape():
         assert ex.get("next_note_en"), f"{key} missing next_note_en"
         # home card accent color present
         assert ex.get("home_accent", "").startswith("#"), f"{key} missing home_accent"
+
+
+def test_subjects_shape():
+    """Every subject has the fields the home page and SubjectView render."""
+    from server.content_data import subjects, exhibits
+    assert subjects, "subjects dict must not be empty"
+    for key, s in subjects.items():
+        assert s.get("zh") and s.get("en"), f"subject {key} missing zh/en"
+        assert s.get("icon"), f"subject {key} missing icon"
+        assert s.get("accent", "").startswith("#"), f"subject {key} missing accent"
+        assert s.get("order"), f"subject {key} missing order"
+        assert s.get("desc") and s.get("desc_en"), f"subject {key} missing desc"
+    # every parented exhibit must belong to a known subject
+    for ekey, ex in exhibits.items():
+        parent = ex.get("parent")
+        if parent:
+            assert parent in subjects, f"exhibit {ekey} has unknown parent {parent}"
+
