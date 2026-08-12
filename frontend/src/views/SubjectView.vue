@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import ExhibitCard from '@/components/ExhibitCard.vue'
@@ -67,25 +67,37 @@ function siblingName(key) {
 }
 
 const { loading, run } = useLoading(false)
-onMounted(() => run(async () => {
-  const r = await fetch('/api/museum/exhibits')
-  const d = await r.json()
-  subjects.value = d.subjects || {}
-  exhibits.value = d.exhibits || {}
-  const key = subjectKey.value
-  topics.value = Object.entries(exhibits.value)
-    .filter(([, ex]) => ex.parent === key && ex.order)
-    .sort((a, b) => a[1].order - b[1].order)
-    .map(([ek, ex], i) => ({
-      key: ek,
-      label: locale.value === 'en' && ex.en ? ex.en : ex.zh,
-      question: locale.value === 'en' && ex.big_question_en ? ex.big_question_en : ex.big_question,
-      historian: ex.historian,
-      accent: ex.home_accent || '',
-      symbol: ex.icon || '',
-      chapter: ROMANS[i + 1] || '',
-    }))
-}).catch(e => console.warn('Failed to load exhibits', e)))
+
+// Load the subject's topics. Re-runs when the route key changes (prev/next subject).
+async function loadData() {
+  loading.value = true
+  topics.value = [] // clear old subject's cards immediately
+  try {
+    const r = await fetch('/api/museum/exhibits')
+    const d = await r.json()
+    subjects.value = d.subjects || {}
+    exhibits.value = d.exhibits || {}
+    const key = subjectKey.value
+    topics.value = Object.entries(exhibits.value)
+      .filter(([, ex]) => ex.parent === key && ex.order)
+      .sort((a, b) => a[1].order - b[1].order)
+      .map(([ek, ex], i) => ({
+        key: ek,
+        label: locale.value === 'en' && ex.en ? ex.en : ex.zh,
+        question: locale.value === 'en' && ex.big_question_en ? ex.big_question_en : ex.big_question,
+        historian: ex.historian,
+        accent: ex.home_accent || '',
+        symbol: ex.icon || '',
+        chapter: ROMANS[i + 1] || '',
+      }))
+  } catch (e) {
+    console.warn('Failed to load exhibits', e)
+  }
+  loading.value = false
+}
+
+watch(subjectKey, () => run(loadData))
+onMounted(() => run(loadData))
 </script>
 
 <style scoped>
