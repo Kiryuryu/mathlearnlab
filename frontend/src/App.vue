@@ -18,7 +18,7 @@
     </header>
     <nav class="museum-nav" :class="{ 'nav-open': mobileNavOpen }" aria-label="Main navigation">
       <router-link to="/" @click="mobileNavOpen = false">{{ $t('nav.home') }}</router-link><span class="nav-sep">|</span>
-      <router-link to="/gaoshu" @click="mobileNavOpen = false">{{ $t('nav.exhibits') }}</router-link><span class="nav-sep">|</span>
+      <router-link to="/#exhibits" @click="mobileNavOpen = false">{{ $t('nav.hall') }}</router-link><span class="nav-sep">|</span>
       <router-link to="/mathematicians" @click="mobileNavOpen = false">{{ $t('nav.mathematicians') }}</router-link>
       <router-link to="/workshop" @click="mobileNavOpen = false">{{ $t('nav.workshop') }}</router-link>
       <router-link to="/fractal" @click="mobileNavOpen = false">{{ $t('nav.fractal') }}</router-link>

@@ -7,7 +7,7 @@ const browserGlobals = {
   Plotly: 'readonly', setTimeout: 'readonly', clearTimeout: 'readonly', fetch: 'readonly',
   console: 'readonly', HTMLElement: 'readonly', AbortController: 'readonly', TextDecoder: 'readonly',
   Worker: 'readonly', ImageData: 'readonly', setInterval: 'readonly', clearInterval: 'readonly',
-  KeyboardEvent: 'readonly', Event: 'readonly', globalThis: 'readonly',
+  KeyboardEvent: 'readonly', Event: 'readonly', globalThis: 'readonly', IntersectionObserver: 'readonly',
 }
 
 export default [

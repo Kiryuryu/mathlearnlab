@@ -41,4 +41,6 @@ The entire edifice of calculus stands on this one pillar.
 
 ---
 
-**From here:** visit **Applications** to see limits computing π, modeling compound growth, and denoising images; in **Interactive**, drag the ε slider and watch δ respond to each of your challenges.
+**From here:** see [Applications](#applications) computing π, modeling compound growth, and denoising images; in [Interactive](#explore), drag the ε slider and watch δ respond to each of your challenges.
+
+→ [Continue reading: Derivatives — Instantaneous Rate of Change](/exhibit/derivatives)

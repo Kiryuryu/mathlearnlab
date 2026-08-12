@@ -1,6 +1,7 @@
 export default {
   nav: {
     home: '大厅',
+    hall: '展区',
     exhibits: '展区',
     mathematicians: '数学家长廊',
     workshop: '函数工坊',
@@ -58,6 +59,7 @@ export default {
     eyebrow: 'Interactive Math Museum',
     title: '数学博物馆',
     subtitle: '知其然，知其所以然',
+    exhibitsTitle: '展品',
 
     daily: '每日一题',
     showHint: '查看提示',
@@ -91,6 +93,7 @@ export default {
     prevExhibit: '← 上一篇',
     nextExhibit: '下一篇 →',
     backToExhibits: '返回展区',
+    nextNoteLabel: '接下来',
   },
   gaoshu: {
     title: '展区',

@@ -40,4 +40,6 @@ $$A\mathbf{x} = \mathbf{y}, \qquad \begin{bmatrix}a & b \\ c & d\end{bmatrix}\be
 
 ---
 
-**从这里出发**：去「应用案例」看 PageRank、PCA、3D 图形与量子力学如何把它变成现代世界的引擎；到「探索」里亲手拖动 2×2 矩阵的参数，看整个网格在屏幕上拉伸、旋转、压扁。
+**从这里出发**：[应用案例](#applications) 看 PageRank、PCA、3D 图形与量子力学如何把它变成现代世界的引擎；[探索](#explore) 亲手拖动 2×2 矩阵的参数，看整个网格在屏幕上拉伸、旋转、压扁。
+
+→ [继续阅读：概率论 — 不确定性的科学](/exhibit/probability)

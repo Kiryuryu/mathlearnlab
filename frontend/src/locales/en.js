@@ -1,6 +1,7 @@
 export default {
   nav: {
     home: 'Home',
+    hall: 'Exhibits',
     exhibits: 'Exhibits',
     mathematicians: 'Mathematicians',
     workshop: 'Function Lab',
@@ -58,6 +59,7 @@ export default {
     eyebrow: 'Interactive Math Museum',
     title: 'Math Museum',
     subtitle: 'Know What, Know Why',
+    exhibitsTitle: 'Exhibits',
 
     daily: 'Daily Problem',
     showHint: 'Show Hint',
@@ -123,6 +125,7 @@ export default {
     prevExhibit: '← Previous',
     nextExhibit: 'Next →',
     backToExhibits: 'Back to Exhibits',
+    nextNoteLabel: 'Up next',
   },
   gaoshu: {
     title: 'Exhibits',

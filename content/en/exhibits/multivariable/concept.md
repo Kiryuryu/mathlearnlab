@@ -37,4 +37,6 @@ Finding the minimum of a function is the core of almost every optimization probl
 
 ---
 
-**From here:** visit **Applications** to see gradient descent drive AlphaFold and weather models solve partial differential equations; in **Interactive**, watch gradient descent zigzag its way down the valley in full animation.
+**From here:** see [Applications](#applications) on gradient descent driving AlphaFold and weather models solving partial differential equations; in [Interactive](#explore), watch gradient descent zigzag its way down the valley in full animation.
+
+→ [Continue reading: Linear Algebra — Transformations of Space](/exhibit/linear-algebra)

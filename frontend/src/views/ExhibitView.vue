@@ -3,7 +3,7 @@
     <nav class="crumbs" aria-label="Breadcrumb">
       <router-link to="/" class="crumb">{{ t('exhibit.crumbHome') }}</router-link>
       <span class="crumb-sep">/</span>
-      <router-link to="/gaoshu" class="crumb">{{ t('exhibit.crumbExhibits') }}</router-link>
+      <router-link to="/#exhibits" class="crumb">{{ t('exhibit.crumbExhibits') }}</router-link>
       <span class="crumb-sep">/</span>
       <span class="crumb current">{{ exhibitName }}</span>
     </nav>
@@ -13,70 +13,80 @@
       :chapter="chapterRoman"
       :big-q="exhibitBigQ"
       :historian="exhibit.historian"
+      :mathematicians="mathematicianLinks"
     />
-    <nav class="tabs" aria-label="Exhibit sections">
+    <nav class="section-nav" aria-label="Sections">
       <a
-        v-for="tk in tabs"
-        :key="tk.key"
-        :class="['tab', { active: activeTab === tk.key }]"
-        @click.prevent="changeTab(tk.key)"
-      >{{ t('exhibit.' + tk.key) }}</a>
+        v-for="s in SECTIONS"
+        :key="s"
+        :class="['section-link', { active: activeSection === s }]"
+        :href="'#' + s"
+        @click.prevent="goToSection(s)"
+      >{{ t('exhibit.' + s) }}</a>
     </nav>
-    <div class="tab-content">
-      <div class="exhibit-actions">
-        <button class="action-btn" @click="shareLink" :title="$t('common.share')">🔗</button>
-        <button class="action-btn" @click="toggleBookmark" :title="isBookmarked ? $t('common.unbookmark') : $t('common.bookmark')">
-          {{ isBookmarked ? '★' : '☆' }}
-        </button>
+    <div class="exhibit-actions">
+      <button class="action-btn" @click="shareLink" :title="$t('common.share')">🔗</button>
+      <button class="action-btn" @click="toggleBookmark" :title="isBookmarked ? $t('common.unbookmark') : $t('common.bookmark')">
+        {{ isBookmarked ? '★' : '☆' }}
+      </button>
+    </div>
+    <div class="page-body">
+      <section
+        v-for="s in SECTIONS"
+        :id="s"
+        :key="s"
+        class="exhibit-section"
+        :ref="el => setSectionEl(s, el)"
+      >
+        <h2 class="section-heading">{{ t('exhibit.' + s) }}</h2>
+        <div v-if="loading && !loadedSections[s]" class="skeleton-wrap">
+          <div class="skeleton skeleton-title"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-text short"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-block"></div>
+        </div>
+        <div v-else v-html="sections[s]" class="content-fade"></div>
+
+        <!-- Interactive block lives at the end of the explore section -->
+        <div v-if="s === 'explore' && lazyViz" class="viz-wrap" :data-viz-ready="vizReady ? '1' : '0'">
+          <EulerSpiral v-if="topic === 'derivatives'" />
+          <ManimVideo
+            v-if="manimVideo"
+            :src="manimVideo.src"
+            :poster="manimVideo.poster"
+            :title="manimVideo.title"
+            :desc="manimVideo.desc"
+          />
+          <div ref="vizPlot" class="viz-plot"></div>
+          <div ref="vizControls" class="viz-ctrls"></div>        </div>
+      </section>
+
+      <!-- Narrative "up next" card -->
+      <div v-if="nextNote" class="next-note">
+        <span class="next-note-label">{{ t('exhibit.nextNoteLabel') }}</span>
+        <router-link v-if="nextTopic" :to="'/exhibit/' + nextTopic" class="next-note-body">{{ nextNote }}</router-link>
       </div>
-      <ol v-if="toc.length" class="toc" aria-label="On this page">
-        <li class="toc-title">{{ t('exhibit.onThisPage') }}</li>
-        <li v-for="h in toc" :key="h.id" class="toc-item">
-          <a :href="'#' + h.id" @click.prevent="scrollToHeading(h.id)">{{ h.text }}</a>
-        </li>
-      </ol>
-      <div v-if="loading" class="skeleton-wrap">
-        <div class="skeleton skeleton-title"></div>
-        <div class="skeleton skeleton-text"></div>
-        <div class="skeleton skeleton-text short"></div>
-        <div class="skeleton skeleton-text"></div>
-        <div class="skeleton skeleton-text"></div>
-        <div class="skeleton skeleton-block"></div>
-      </div>
-      <div v-else v-html="content" ref="contentEl" class="content-fade"></div>
-      <div class="viz-wrap" v-if="activeTab === 'explore'" :data-viz-ready="vizReady ? '1' : '0'">
-        <h4>{{ $t('exhibit.explore') }}</h4>
-        <div ref="vizPlot" class="viz-plot"></div>
-        <div ref="vizControls" class="viz-ctrls"></div>
-        <EulerSpiral v-if="topic === 'derivatives'" />
-        <ManimVideo
-          v-if="manimVideo"
-          :src="manimVideo.src"
-          :poster="manimVideo.poster"
-          :title="manimVideo.title"
-          :desc="manimVideo.desc"
-        />
-      </div>
+
       <nav class="exhibit-pager" v-if="siblings.length">
         <router-link
           v-if="prevTopic"
           :to="'/exhibit/' + prevTopic"
           class="pager-link prev"
-          :class="{ 'pager-text': !hasSymbol(prevTopic) }"
         ><span class="pager-label">{{ t('exhibit.prevExhibit') }}</span><span class="pager-name">{{ symbolFor(prevTopic) }} {{ nameFor(prevTopic) }}</span></router-link>
         <router-link
           v-if="nextTopic"
           :to="'/exhibit/' + nextTopic"
           class="pager-link next"
         ><span class="pager-label">{{ t('exhibit.nextExhibit') }}</span><span class="pager-name">{{ symbolFor(nextTopic) }} {{ nameFor(nextTopic) }}</span></router-link>
-        <router-link to="/gaoshu" class="pager-link back">{{ t('exhibit.backToExhibits') }}</router-link>
+        <router-link to="/#exhibits" class="pager-link back">{{ t('exhibit.backToExhibits') }}</router-link>
       </nav>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, onMounted, nextTick, computed } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { loadPlotly } from '@/utils/plotly'
@@ -89,26 +99,35 @@ import ExhibitHero from '@/components/ExhibitHero.vue'
 import EulerSpiral from '@/components/EulerSpiral.vue'
 import ManimVideo from '@/components/ManimVideo.vue'
 
+const SECTIONS = ['concept', 'applications', 'history', 'beauty', 'method', 'explore']
+
 const { t, locale } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const auth = useAuth()
 const { show: showToast } = useToast()
 const topic = computed(() => route.params.topic)
-const activeTab = ref(route.query.tab || 'concept')
 const exhibit = ref(null)
-const content = ref('')
+const exhibitsMeta = ref({})
+const sections = ref({})
+const loadedSections = ref({})
 const loading = ref(false)
+const isBookmarked = ref(false)
+
 const vizPlot = ref(null)
 const vizControls = ref(null)
-const contentEl = ref(null)
-const isBookmarked = ref(false)
-const toc = ref([])
-const exhibitsMeta = ref({})
+const vizReady = ref(false)
+const lazyViz = ref(false)
+const activeSection = ref('concept')
+const sectionEls = {}
 
 const ROMANS = ['', 'Ⅰ', 'Ⅱ', 'Ⅲ', 'Ⅳ', 'Ⅴ', 'Ⅵ', 'Ⅶ', 'Ⅷ']
 
-// Ordered sibling exhibits within the same section (by content_data order).
+function setSectionEl(s, el) {
+  if (el) sectionEls[s] = el
+}
+
+// ── Exhibits metadata → chapter, siblings, names, mathematician links ──
 const siblings = computed(() => {
   const metas = exhibitsMeta.value.exhibits || {}
   return Object.entries(metas)
@@ -123,11 +142,13 @@ const chapterRoman = computed(() => {
   const ex = exhibitsMeta.value.exhibits?.[topic.value]
   return ex?.order ? ROMANS[ex.order] || '' : ''
 })
+const nextNote = computed(() => {
+  const ex = exhibitsMeta.value.exhibits?.[topic.value]
+  if (!ex) return ''
+  return locale.value === 'en' && ex.next_note_en ? ex.next_note_en : ex.next_note || ''
+})
 function symbolFor(key) {
   return exhibitsMeta.value.exhibits?.[key]?.icon || ''
-}
-function hasSymbol(key) {
-  return !!symbolFor(key)
 }
 function nameFor(key) {
   const ex = exhibitsMeta.value.exhibits?.[key]
@@ -135,13 +156,24 @@ function nameFor(key) {
   return locale.value === 'en' && ex.en ? ex.en : ex.zh
 }
 
-// Switching tabs keeps the URL in sync so links can be shared/bookmarked with the right tab.
-function changeTab(tab) {
-  activeTab.value = tab
-  router.replace({ query: { ...route.query, tab } })
-}
+const exhibitName = computed(() => {
+  if (!exhibit.value) return ''
+  return locale.value === 'en' && exhibit.value.en ? exhibit.value.en : exhibit.value.zh
+})
+const heroEyebrow = computed(() => t('exhibit.museum'))
+const exhibitBigQ = computed(() => {
+  if (!exhibit.value) return ''
+  return locale.value === 'en' && exhibit.value.big_question_en ? exhibit.value.big_question_en : exhibit.value.big_question
+})
+const mathematicianLinks = computed(() => {
+  const keys = exhibit.value?.mathematicians || []
+  const all = exhibitsMeta.value.mathematicians || {}
+  return keys
+    .filter(k => all[k])
+    .map(k => ({ key: k, name: all[k].name, name_en: all[k].name_en }))
+})
 
-// Manim beauty animations embedded per exhibit (explore tab)
+// Manim beauty animations embedded per exhibit (explore section)
 const manimVideo = computed(() => {
   const base = '/static/videos/'
   const V = {
@@ -161,77 +193,156 @@ const manimVideo = computed(() => {
   return V[topic.value] || null
 })
 
-const tabs = [
-  { key: 'concept' },
-  { key: 'applications' },
-  { key: 'history' },
-  { key: 'beauty' },
-  { key: 'method' },
-  { key: 'explore' },
-]
-
-const exhibitName = computed(() => {
-  if (!exhibit.value) return ''
-  return locale.value === 'en' && exhibit.value.en ? exhibit.value.en : exhibit.value.zh
-})
-const heroEyebrow = computed(() => t('exhibit.museum'))
-const exhibitBigQ = computed(() => {
-  if (!exhibit.value) return ''
-  return locale.value === 'en' && exhibit.value.big_question_en ? exhibit.value.big_question_en : exhibit.value.big_question
-})
-
+// ── Load all six section articles in one pass ──
 async function loadContent() {
   loading.value = true
   try {
-    // Load exhibit metadata + section ordering (for pager/chapter number)
     const er = await apiFetch('/api/museum/exhibits')
     const ed = await er.json()
     exhibitsMeta.value = ed
     exhibit.value = ed.exhibits[topic.value] || { zh: topic.value }
-    // Every tab — including concept — loads its own focused short article.
-    const path = `exhibits/${topic.value}/${activeTab.value}`
     const lang = locale.value === 'en' ? 'en' : 'zh'
-    const cr = await apiFetch(`/api/content/${path}?lang=${lang}`)
-    const cd = await cr.json()
-    if (cd.error) {
-      content.value = '<p>' + cd.error + '</p>'
-    } else {
-      content.value = renderMarkdown(cd.content || '')
-    }
-  } catch(e) {
-    content.value = '<p>' + t('exhibit.loadFail') + '</p>'
+    const results = await Promise.all(SECTIONS.map(async (s) => {
+      try {
+        const cr = await apiFetch(`/api/content/exhibits/${topic.value}/${s}?lang=${lang}`)
+        const cd = await cr.json()
+        return [s, cd.error ? '<p>' + cd.error + '</p>' : renderMarkdown(cd.content || '')]
+      } catch {
+        return [s, '<p>' + t('exhibit.loadFail') + '</p>']
+      }
+    }))
+    sections.value = Object.fromEntries(results)
+    loadedSections.value = Object.fromEntries(SECTIONS.map(s => [s, true]))
+  } catch (e) {
+    // metadata fetch failed — at least try content
+    const lang = locale.value === 'en' ? 'en' : 'zh'
+    const results = await Promise.all(SECTIONS.map(async (s) => {
+      try {
+        const cr = await apiFetch(`/api/content/exhibits/${topic.value}/${s}?lang=${lang}`)
+        const cd = await cr.json()
+        return [s, cd.error ? '<p>' + cd.error + '</p>' : renderMarkdown(cd.content || '')]
+      } catch {
+        return [s, '<p>' + t('exhibit.loadFail') + '</p>']
+      }
+    }))
+    sections.value = Object.fromEntries(results)
+    loadedSections.value = Object.fromEntries(SECTIONS.map(s => [s, true]))
   }
   loading.value = false
   await nextTick()
-  buildToc()
+  setupScrollTracking()
+  handleHashOrQuery()
 }
 
-// Build an in-page table of contents from the rendered ## headings.
-function buildToc() {
-  toc.value = []
-  const el = contentEl.value
+// ── Section navigation: scroll + URL hash ──
+function goToSection(s) {
+  if (s === activeSection.value && isAtSection(s)) return
+  const el = document.getElementById(s)
   if (!el) return
-  const heads = el.querySelectorAll('h2')
-  if (!heads.length) return
-  heads.forEach((h, i) => {
-    const id = 'sec-' + i
-    h.id = id
-    toc.value.push({ id, text: h.textContent.trim() })
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  // Push the hash without bouncing; observer will keep activeSection in sync.
+  if (route.hash !== '#' + s) {
+    router.replace({ hash: '#' + s }).catch(() => {})
+  }
+  suppressActive = true
+  setTimeout(() => { suppressActive = false }, 350)
+}
+function isAtSection(s) {
+  const el = sectionEls[s]
+  if (!el) return true
+  const r = el.getBoundingClientRect()
+  return Math.abs(r.top) < 8
+}
+
+// ── URL support: #anchor deep link, plus legacy ?tab= compat ──
+function handleHashOrQuery() {
+  const q = route.query.tab
+  if (q && SECTIONS.includes(q)) {
+    // Legacy tab link — drop the query, scroll to the section.
+    router.replace({ query: {} }).catch(() => {})
+    scrollToId(q)
+    return
+  }
+  const h = (route.hash || '').replace(/^#/, '')
+  if (h && SECTIONS.includes(h)) {
+    scrollToId(h)
+  }
+}
+function scrollToId(id) {
+  nextTick(() => {
+    const el = document.getElementById(id)
+    if (el) el.scrollIntoView({ behavior: 'auto', block: 'start' })
   })
 }
 
-function scrollToHeading(id) {
-  const el = document.getElementById(id)
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+// ── Scroll highlight + lazy viz via scroll position (IO not reliable in all embeds) ──
+let scrollHandler = null
+let suppressActive = false
+const NAV_OFFSET = 96
+
+function setupScrollTracking() {
+  if (scrollHandler) window.removeEventListener('scroll', scrollHandler)
+  scrollHandler = () => onScroll()
+  window.addEventListener('scroll', scrollHandler, { passive: true })
+  onScroll()
 }
 
-watch([topic, activeTab, locale], loadContent, { immediate: true })
+function onScroll() {
+  // Lazy-init the interactive section when it approaches the viewport.
+  if (!lazyViz.value) {
+    const exploreEl = document.getElementById('explore')
+    if (exploreEl && exploreEl.getBoundingClientRect().top < window.innerHeight + 300) {
+      lazyViz.value = true
+    }
+  }
+  // Highlight the section currently at the top of the reading column.
+  if (suppressActive) return
+  const anchor = NAV_OFFSET + 80
+  let current = SECTIONS[0]
+  for (const s of SECTIONS) {
+    const el = document.getElementById(s)
+    if (!el) continue
+    const top = el.getBoundingClientRect().top
+    if (top <= anchor) current = s
+    else break
+  }
+  if (current !== activeSection.value) activeSection.value = current
+}
 
-// Keep tab state in sync when URL changes via back/forward or direct link.
-watch(() => route.query.tab, (tab) => {
-  if (tab && tab !== activeTab.value) activeTab.value = tab
-})
+// ── Plotly viz (lazy, tree-shaking-safe: inlined side effects must stay) ──
+let vizTimer = null
+let vizTopic = null
+function vizLabels() {
+  return { epsilon: t('exhibit.vizEpsilon'), tangent: t('exhibit.vizTangent'), rectangles: t('exhibit.vizRectangles'), harmonics: t('exhibit.vizHarmonics') }
+}
+async function runViz() {
+  if (!lazyViz.value) return
+  clearTimeout(vizTimer)
+  vizTimer = setTimeout(async () => {
+    try {
+      await loadPlotly()
+      await nextTick()
+      const el = Array.isArray(vizPlot.value) ? vizPlot.value[0] : vizPlot.value
+      const ctrls = Array.isArray(vizControls.value) ? vizControls.value[0] : vizControls.value
+      if (!el) { runViz(); return }
+      const tp = topic.value
+      if (vizTopic === tp) return
+      const lbl = vizLabels()
+      if (tp === 'limits') { museumViz.epsilon(el, ctrls, lbl, window.Plotly) }
+      else if (tp === 'derivatives') { museumViz.tangent(el, ctrls, lbl, window.Plotly) }
+      else if (tp === 'integrals') { museumViz.riemann(el, ctrls, lbl, window.Plotly) }
+      else if (tp === 'series') { museumViz.fourier(el, ctrls, lbl, window.Plotly) }
+      else if (tp === 'multivariable') { museumViz.gradient(el, ctrls, window.Plotly) }
+      vizTopic = tp
+      vizReady.value = true
+    } catch(e) { console.warn('Plotly init failed', e) }
+  }, 120)
+}
+watch(lazyViz, (v) => { if (v) runViz() })
+watch(topic, () => { vizTopic = null; lazyViz.value = false; vizReady.value = false; loadContent() })
+watch(locale, () => { if (exhibit.value) loadContent() })
 
+// ── Bookmarks ──
 async function loadBookmarks() {
   if (!auth.isLoggedIn) return
   try {
@@ -275,40 +386,13 @@ function shareLink() {
   }
 }
 
-// Plotly viz (lazy-loaded on demand). Inlined directly (no helper function) so the
-// build's tree-shaker cannot drop the Plotly.react side effects.
-let vizTimer = null
-let vizTopic = null
-const vizReady = ref(false)
-function vizLabels() {
-  return { epsilon: t('exhibit.vizEpsilon'), tangent: t('exhibit.vizTangent'), rectangles: t('exhibit.vizRectangles'), harmonics: t('exhibit.vizHarmonics') }
-}
-async function runViz() {
-  if (activeTab.value !== 'explore') return
+// ── Init ──
+loadContent()
+onMounted(loadBookmarks)
+onBeforeUnmount(() => {
+  if (scrollHandler) window.removeEventListener('scroll', scrollHandler)
   clearTimeout(vizTimer)
-  vizTimer = setTimeout(async () => {
-    try {
-      await loadPlotly()
-      await nextTick()
-      const el = vizPlot.value
-      const ctrls = vizControls.value
-      if (!el) { runViz(); return }
-      const tp = topic.value
-      if (vizTopic === tp) return
-      vizTopic = tp
-      const lbl = vizLabels()
-      if (tp === 'limits') { museumViz.epsilon(el, ctrls, lbl, window.Plotly) }
-      else if (tp === 'derivatives') { museumViz.tangent(el, ctrls, lbl, window.Plotly) }
-      else if (tp === 'integrals') { museumViz.riemann(el, ctrls, lbl, window.Plotly) }
-      else if (tp === 'series') { museumViz.fourier(el, ctrls, lbl, window.Plotly) }
-      else if (tp === 'multivariable') { museumViz.gradient(el, ctrls, window.Plotly) }
-      vizReady.value = true
-    } catch(e) { console.warn('Plotly init failed', e) }
-  }, 120)
-}
-watch([activeTab, loading], runViz)
-watch(topic, () => { vizTopic = null; runViz() })
-onMounted(() => { runViz(); loadBookmarks() })
+})
 </script>
 
 <style scoped>
@@ -326,40 +410,103 @@ onMounted(() => { runViz(); loadBookmarks() })
 .crumb:hover { color: var(--accent); text-decoration: none; }
 .crumb.current { color: var(--text-secondary); }
 .crumb-sep { color: var(--border); }
-.tab-content { max-width:800px; margin:0 auto; padding:32px 40px; }
-.tabs { display:flex; justify-content:center; gap:0; border-bottom:1px solid var(--border); background:var(--bg-nav); position:sticky; top:0; z-index:10; }
-.tab { padding:12px 20px; font-size:14px; color:var(--text-secondary); text-decoration:none; border-bottom:2px solid transparent; transition:all 0.15s; cursor:pointer; }
-.tab:hover { color:var(--accent); }
-.tab.active { color:var(--accent); border-bottom-color:var(--accent); font-weight:600; }
-@media(max-width:768px) { .crumbs { padding: 12px 16px 0; } .tabs { overflow-x:auto; justify-content:flex-start; } .tab { padding:10px 14px; font-size:13px; white-space:nowrap; } }
-.exhibit-actions { position:fixed; top:100px; right:20px; display:flex; flex-direction:column; gap:8px; z-index:20; }
-.action-btn { width:40px; height:40px; border-radius:50%; border:1px solid var(--border); background:var(--bg-card); color:var(--text-secondary); cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; transition:all 0.15s; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
-.action-btn:hover { border-color:var(--accent); color:var(--accent); }
-.action-btn.active { color:var(--accent-warm); }
 
-/* In-page table of contents */
-.toc {
-  list-style: none;
+.section-nav {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px 10px;
-  margin: 0 0 20px;
-  padding: 12px 16px;
+  justify-content: center;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  border-top: 1px solid var(--border);
   background: var(--bg-nav);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  font-size: 13px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
-.toc-title { flex-basis: 100%; font-family: var(--font-heading); font-weight: 600; color: var(--text-muted); font-size: 12px; letter-spacing: 0.04em; margin-bottom: 2px; }
-.toc-item a { color: var(--text-secondary); text-decoration: none; padding: 2px 8px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-card); transition: all 0.15s; }
-.toc-item a:hover { color: var(--accent); border-color: var(--accent); text-decoration: none; }
+.section-link {
+  padding: 12px 20px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+.section-link:hover { color: var(--accent); text-decoration: none; }
+.section-link.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+@media(max-width:768px) {
+  .crumbs { padding: 12px 16px 0; }
+  .section-nav { overflow-x: auto; justify-content: flex-start; -webkit-overflow-scrolling: touch; }
+  .section-link { padding: 10px 14px; font-size: 13px; white-space: nowrap; }
+}
 
-/* Prev / next pager */
+.exhibit-actions { position: fixed; top: 100px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 20; }
+.action-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-secondary); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.action-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.page-body { max-width: 800px; margin: 0 auto; padding: 0 40px 32px; }
+.exhibit-section {
+  scroll-margin-top: 96px;
+  padding: 36px 0 8px;
+  border-bottom: 1px solid var(--border);
+}
+.exhibit-section:last-of-type { border-bottom: none; }
+.section-heading {
+  font-size: 22px;
+  margin: 0 0 8px;
+  padding-bottom: 8px;
+  border-bottom: 3px double var(--border);
+  font-family: var(--font-heading);
+}
+
+.content-fade :deep(.katex-display) { margin: 16px 0; overflow-x: auto; overflow-y: hidden; }
+.content-fade :deep(table) { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+.content-fade :deep(th), .content-fade :deep(td) { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+.content-fade :deep(th) { background: var(--bg-nav); font-weight: 600; }
+.content-fade :deep(tr:nth-child(even)) { background: var(--bg-even); }
+.content-fade :deep(tr:hover) { background: var(--bg-hover); }
+.content-fade :deep(blockquote) { border-left: 3px solid var(--accent); margin: 16px 0; padding: 8px 16px; background: var(--bg-nav); border-radius: 0 var(--radius) var(--radius) 0; color: var(--text-secondary); }
+.content-fade :deep(code) { font-family: var(--font-mono); font-size: 0.9em; background: var(--bg-nav); padding: 2px 5px; border-radius: 3px; }
+.content-fade :deep(pre) { background: #1a1d22; border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; overflow-x: auto; margin: 16px 0; }
+.content-fade :deep(pre code) { background: none; padding: 0; color: var(--text-muted); }
+.content-fade :deep(details) { border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; margin: 12px 0; background: var(--bg-card); }
+.content-fade :deep(details summary) { cursor: pointer; font-weight: 600; font-family: var(--font-heading); }
+.content-fade :deep(h3) { font-size: 18px; margin: 24px 0 10px; }
+.content-fade :deep(p) { margin: 10px 0; }
+
+.viz-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin: 20px 0; }
+.viz-plot { width: 100%; height: 420px; }
+.viz-ctrls { text-align: center; margin-top: 8px; font-size: 13px; }
+
+/* Narrative "up next" card */
+.next-note {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 32px;
+  padding: 18px 20px;
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+  border-radius: var(--radius);
+}
+.next-note-label {
+  flex-shrink: 0;
+  font-family: var(--font-heading);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  font-weight: 700;
+  padding: 3px 10px;
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+}
+.next-note-body { color: var(--text-primary); font-size: 14px; text-decoration: none; line-height: 1.7; }
+.next-note-body:hover { color: var(--accent); text-decoration: none; }
+
 .exhibit-pager {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
-  margin-top: 40px;
+  margin-top: 24px;
   padding-top: 20px;
   border-top: 1px solid var(--border);
 }
@@ -389,19 +536,5 @@ onMounted(() => { runViz(); loadBookmarks() })
   color: var(--accent);
   font-size: 14px;
 }
-.tab-content :deep(.katex-display) { margin:16px 0; overflow-x:auto; overflow-y:hidden; }
-.tab-content :deep(table) { width:100%; border-collapse:collapse; margin:16px 0; font-size:14px; }
-.tab-content :deep(th), .tab-content :deep(td) { border:1px solid var(--border); padding:8px 12px; text-align:left; }
-.tab-content :deep(th) { background:var(--bg-nav); font-weight:600; }
-.tab-content :deep(tr:nth-child(even)) { background:var(--bg-even); }
-.tab-content :deep(tr:hover) { background:var(--bg-hover); }
-.tab-content :deep(blockquote) { border-left:3px solid var(--accent); margin:16px 0; padding:8px 16px; background:var(--bg-nav); border-radius:0 var(--radius) var(--radius) 0; color:var(--text-secondary); }
-.tab-content :deep(code) { font-family:var(--font-mono); font-size:0.9em; background:var(--bg-nav); padding:2px 5px; border-radius:3px; }
-.tab-content :deep(pre) { background:#1a1d22; border:1px solid var(--border); border-radius:8px; padding:16px 20px; overflow-x:auto; margin:16px 0; }
-.tab-content :deep(pre code) { background:none; padding:0; color:var(--text-muted); }
-.viz-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:20px; margin:16px 0; }
-.viz-wrap h4 { margin-bottom:12px; }
-.viz-plot { width:100%; height:420px; }
-.viz-ctrls { text-align:center; margin-top:8px; font-size:13px; }
-@media(max-width:768px) { .tab-content { padding:20px 16px; } .exhibit-pager { flex-direction: column; } }
+@media(max-width:768px) { .page-body { padding: 0 16px 24px; } .exhibit-pager { flex-direction: column; } }
 </style>

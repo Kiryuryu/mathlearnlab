@@ -40,4 +40,6 @@ Most vectors in the grid change direction under a deformation, but **eigenvector
 
 ---
 
-**From here:** visit **Applications** to see how PageRank, PCA, 3D graphics, and quantum mechanics turn this into the engine of the modern world; in **Interactive**, drag the entries of a 2×2 matrix and watch the grid stretch, rotate, and flatten on screen.
+**From here:** see [Applications](#applications) on how PageRank, PCA, 3D graphics, and quantum mechanics turn this into the engine of the modern world; in [Interactive](#explore), drag the entries of a 2×2 matrix and watch the grid stretch, rotate, and flatten on screen.
+
+→ [Continue reading: Probability — The Science of Uncertainty](/exhibit/probability)

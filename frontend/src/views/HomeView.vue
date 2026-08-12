@@ -5,12 +5,6 @@
       <h1>{{ $t('home.title') }}</h1>
       <p class="hero-sub">{{ $t('home.subtitle') }}</p>
     </div>
-    <nav class="hall-guide" aria-label="Hall guide">
-      <router-link v-for="h in halls" :key="h.to" :to="h.to" class="hall-item">
-        <span class="hall-num chapter-roman">{{ h.num }}</span>
-        <span class="hall-name">{{ h.label }}</span>
-      </router-link>
-    </nav>
     <div class="daily-problem" v-if="dailyQ">
       <div class="daily-header">
         <span class="daily-label">✦ {{ $t('home.daily') }}</span>
@@ -23,9 +17,19 @@
         <router-link to="/practice" class="btn btn-primary">{{ $t('home.goPractice') }}</router-link>
       </div>
     </div>
-    <div class="card-grid">
-      <ExhibitCard v-for="c in displayCards" :key="c.to" v-bind="c" />
-    </div>
+    <section id="exhibits" class="exhibit-grid" aria-label="Exhibits">
+      <h2 class="section-title">{{ $t('home.exhibitsTitle') }}</h2>
+      <div v-if="loading" class="loading-wrap"><div class="spinner"></div></div>
+      <div v-else class="card-grid">
+        <ExhibitCard v-for="c in exhibitCards" :key="c.to" v-bind="c" />
+      </div>
+    </section>
+    <nav class="side-halls" aria-label="More halls">
+      <router-link v-for="h in sideHalls" :key="h.to" :to="h.to" class="hall-item">
+        <span class="hall-num chapter-roman">{{ h.num }}</span>
+        <span class="hall-name">{{ h.label }}</span>
+      </router-link>
+    </nav>
   </div>
 </template>
 
@@ -37,29 +41,41 @@ import { renderMarkdown } from '@/utils/markdown'
 
 const { locale } = useI18n()
 
-const halls = computed(() => [
-  { to: '/gaoshu', num: 'Ⅰ', label: locale.value === 'en' ? 'Calculus Hall' : '微积分展区' },
-  { to: '/mathematicians', num: 'Ⅱ', label: locale.value === 'en' ? 'Mathematicians' : '数学家长廊' },
-  { to: '/gallery', num: 'Ⅲ', label: locale.value === 'en' ? 'Mathematical Beauty' : '数学之美' },
-  { to: '/fractal', num: 'Ⅳ', label: locale.value === 'en' ? 'Fractals' : '分形' },
-  { to: '/workshop', num: 'Ⅴ', label: locale.value === 'en' ? 'Function Lab' : '函数工坊' },
+const ROMANS = ['', 'Ⅰ', 'Ⅱ', 'Ⅲ', 'Ⅳ', 'Ⅴ', 'Ⅵ', 'Ⅶ']
+const loading = ref(false)
+const exhibitCards = ref([])
+
+const sideHalls = computed(() => [
+  { to: '/mathematicians', num: 'A', label: locale.value === 'en' ? 'Mathematicians' : '数学家长廊' },
+  { to: '/gallery', num: 'B', label: locale.value === 'en' ? 'Mathematical Beauty' : '数学之美' },
+  { to: '/fractal', num: 'C', label: locale.value === 'en' ? 'Fractals' : '分形' },
+  { to: '/workshop', num: 'D', label: locale.value === 'en' ? 'Function Lab' : '函数工坊' },
+  { to: '/practice', num: 'E', label: locale.value === 'en' ? 'Practice' : '练习' },
 ])
 
-const cards = [
-  { to: '/gaoshu', title: '微积分的世界', title_en: 'Calculus World', desc: '极限、导数、积分、级数、多元微积分', desc_en: 'Limits, Derivatives, Integrals, Series, Multivariable', meta: '5大主题 · 7位核心数学家', meta_en: '5 Topics · 7 Key Mathematicians', symbol: '∫', chapter: 'Ⅰ', accent: '#4a6b8a' },
-  { to: '/fractal', title: '分形探索', title_en: 'Fractal Explorer', desc: 'Mandelbrot 集 · Julia 集 · Lorenz 吸引子', desc_en: 'Mandelbrot · Julia · Lorenz Attractor', meta: 'Mandelbrot · Julia', symbol: '∞', chapter: 'Ⅳ', accent: '#8a5a4a' },
-  { to: '/gallery', title: '数学之美', title_en: 'Mathematical Beauty', desc: '欧拉恒等式 · 巴塞尔问题 · 高斯积分', desc_en: "Euler's Identity · Basel Problem · Gaussian Integral", meta: '最美的公式一览', meta_en: 'The Most Beautiful Formulas', symbol: 'π', chapter: 'Ⅲ', accent: '#7a5a6b' },
-  { to: '/mathematicians', title: '数学家长廊', title_en: 'Mathematicians', desc: '牛顿 · 欧拉 · 高斯 · 拉马努金', desc_en: 'Newton · Euler · Gauss · Ramanujan', meta: '7位数学家的故事', meta_en: 'Stories of 7 Mathematicians', symbol: 'E', chapter: 'Ⅱ', accent: '#6b7a4a' },
-  { to: '/workshop', title: '函数工坊', title_en: 'Function Lab', desc: '2D曲线 · 3D曲面 · 向量场 · AI绘图', desc_en: '2D Curves · 3D Surfaces · Vector Fields · AI Plots', meta: 'sin(x), x², eˣ, 傅里叶级数', meta_en: 'sin(x), x², eˣ, Fourier Series', symbol: 'f(x)', chapter: 'Ⅴ', accent: '#5a6b6b' },
-  { to: '/practice', title: '练习', title_en: 'Practice', desc: '选题 · 纸笔作答 · 拍照上传 · AI批改', desc_en: 'Select Topics · Solve · Submit Photos · AI Grading', meta: '基础→进阶→考研→研究生→博士', meta_en: 'Basic → Advanced → Grad School → PhD', symbol: '✎', accent: '#8a6f3d' },
-]
-
-const displayCards = computed(() => cards.map(c => ({
-  ...c,
-  title: locale.value === 'en' && c.title_en ? c.title_en : c.title,
-  desc: locale.value === 'en' && c.desc_en ? c.desc_en : c.desc,
-  meta: locale.value === 'en' && c.meta_en ? c.meta_en : c.meta,
-})))
+// Direct-to-exhibit cards: all exhibits in the gaoshu section, ordered by content_data order.
+async function loadExhibits() {
+  loading.value = true
+  try {
+    const r = await fetch('/api/museum/exhibits')
+    const d = await r.json()
+    exhibitCards.value = Object.entries(d.exhibits || {})
+      .filter(([, ex]) => ex.parent === 'gaoshu' && ex.order)
+      .sort((a, b) => a[1].order - b[1].order)
+      .map(([key, ex]) => ({
+        to: '/exhibit/' + key,
+        title: locale.value === 'en' && ex.en ? ex.en : ex.zh,
+        desc: locale.value === 'en' && ex.big_question_en ? ex.big_question_en : ex.big_question,
+        meta: ex.historian,
+        symbol: ex.icon || '',
+        chapter: ROMANS[ex.order] || '',
+        accent: ex.home_accent || '',
+      }))
+  } catch (e) {
+    console.warn('Failed to load exhibits', e)
+  }
+  loading.value = false
+}
 
 // Static fallback bank (higher difficulty, used only if the AI API fails)
 const dailyProbs = [
@@ -126,17 +142,29 @@ function useStaticDaily() {
 const renderedQ = computed(() => renderMarkdown(dailyQ.value))
 const renderedAnswer = computed(() => renderMarkdown('**' + (locale.value === 'en' ? 'Answer: ' : '解答：') + '**' + dailyAns.value))
 
-onMounted(loadDaily)
+onMounted(() => { loadDaily(); loadExhibits() })
 </script>
 
 <style scoped>
-.hall-guide {
+.exhibit-grid { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+.section-title {
+  font-size: 15px;
+  font-family: var(--font-heading);
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-align: center;
+  margin: 36px 0 18px;
+}
+.loading-wrap { text-align: center; padding: 60px 0; }
+.spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg) } }
+.side-halls {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
   gap: 12px;
   max-width: 900px;
-  margin: 28px auto 8px;
+  margin: 28px auto 40px;
   padding: 0 20px;
 }
 .hall-item {

@@ -53,3 +53,20 @@ def test_notebook_not_in_exhibits():
         if key == "gaoshu":
             continue
         assert "notebook" not in ex, f"{key} still references a shared notebook"
+
+
+def test_exhibits_metadata_shape():
+    """Every gaoshu exhibit carries the navigation metadata the single-page redesign relies on."""
+    from server.content_data import exhibits, mathematicians
+    for key, ex in exhibits.items():
+        if ex.get("parent") != "gaoshu":
+            continue
+        # mathematician links must point at real mathematician keys
+        assert "mathematicians" in ex, f"{key} missing mathematicians links"
+        for mk in ex["mathematicians"]:
+            assert mk in mathematicians, f"{key} links to unknown mathematician {mk}"
+        # narrative "up next" card must exist in both languages
+        assert ex.get("next_note"), f"{key} missing next_note"
+        assert ex.get("next_note_en"), f"{key} missing next_note_en"
+        # home card accent color present
+        assert ex.get("home_accent", "").startswith("#"), f"{key} missing home_accent"

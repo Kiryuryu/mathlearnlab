@@ -34,4 +34,6 @@ The core of modern machine learning (naive Bayes, Bayesian inference) is repeate
 
 ---
 
-**From here:** visit **Applications** to see it at work in weather forecasting, medical testing, and financial pricing; in **Interactive**, "flip" a coin millions of times and watch the frequency march toward the probability.
+**From here:** see [Applications](#applications) at work in weather forecasting, medical testing, and financial pricing; in [Interactive](#explore), "flip" a coin millions of times and watch the frequency march toward the probability.
+
+→ [Continue reading: Back to the exhibits](/gaoshu) to pick a new direction

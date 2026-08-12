@@ -40,4 +40,6 @@ $$\lim \frac{f(x)}{g(x)} = \lim \frac{f'(x)}{g'(x)}$$
 
 ---
 
-**From here:** visit **Applications** to see gradient descent drive AI, Newton's method solve equations, and light find its own path; in **Interactive**, drag the tangent point and watch the line chase the curve.
+**From here:** see [Applications](#applications) on gradient descent driving AI, Newton's method solving equations, and light finding its own path; in [Interactive](#explore), drag the tangent point and watch the line chase the curve.
+
+→ [Continue reading: Integrals — The Limit of Sums](/exhibit/integrals)

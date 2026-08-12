@@ -33,4 +33,6 @@ This is the mathematical foundation of signal processing, image compression, and
 
 ---
 
-**From here:** visit **Applications** to see Fourier transforms compress photos and series approximate π; in **Interactive**, drag the harmonic-count slider and sculpt a square wave out of sines.
+**From here:** see [Applications](#applications) on Fourier transforms compressing photos and series approximating π; in [Interactive](#explore), drag the harmonic-count slider and sculpt a square wave out of sines.
+
+→ [Continue reading: Multivariable Calculus — From Plane to Space](/exhibit/multivariable)

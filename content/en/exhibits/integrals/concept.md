@@ -32,4 +32,6 @@ $$\int u\,dv = uv - \int v\,du$$
 
 ---
 
-**From here:** visit **Applications** to see integrals compute probabilities, signal energies, and work in physics; in **Interactive**, drag the rectangle-count slider and watch the Riemann sum close in on the true area.
+**From here:** see [Applications](#applications) computing probabilities, signal energies, and work in physics; in [Interactive](#explore), drag the rectangle-count slider and watch the Riemann sum close in on the true area.
+
+→ [Continue reading: Infinite Series — The Puzzle of Infinity](/exhibit/series)

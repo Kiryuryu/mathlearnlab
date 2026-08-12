@@ -21,12 +21,12 @@ import { useI18n } from 'vue-i18n'
 import BeautyVideos from '@/components/BeautyVideos.vue'
 const { locale } = useI18n()
 const rawItems = [
-  { title:'欧拉恒等式', title_en:"Euler's Identity", formula:'e^(iπ) + 1 = 0', desc:'五个最重要的数学常数', desc_en:'The five most important constants united', accent:'#4a6b8a', to:'/exhibit/derivatives?tab=beauty' },
-  { title:'巴塞尔问题', title_en:'Basel Problem', formula:'Σ 1/n² = π²/6', desc:'自然数倒数平方和 = π²/6', desc_en:'Sum of reciprocal squares = π²/6', accent:'#6b5a8a', to:'/exhibit/series?tab=beauty' },
-  { title:'高斯积分', title_en:'Gaussian Integral', formula:'∫ e^(-x²) dx = √π', desc:'e 和 π 在积分中相遇', desc_en:'e and π meet in an integral', accent:'#5a7a6b', to:'/exhibit/integrals?tab=beauty' },
-  { title:'Wallis 公式', title_en:"Wallis' Product", formula:'π/2 = 2·2/1·3 × 4·4/3·5 × ...', desc:'无穷乘积等于 π/2', desc_en:'Infinite product equals π/2', accent:'#8a5a4a', to:'/exhibit/integrals?tab=beauty' },
-  { title:'Gamma 函数', title_en:'Gamma Function', formula:'Γ(n) = ∫ x^(n-1)e^(-x) dx', desc:'阶乘的连续推广', desc_en:'Continuous extension of factorial', accent:'#5a6b8a', to:'/exhibit/integrals?tab=beauty' },
-  { title:'微积分基本定理', title_en:'Fundamental Theorem of Calculus', formula:'d/dx ∫ f(t)dt = f(x)', desc:'微分和积分是互逆运算', desc_en:'Differentiation and integration are inverses', accent:'#8a4a4a', to:'/exhibit/integrals?tab=beauty' },
+  { title:'欧拉恒等式', title_en:"Euler's Identity", formula:'e^(iπ) + 1 = 0', desc:'五个最重要的数学常数', desc_en:'The five most important constants united', accent:'#4a6b8a', to:'/exhibit/derivatives#beauty' },
+  { title:'巴塞尔问题', title_en:'Basel Problem', formula:'Σ 1/n² = π²/6', desc:'自然数倒数平方和 = π²/6', desc_en:'Sum of reciprocal squares = π²/6', accent:'#6b5a8a', to:'/exhibit/series#beauty' },
+  { title:'高斯积分', title_en:'Gaussian Integral', formula:'∫ e^(-x²) dx = √π', desc:'e 和 π 在积分中相遇', desc_en:'e and π meet in an integral', accent:'#5a7a6b', to:'/exhibit/integrals#beauty' },
+  { title:'Wallis 公式', title_en:"Wallis' Product", formula:'π/2 = 2·2/1·3 × 4·4/3·5 × ...', desc:'无穷乘积等于 π/2', desc_en:'Infinite product equals π/2', accent:'#8a5a4a', to:'/exhibit/integrals#beauty' },
+  { title:'Gamma 函数', title_en:'Gamma Function', formula:'Γ(n) = ∫ x^(n-1)e^(-x) dx', desc:'阶乘的连续推广', desc_en:'Continuous extension of factorial', accent:'#5a6b8a', to:'/exhibit/integrals#beauty' },
+  { title:'微积分基本定理', title_en:'Fundamental Theorem of Calculus', formula:'d/dx ∫ f(t)dt = f(x)', desc:'微分和积分是互逆运算', desc_en:'Differentiation and integration are inverses', accent:'#8a4a4a', to:'/exhibit/integrals#beauty' },
 ]
 const items = computed(() => rawItems.map(i => ({
   ...i,
