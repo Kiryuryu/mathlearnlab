@@ -25,6 +25,7 @@
       >{{ t('exhibit.' + s) }}</a>
     </nav>
     <div class="exhibit-actions">
+      <button class="action-btn" @click="openGuide" :title="$t('chat.tourGuide')">🎧</button>
       <button class="action-btn" @click="shareLink" :title="$t('common.share')">🔗</button>
       <button class="action-btn" @click="toggleBookmark" :title="isBookmarked ? $t('common.unbookmark') : $t('common.bookmark')">
         {{ isBookmarked ? '★' : '☆' }}
@@ -93,6 +94,7 @@ import { loadPlotly } from '@/utils/plotly'
 import { museumViz } from '@/utils/viz'
 import { renderMarkdown } from '@/utils/markdown'
 import { useAuth } from '@/stores/auth'
+import { useChatStore } from '@/stores/chat'
 import { useToast } from '@/utils/toast'
 import { apiFetch } from '@/utils/api'
 import ExhibitHero from '@/components/ExhibitHero.vue'
@@ -105,6 +107,7 @@ const { t, locale } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const auth = useAuth()
+const chatStore = useChatStore()
 const { show: showToast } = useToast()
 const topic = computed(() => route.params.topic)
 const exhibit = ref(null)
@@ -378,6 +381,10 @@ async function toggleBookmark() {
       showToast(isBookmarked.value ? t('common.bookmarkAdded') : t('common.bookmarkRemoved'))
     }
   } catch {}
+}
+
+function openGuide() {
+  chatStore.openGuide({ key: topic.value, name: exhibitName.value || topic.value })
 }
 
 function shareLink() {

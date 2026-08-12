@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { renderMarkdown } from '@/utils/markdown'
 import { apiFetch } from '@/utils/api'
 
-export function useChatStream({ getModel, getLang, getContext }) {
+export function useChatStream({ getModel, getLang, getContext, getGuide }) {
   const messages = ref([])
   const streaming = ref(false)
   const streamText = ref('')
@@ -50,6 +50,7 @@ export function useChatStream({ getModel, getLang, getContext }) {
 
     const ctx = getContext()
     const lang = getLang()
+    const guide = getGuide ? getGuide() : null
     abortCtrl = new AbortController()
     try {
       const r = await apiFetch('/api/chat/stream', {
@@ -60,6 +61,9 @@ export function useChatStream({ getModel, getLang, getContext }) {
           model: getModel(),
           context_route: ctx,
           lang,
+          guide_mode: guide ? true : undefined,
+          exhibit_key: guide ? guide.key : undefined,
+          exhibit_name: guide ? guide.name : undefined,
         }),
         signal: abortCtrl.signal,
       })

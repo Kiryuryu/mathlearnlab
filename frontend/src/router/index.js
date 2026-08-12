@@ -7,6 +7,7 @@ const routes = [
   { path: '/exhibit/:topic', name: 'exhibit', meta: { titleKey: 'nav.exhibits' }, component: () => import('@/views/ExhibitView.vue') },
   { path: '/workshop', name: 'workshop', meta: { titleKey: 'nav.workshop' }, component: () => import('@/views/WorkshopView.vue') },
   { path: '/fractal', name: 'fractal', meta: { titleKey: 'nav.fractal' }, component: () => import('@/views/FractalView.vue') },
+  { path: '/graph', name: 'graph', meta: { titleKey: 'nav.graph' }, component: () => import('@/views/GraphView.vue') },
   { path: '/gallery', name: 'gallery', meta: { titleKey: 'gallery.title' }, component: () => import('@/views/GalleryView.vue') },
   { path: '/mathematicians', name: 'mathematicians', meta: { titleKey: 'nav.mathematicians' }, component: () => import('@/views/MathematiciansView.vue') },
   { path: '/mathematicians/:key', name: 'mathematician', meta: { titleKey: 'nav.mathematicians' }, component: () => import('@/views/MathematicianView.vue') },

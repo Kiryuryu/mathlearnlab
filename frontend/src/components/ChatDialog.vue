@@ -31,10 +31,11 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuth } from '@/stores/auth'
+import { useChatStore } from '@/stores/chat'
 import { useFocusTrap } from '@/utils/focusTrap'
 import { useChatStream } from '@/utils/useChatStream'
 import ChatMessageList from '@/components/ChatMessageList.vue'
@@ -43,19 +44,24 @@ import AiSetupGuide from '@/components/AiSetupGuide.vue'
 const { t, locale } = useI18n()
 const route = useRoute()
 const auth = useAuth()
+const chatStore = useChatStore()
 
 const panelOpen = ref(false)
 const input = ref('')
 const panelRef = ref(null)
 useFocusTrap(panelRef)
 
+const guideActive = computed(() => !!chatStore.guideTarget)
+
 const chat = useChatStream({
   getModel: () => auth.model,
   getLang: () => locale.value,
   getContext: () => contextLabel.value ? `${t('chat.contextPrefix')} ${contextLabel.value}` : '',
+  getGuide: () => chatStore.guideTarget ? { key: chatStore.guideTarget.key, name: chatStore.guideTarget.name } : null,
 })
 
 const contextLabel = computed(() => {
+  if (guideActive.value) return chatStore.guideTarget.name
   const name = route.name
   if (!name) return ''
   const labels = {
@@ -77,6 +83,20 @@ function finishSetup() {
   auth.closeAiSetup()
   if (pendingSetup) { pendingSetup = false; panelOpen.value = true }
 }
+
+// Opening from a guide button starts a fresh, exhibit-focused conversation.
+watch(() => chatStore.guideTarget, (target) => {
+  if (target) {
+    chat.clear()
+    openPanel()
+  }
+})
+
+// Opening the FAB manually resets guide mode to a free conversation.
+watch(panelOpen, (open) => {
+  if (open && !chatStore.guideTarget) return
+  if (!open) { chatStore.clearGuide() }
+})
 
 function onSend() {
   const text = input.value.trim()

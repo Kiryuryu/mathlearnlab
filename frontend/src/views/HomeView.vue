@@ -51,6 +51,7 @@ const sideHalls = computed(() => [
   { to: '/fractal', num: 'C', label: locale.value === 'en' ? 'Fractals' : '分形' },
   { to: '/workshop', num: 'D', label: locale.value === 'en' ? 'Function Lab' : '函数工坊' },
   { to: '/practice', num: 'E', label: locale.value === 'en' ? 'Practice' : '练习' },
+  { to: '/graph', num: 'F', label: locale.value === 'en' ? 'Knowledge Graph' : '知识图谱' },
 ])
 
 // Direct-to-subject cards: the three subjects (高数/线代/概率), ordered.

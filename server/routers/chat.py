@@ -29,6 +29,13 @@ async def chat_stream(request: Request, user: dict = Depends(require_user)):
     max_tokens = body.get("max_tokens")
     context_route = body.get("context_route", "")
     lang = body.get("lang", "zh")
+    guide = None
+    if body.get("guide_mode") and body.get("exhibit_key"):
+        guide = {
+            "mode": True,
+            "key": body.get("exhibit_key"),
+            "name": body.get("exhibit_name", ""),
+        }
 
     api_key = request.headers.get("X-API-Key") or settings.deepseek_api_key
     if not api_key:
@@ -39,7 +46,7 @@ async def chat_stream(request: Request, user: dict = Depends(require_user)):
         chat_service.stream_chat(
             messages=messages, system=system, model=model,
             max_tokens=max_tokens, api_key=api_key, context_route=context_route,
-            lang=lang,
+            lang=lang, guide=guide,
         ),
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "Connection": "keep-alive", "X-Accel-Buffering": "no"},

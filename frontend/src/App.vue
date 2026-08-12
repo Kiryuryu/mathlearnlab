@@ -22,6 +22,7 @@
       <router-link to="/mathematicians" @click="mobileNavOpen = false">{{ $t('nav.mathematicians') }}</router-link>
       <router-link to="/workshop" @click="mobileNavOpen = false">{{ $t('nav.workshop') }}</router-link>
       <router-link to="/fractal" @click="mobileNavOpen = false">{{ $t('nav.fractal') }}</router-link>
+      <router-link to="/graph" @click="mobileNavOpen = false">{{ $t('nav.graph') }}</router-link>
       <router-link to="/news" @click="mobileNavOpen = false">{{ $t('nav.news') }}</router-link><span class="nav-sep">|</span>
       <router-link to="/bookmarks" @click="mobileNavOpen = false">{{ $t('nav.bookmarks') }}</router-link><span class="nav-sep">|</span>
       <router-link to="/practice" @click="mobileNavOpen = false">{{ $t('nav.practice') }}</router-link>
