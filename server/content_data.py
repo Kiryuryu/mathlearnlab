@@ -6,14 +6,21 @@ Kept separate from Settings so that editing content doesn't touch
 configuration/security code.
 """
 
+# ── Subjects (学科 → 知识点 two-level structure) ──
+subjects: dict = {
+    "gaoshu":    {"zh": "高等数学", "en": "Advanced Mathematics", "icon": "∫", "accent": "#4a6b8a", "order": 1,
+                  "desc": "变化、累积、无穷——微积分如何改变了人类理解世界的方式？",
+                  "desc_en": "Change, accumulation, infinity — how did calculus transform our understanding of the world?"},
+    "xiandai":   {"zh": "线性代数", "en": "Linear Algebra", "icon": "λ", "accent": "#8a5a4a", "order": 2,
+                  "desc": "如何用向量与矩阵刻画空间、变换与结构？",
+                  "desc_en": "How do vectors and matrices capture space, transformation, and structure?"},
+    "gailvlun":  {"zh": "概率论",   "en": "Probability",   "icon": "P", "accent": "#6b5a7a", "order": 3,
+                  "desc": "如何用数学描述随机与不确定性？",
+                  "desc_en": "How do we describe randomness and uncertainty mathematically?"},
+}
+
 # ── Museum Exhibits ──
 exhibits: dict = {
-    "gaoshu":        {"zh": "展区", "en": "Exhibits",
-                      "historian": "牛顿、莱布尼茨、柯西、欧拉…",
-                      "big_question": "变化、累积、无穷——微积分如何改变了人类理解世界的方式？",
-                      "big_question_en": "Change, accumulation, infinity — how did calculus transform our understanding of the world?",
-                      "beauty": "微积分是人类思想史上最伟大的成就之一。从芝诺的飞矢不动悖论，到牛顿和莱布尼茨的激烈争论，到柯西用ε-δ语言为它打下坚实根基——这是一个跨越两千年的故事。",
-                      "beauty_en": "Calculus is one of the greatest achievements in human intellectual history. From Zeno's arrow paradox to the Newton–Leibniz priority dispute to Cauchy's ε-δ foundations — a story spanning two millennia."},
     "limits":        {"zh": "极限 — 无限逼近的艺术", "en": "Limits — The Art of Infinite Approximation", "icon": "∞", "json": "limits.json",
                       "parent": "gaoshu", "order": 1,
                       "historian": "柯西、魏尔斯特拉斯",
@@ -76,7 +83,7 @@ exhibits: dict = {
                       "beauty": "Mandelbrot 集：一个最简单的迭代公式 z→z²+c 能生成宇宙中最复杂的图形之一",
                       "beauty_en": "The Mandelbrot set: the simplest iteration z→z²+c generates one of the most complex shapes in the universe"},
     "linear-algebra":{"zh": "线性代数 — 空间的变换", "en": "Linear Algebra — Transformations of Space", "icon": "λ",
-                      "parent": "gaoshu", "order": 6,
+                      "parent": "xiandai", "order": 1,
                       "historian": "凯莱、哈密顿、格拉斯曼",
                       "mathematicians": ["newton", "leibniz"],
                       "next_note": "空间本身也可以被测量——最后去理解「不确定」：概率论。",
@@ -87,7 +94,7 @@ exhibits: dict = {
                       "beauty": "特征向量是矩阵变换下\"方向不变\"的向量——它们揭示了系统的本质",
                       "beauty_en": "Eigenvectors are vectors whose direction is preserved by the transformation — they reveal the essence of the system"},
     "probability":   {"zh": "概率论 — 不确定性的科学", "en": "Probability — The Science of Uncertainty", "icon": "P",
-                      "parent": "gaoshu", "order": 7,
+                      "parent": "gailvlun", "order": 1,
                       "historian": "帕斯卡、伯努利、柯尔莫哥洛夫",
                       "mathematicians": ["fermat"],
                       "next_note": "从不确定中回到确定——回到大序厅，再选一个方向继续探索。",
@@ -287,7 +294,7 @@ nav_tree: list[dict] = [
     {
         "section": "微积分",
         "entries": [
-            {"label": "展区", "route": "/gaoshu"},
+            {"label": "高等数学", "route": "/subject/gaoshu"},
             {"label": "极限 — 无限逼近", "route": "/exhibit/limits"},
             {"label": "导数 — 瞬间变化率", "route": "/exhibit/derivatives"},
             {"label": "积分 — 和的极限", "route": "/exhibit/integrals"},
@@ -308,12 +315,14 @@ nav_tree: list[dict] = [
         ],
     },
     {
-        "section": "展区",
+        "section": "学科",
         "entries": [
+            {"label": "高等数学", "route": "/subject/gaoshu"},
+            {"label": "线性代数", "route": "/subject/xiandai"},
+            {"label": "概率论", "route": "/subject/gailvlun"},
             {"label": "数学之美", "route": "/gallery"},
             {"label": "函数工坊", "route": "/workshop"},
             {"label": "分形探索", "route": "/fractal"},
-            {"label": "线性代数", "route": "/exhibit/linear-algebra"},
         ],
     },
     {

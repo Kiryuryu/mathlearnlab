@@ -60,6 +60,8 @@ export default {
     title: 'Math Museum',
     subtitle: 'Know What, Know Why',
     exhibitsTitle: 'Exhibits',
+    subjectsTitle: 'Subjects',
+    subjectCount: 'topics',
 
     daily: 'Daily Problem',
     showHint: 'Show Hint',
@@ -127,10 +129,12 @@ export default {
     backToExhibits: 'Back to Exhibits',
     nextNoteLabel: 'Up next',
   },
-  gaoshu: {
-    title: 'Exhibits',
-    subtitle: 'From calculus to linear algebra, explore the core ideas of mathematics',
-    sections: 'Seven Exhibits',
+  subject: {
+    eyebrow: 'Math Museum · Subject',
+    count: 'topics',
+    prevSubject: '← Previous subject',
+    nextSubject: 'Next subject →',
+    back: 'Back',
   },
   mathematicians: {
     eyebrow: 'Math Museum · Gallery',

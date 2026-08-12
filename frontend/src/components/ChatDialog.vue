@@ -59,7 +59,7 @@ const contextLabel = computed(() => {
   const name = route.name
   if (!name) return ''
   const labels = {
-    home: t('nav.home'), gaoshu: t('nav.exhibits'), exhibit: t('nav.exhibits'),
+    home: t('nav.home'), subject: t('nav.exhibits'), exhibit: t('nav.exhibits'),
     workshop: t('nav.workshop'), fractal: t('nav.fractal'), gallery: t('gallery.title'),
     mathematicians: t('nav.mathematicians'), mathematician: t('nav.mathematicians'),
     practice: t('nav.practice'), news: t('nav.news'), admin: t('admin.title'),

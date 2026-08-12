@@ -7,8 +7,8 @@ import time
 from pathlib import Path
 from server.config import CONTENT_DIR, settings
 
-SECTION_ZH = {"content": "内容", "exhibits": "微积分", "mathematicians": "数学家长廊"}
-SECTION_EN = {"content": "Content", "exhibits": "Calculus", "mathematicians": "Mathematicians"}
+SECTION_ZH = {"content": "内容", "subjects": "学科", "exhibits": "微积分", "mathematicians": "数学家长廊"}
+SECTION_EN = {"content": "Content", "subjects": "Subjects", "exhibits": "Calculus", "mathematicians": "Mathematicians"}
 
 # Cache of scanned .md files: {path_str: (mtime_ns, text)}. Rebuilt when any file changes.
 _FILE_CACHE: dict[str, tuple[int, str]] = {}
@@ -106,8 +106,6 @@ def search_exhibits(query: str, lang: str) -> list[dict]:
     results = []
     query = query.lower()
     for key, e in settings.exhibits.items():
-        if key == "gaoshu":
-            continue
         zh = e.get("zh", "")
         qs = e.get("big_question", "")
         en = e.get("en", "")
@@ -141,11 +139,32 @@ def search_mathematicians(query: str, lang: str) -> list[dict]:
     return results
 
 
+def search_subjects(query: str, lang: str) -> list[dict]:
+    results = []
+    query = query.lower()
+    for key, s in settings.subjects.items():
+        zh = s.get("zh", "")
+        desc = s.get("desc", "")
+        en = s.get("en", "")
+        desc_en = s.get("desc_en", "")
+        match_zh = query in zh.lower() or query in desc.lower()
+        match_en = lang == "en" and (query in en.lower() or query in desc_en.lower())
+        if match_zh or match_en:
+            results.append({
+                "title": s.get("icon", "") + " " + (en if lang == "en" and en else zh),
+                "excerpt": desc_en if lang == "en" and desc_en else desc,
+                "route": "/subject/" + key,
+                "section": _section("subjects", lang),
+            })
+    return results
+
+
 def search_all(q: str, lang: str = "zh", limit: int = 12) -> list[dict]:
     query = q.strip().lower()
     if len(query) < 1:
         return []
     results = search_content_files(query, lang)
+    results += search_subjects(query, lang)
     results += search_exhibits(query, lang)
     results += search_mathematicians(query, lang)
     return results[:limit]

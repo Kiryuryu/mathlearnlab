@@ -12,7 +12,7 @@
       </router-link>
     </div>
     <BeautyVideos />
-    <router-link to="/gaoshu" class="cta">{{ $t('gallery.enterExhibits') }}</router-link>
+    <router-link to="/subject/gaoshu" class="cta">{{ $t('gallery.enterExhibits') }}</router-link>
   </div>
 </template>
 <script setup>

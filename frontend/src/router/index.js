@@ -2,7 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
   { path: '/', name: 'home', meta: { titleKey: 'nav.home' }, component: () => import('@/views/HomeView.vue') },
-  { path: '/gaoshu', name: 'gaoshu', meta: { titleKey: 'nav.exhibits' }, component: () => import('@/views/GaoshuView.vue') },
+  { path: '/gaoshu', redirect: '/subject/gaoshu' },
+  { path: '/subject/:key', name: 'subject', meta: { titleKey: 'nav.exhibits' }, component: () => import('@/views/SubjectView.vue') },
   { path: '/exhibit/:topic', name: 'exhibit', meta: { titleKey: 'nav.exhibits' }, component: () => import('@/views/ExhibitView.vue') },
   { path: '/workshop', name: 'workshop', meta: { titleKey: 'nav.workshop' }, component: () => import('@/views/WorkshopView.vue') },
   { path: '/fractal', name: 'fractal', meta: { titleKey: 'nav.fractal' }, component: () => import('@/views/FractalView.vue') },

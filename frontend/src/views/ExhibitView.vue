@@ -3,7 +3,7 @@
     <nav class="crumbs" aria-label="Breadcrumb">
       <router-link to="/" class="crumb">{{ t('exhibit.crumbHome') }}</router-link>
       <span class="crumb-sep">/</span>
-      <router-link to="/#exhibits" class="crumb">{{ t('exhibit.crumbExhibits') }}</router-link>
+      <router-link :to="subjectKey ? '/subject/' + subjectKey : '/#exhibits'" class="crumb">{{ subjectName }}</router-link>
       <span class="crumb-sep">/</span>
       <span class="crumb current">{{ exhibitName }}</span>
     </nav>
@@ -79,7 +79,7 @@
           :to="'/exhibit/' + nextTopic"
           class="pager-link next"
         ><span class="pager-label">{{ t('exhibit.nextExhibit') }}</span><span class="pager-name">{{ symbolFor(nextTopic) }} {{ nameFor(nextTopic) }}</span></router-link>
-        <router-link to="/#exhibits" class="pager-link back">{{ t('exhibit.backToExhibits') }}</router-link>
+        <router-link :to="subjectKey ? '/subject/' + subjectKey : '/#exhibits'" class="pager-link back">{{ t('exhibit.backToExhibits') }}</router-link>
       </nav>
     </div>
   </div>
@@ -127,11 +127,18 @@ function setSectionEl(s, el) {
   if (el) sectionEls[s] = el
 }
 
-// ── Exhibits metadata → chapter, siblings, names, mathematician links ──
+// ── Exhibits metadata → chapter, siblings (within same subject), names, links ──
+const subjectKey = computed(() => exhibitsMeta.value.exhibits?.[topic.value]?.parent || '')
+const subjectName = computed(() => {
+  const s = exhibitsMeta.value.subjects?.[subjectKey.value]
+  if (!s) return t('exhibit.crumbExhibits')
+  return locale.value === 'en' && s.en ? s.en : s.zh
+})
 const siblings = computed(() => {
   const metas = exhibitsMeta.value.exhibits || {}
+  const parent = subjectKey.value
   return Object.entries(metas)
-    .filter(([, ex]) => ex.parent && ex.order)
+    .filter(([, ex]) => ex.parent === parent && ex.order)
     .sort((a, b) => a[1].order - b[1].order)
     .map(([key, ex]) => ({ key, ex }))
 })

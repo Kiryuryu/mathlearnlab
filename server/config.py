@@ -6,7 +6,7 @@ Reads from environment variables or .env file.
 import os
 from typing import ClassVar
 from pydantic_settings import BaseSettings
-from server.content_data import exhibits, quotes, difficulty, mathematicians, nav_tree
+from server.content_data import subjects, exhibits, quotes, difficulty, mathematicians, nav_tree
 
 
 class Settings(BaseSettings):
@@ -45,6 +45,7 @@ class Settings(BaseSettings):
     cors_origins: str = "https://mathlearnlab.cn,https://www.mathlearnlab.cn,http://127.0.0.1:5173,http://127.0.0.1:8000"
 
     # ── Static content data (from server.content_data) ──
+    subjects: ClassVar[dict] = subjects
     exhibits: ClassVar[dict] = exhibits
     quotes: ClassVar[list] = quotes
     difficulty: ClassVar[dict] = difficulty
@@ -59,10 +60,6 @@ def get_settings_dict() -> dict:
     """Return settings as plain dict for Jinja2 template context.
     Must convert nested dicts and non-serializable values to plain types."""
     s = settings
-    gaoshu_subtopics = sorted(
-        [(k, v) for k, v in s.exhibits.items() if k != "gaoshu"],
-        key=lambda kv: kv[1].get("order", 99)
-    )
     return {
         "app_name": s.app_name,
         "app_subtitle": s.app_subtitle,
@@ -70,10 +67,10 @@ def get_settings_dict() -> dict:
         "content_dir": s.content_dir,
         "data_dir": s.data_dir,
         "deepseek_model": s.deepseek_model,
+        "subjects": settings.subjects,
         "exhibits": settings.exhibits,
         "difficulty": s.difficulty,
         "nav_tree": s.nav_tree,
-        "gaoshu_subtopics": gaoshu_subtopics,
     }
 
 

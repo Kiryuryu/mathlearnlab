@@ -50,6 +50,7 @@ async def museum_exhibits():
     return {
         "app_name": settings.app_name,
         "app_subtitle": settings.app_subtitle,
+        "subjects": settings.subjects,
         "exhibits": settings.exhibits,
         "nav_tree": settings.nav_tree,
         "mathematicians": settings.mathematicians,

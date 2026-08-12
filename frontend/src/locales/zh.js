@@ -60,6 +60,8 @@ export default {
     title: '数学博物馆',
     subtitle: '知其然，知其所以然',
     exhibitsTitle: '展品',
+    subjectsTitle: '学科',
+    subjectCount: '个知识点',
 
     daily: '每日一题',
     showHint: '查看提示',
@@ -95,10 +97,12 @@ export default {
     backToExhibits: '返回展区',
     nextNoteLabel: '接下来',
   },
-  gaoshu: {
-    title: '展区',
-    subtitle: '从微积分到线性代数，探索数学的核心概念',
-    sections: '七大展区',
+  subject: {
+    eyebrow: '数学博物馆 · 学科',
+    count: '知识点',
+    prevSubject: '← 上一学科',
+    nextSubject: '下一学科 →',
+    back: '返回',
   },
   mathematicians: {
     eyebrow: 'Math Museum · Gallery',

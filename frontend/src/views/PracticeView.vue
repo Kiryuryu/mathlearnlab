@@ -1,7 +1,7 @@
 <template>
   <div class="practice-page">
     <div class="header">
-      <router-link to="/gaoshu" class="back">← {{ $t('practice.backToExhibit') }}</router-link>
+      <router-link to="/subject/gaoshu" class="back">← {{ $t('practice.backToExhibit') }}</router-link>
       <h1>{{ $t('practice.title') }}</h1>
       <div class="steps">
         <span :class="{ active: step === 'select', done: step !== 'select' }">{{ $t('practice.select') }}</span>

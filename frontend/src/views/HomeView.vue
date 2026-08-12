@@ -17,8 +17,8 @@
         <router-link to="/practice" class="btn btn-primary">{{ $t('home.goPractice') }}</router-link>
       </div>
     </div>
-    <section id="exhibits" class="exhibit-grid" aria-label="Exhibits">
-      <h2 class="section-title">{{ $t('home.exhibitsTitle') }}</h2>
+    <section id="exhibits" class="exhibit-grid" aria-label="Subjects">
+      <h2 class="section-title">{{ $t('home.subjectsTitle') }}</h2>
       <div v-if="loading" class="loading-wrap"><div class="spinner"></div></div>
       <div v-else class="card-grid">
         <ExhibitCard v-for="c in exhibitCards" :key="c.to" v-bind="c" />
@@ -39,7 +39,7 @@ import { useI18n } from 'vue-i18n'
 import ExhibitCard from '@/components/ExhibitCard.vue'
 import { renderMarkdown } from '@/utils/markdown'
 
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 
 const ROMANS = ['', 'Ⅰ', 'Ⅱ', 'Ⅲ', 'Ⅳ', 'Ⅴ', 'Ⅵ', 'Ⅶ']
 const loading = ref(false)
@@ -53,26 +53,30 @@ const sideHalls = computed(() => [
   { to: '/practice', num: 'E', label: locale.value === 'en' ? 'Practice' : '练习' },
 ])
 
-// Direct-to-exhibit cards: all exhibits in the gaoshu section, ordered by content_data order.
-async function loadExhibits() {
+// Direct-to-subject cards: the three subjects (高数/线代/概率), ordered.
+async function loadSubjects() {
   loading.value = true
   try {
     const r = await fetch('/api/museum/exhibits')
     const d = await r.json()
-    exhibitCards.value = Object.entries(d.exhibits || {})
-      .filter(([, ex]) => ex.parent === 'gaoshu' && ex.order)
+    const ex = d.exhibits || {}
+    exhibitCards.value = Object.entries(d.subjects || {})
+      .filter(([, s]) => s.order)
       .sort((a, b) => a[1].order - b[1].order)
-      .map(([key, ex]) => ({
-        to: '/exhibit/' + key,
-        title: locale.value === 'en' && ex.en ? ex.en : ex.zh,
-        desc: locale.value === 'en' && ex.big_question_en ? ex.big_question_en : ex.big_question,
-        meta: ex.historian,
-        symbol: ex.icon || '',
-        chapter: ROMANS[ex.order] || '',
-        accent: ex.home_accent || '',
-      }))
+      .map(([key, s]) => {
+        const count = Object.values(ex).filter(e => e.parent === key && e.order).length
+        return {
+          to: '/subject/' + key,
+          title: locale.value === 'en' && s.en ? s.en : s.zh,
+          desc: locale.value === 'en' && s.desc_en ? s.desc_en : s.desc,
+          meta: count + ' ' + t('home.subjectCount'),
+          symbol: s.icon || '',
+          chapter: ROMANS[s.order] || '',
+          accent: s.accent || '',
+        }
+      })
   } catch (e) {
-    console.warn('Failed to load exhibits', e)
+    console.warn('Failed to load subjects', e)
   }
   loading.value = false
 }
@@ -142,7 +146,7 @@ function useStaticDaily() {
 const renderedQ = computed(() => renderMarkdown(dailyQ.value))
 const renderedAnswer = computed(() => renderMarkdown('**' + (locale.value === 'en' ? 'Answer: ' : '解答：') + '**' + dailyAns.value))
 
-onMounted(() => { loadDaily(); loadExhibits() })
+onMounted(() => { loadDaily(); loadSubjects() })
 </script>
 
 <style scoped>
