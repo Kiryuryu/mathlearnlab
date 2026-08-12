@@ -14,6 +14,21 @@
 
 f(x) = |x|/x。当 x→0 时，极限存在吗？
 
+<svg width="220" height="200" viewBox="0 0 220 200" role="img" aria-label="f=|x|/x 的图像：x>0 恒为 1，x<0 恒为 -1，在 x=0 处断点，左右极限不相等" style="margin:12px 0;display:block;">
+  <g transform="translate(110,100)">
+    <line x1="-100" y1="0" x2="100" y2="0" stroke="var(--border)" stroke-width="1.5" />
+    <line x1="0" y1="-85" x2="0" y2="85" stroke="var(--border)" stroke-width="1.5" />
+    <!-- y=1 for x>0 (right side), y=-1 for x<0 (left side) -->
+    <line x1="0" y1="-65" x2="90" y2="-65" stroke="var(--accent)" stroke-width="3" />
+    <line x1="-90" y1="65" x2="0" y2="65" stroke="var(--accent)" stroke-width="3" />
+    <circle cx="0" cy="-65" r="4.5" fill="var(--bg-page)" stroke="var(--accent)" stroke-width="2" />
+    <circle cx="0" cy="65" r="4.5" fill="var(--bg-page)" stroke="var(--accent)" stroke-width="2" />
+    <text x="30" y="-78" font-size="12" fill="var(--accent)">+1（右极限）</text>
+    <text x="-30" y="86" text-anchor="end" font-size="12" fill="var(--accent)">−1（左极限）</text>
+    <text x="40" y="40" font-size="11" fill="var(--accent-error)">x=0 处断开</text>
+  </g>
+</svg>
+
 <details>
 <summary>思考</summary>
 从右边逼近：x>0 时，f(x)=1。

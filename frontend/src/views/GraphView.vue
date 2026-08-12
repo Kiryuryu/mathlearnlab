@@ -34,6 +34,7 @@
             <g
               v-for="n in nodes"
               :key="n.id"
+              :transform="'translate(' + n.x + ',' + n.y + ')'"
               :class="['node', n.type, { focused: isFocused(n), dim: dimmed(n.id) }]"
               @click="onNodeClick(n)"
             >
@@ -55,7 +56,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { apiFetch } from '@/utils/api'
-import { forceSimulation, forceLink, forceManyBody, forceCenter, forceCollide } from 'd3-force'
+import { forceSimulation, forceLink, forceManyBody, forceCenter, forceCollide, forceX, forceY } from 'd3-force'
 
 const { locale, t } = useI18n()
 const router = useRouter()
@@ -85,12 +86,14 @@ function seedPositions(nodesArr, edgesArr) {
   })
 
   const sim = forceSimulation(nodesArr)
-    .force('link', forceLink(edgesArr).id(d => d.id).distance(d => d.type === 'parent' ? 90 : 120))
-    .force('charge', forceManyBody().strength(-260))
+    .force('link', forceLink(edgesArr).id(d => d.id).distance(d => d.type === 'parent' ? 80 : 110))
+    .force('charge', forceManyBody().strength(-160))
     .force('center', forceCenter(cx, cy))
-    .force('collide', forceCollide().radius(d => (d.type === 'subject' ? 46 : 40)))
+    .force('x', forceX(cx).strength(0.06))
+    .force('y', forceY(cy).strength(0.06))
+    .force('collide', forceCollide().radius(d => (d.type === 'subject' ? 42 : 38)))
   sim.stop()
-  for (let i = 0; i < 400; i++) sim.tick()
+  for (let i = 0; i < 500; i++) sim.tick()
   // Freeze coordinates (deterministic, no animation).
   nodesArr.forEach(n => { n.fx = n.x; n.fy = n.y })
 }
@@ -182,7 +185,7 @@ onMounted(loadGraph)
 
 .node { cursor: pointer; transition: opacity 0.2s; }
 .node.dim { opacity: 0.2; }
-.node-shape { stroke: var(--bg-page); stroke-width: 2; transition: filter 0.15s; }
+.node-shape { stroke: var(--bg-page); stroke-width: 2.5; transition: filter 0.15s; }
 .node:hover .node-shape { filter: brightness(1.12); }
 .node.focused .node-shape { stroke: var(--text-primary); stroke-width: 2.5; }
 .node-icon { fill: #fff; font-size: 16px; font-weight: 700; pointer-events: none; }
