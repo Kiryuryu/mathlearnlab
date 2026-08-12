@@ -1,6 +1,6 @@
 ## 交互探索：线性变换可视化
 
-拖动下面的矩阵元素，观察标准基向量 (1,0) 和 (0,1) 如何被变换，以及整个坐标网格如何变形。
+拖动下面的矩阵元素，观察标准基向量 (1,0) 和 (0,1) 如何被变换，以及整个坐标网格如何变形。**矩阵就是空间的变形器。**
 
 <div id="linTransform" style="width:100%;height:500px;border:1px solid var(--border);border-radius:8px;margin:16px 0;"></div>
 
@@ -22,6 +22,33 @@
   <button class="btn btn-sm" onclick="presetTransform(0,0,0,0)">零矩阵</button>
   <button class="btn btn-sm" onclick="presetTransform(-1,0,0,1)">镜像</button>
 </div>
+
+### 试试看 1：行列式为 0 的矩阵
+
+在上面的矩阵里输入 $A = \begin{bmatrix}1 & 2 \\ 2 & 4\end{bmatrix}$。观察网格发生了什么变化？det(A) 是多少？
+
+<details>
+<summary>答案</summary>
+det(A) = 1×4 − 2×2 = 0。网格的所有点被压到一条直线上——二维空间变成了一条线，面积信息全部丢失。行列式为 0 ⇔ 变换不可逆。
+</details>
+
+### 试试看 2：找特征向量
+
+把矩阵设为 $A = \begin{bmatrix}2 & 0 \\ 0 & 3\end{bmatrix}$。哪些方向上的向量在变换后**方向不变**？
+
+<details>
+<summary>答案</summary>
+单位矩阵的基向量 (1,0) 被放大 2 倍、(0,1) 被放大 3 倍，方向都不变——它们就是特征向量，特征值分别是 2 和 3。对照网格：水平方向整体拉伸 2 倍、垂直方向拉伸 3 倍。
+</details>
+
+### 试试看 3：旋转会改变面积吗？
+
+把矩阵设为旋转矩阵 $\begin{bmatrix}0 & -1 \\ 1 & 0\end{bmatrix}$（点"旋转90°"预设）。det(A) 是多少？面积变了吗？
+
+<details>
+<summary>答案</summary>
+det(A) = 0×0 − (−1)×1 = 1。旋转保持面积不变（|det| = 1），方向也保持（det > 0）。一个矩阵的旋转成分不改变面积——这正是"旋转 + 缩放"可以拆开看的原因。
+</details>
 
 <script>
 function updateTransform() {

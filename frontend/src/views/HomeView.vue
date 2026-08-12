@@ -5,6 +5,12 @@
       <h1>{{ $t('home.title') }}</h1>
       <p class="hero-sub">{{ $t('home.subtitle') }}</p>
     </div>
+    <nav class="hall-guide" aria-label="Hall guide">
+      <router-link v-for="h in halls" :key="h.to" :to="h.to" class="hall-item">
+        <span class="hall-num chapter-roman">{{ h.num }}</span>
+        <span class="hall-name">{{ h.label }}</span>
+      </router-link>
+    </nav>
     <div class="daily-problem" v-if="dailyQ">
       <div class="daily-header">
         <span class="daily-label">✦ {{ $t('home.daily') }}</span>
@@ -31,13 +37,21 @@ import { renderMarkdown } from '@/utils/markdown'
 
 const { locale } = useI18n()
 
+const halls = computed(() => [
+  { to: '/gaoshu', num: 'Ⅰ', label: locale.value === 'en' ? 'Calculus Hall' : '微积分展区' },
+  { to: '/mathematicians', num: 'Ⅱ', label: locale.value === 'en' ? 'Mathematicians' : '数学家长廊' },
+  { to: '/gallery', num: 'Ⅲ', label: locale.value === 'en' ? 'Mathematical Beauty' : '数学之美' },
+  { to: '/fractal', num: 'Ⅳ', label: locale.value === 'en' ? 'Fractals' : '分形' },
+  { to: '/workshop', num: 'Ⅴ', label: locale.value === 'en' ? 'Function Lab' : '函数工坊' },
+])
+
 const cards = [
-  { to: '/gaoshu', title: '微积分的世界', title_en: 'Calculus World', desc: '极限、导数、积分、级数、多元微积分', desc_en: 'Limits, Derivatives, Integrals, Series, Multivariable', meta: '5大主题 · 7位核心数学家', meta_en: '5 Topics · 7 Key Mathematicians', bg: 'linear-gradient(135deg,#1a1d22,#1e2935 40%,#2a3d54 70%,#3a5a7c)' },
-  { to: '/fractal', title: '分形探索', title_en: 'Fractal Explorer', desc: 'Mandelbrot 集 · Julia 集 · Lorenz 吸引子', desc_en: 'Mandelbrot · Julia · Lorenz Attractor', meta: 'Mandelbrot · Julia', bg: 'linear-gradient(135deg,#2e1a1a,#4e2a2a)' },
-  { to: '/gallery', title: '数学之美', title_en: 'Mathematical Beauty', desc: '欧拉恒等式 · 巴塞尔问题 · 高斯积分', desc_en: "Euler's Identity · Basel Problem · Gaussian Integral", meta: '最美的公式一览', meta_en: 'The Most Beautiful Formulas', bg: 'linear-gradient(135deg,#1d1a2e,#4a2c6e)' },
-  { to: '/mathematicians', title: '数学家长廊', title_en: 'Mathematicians', desc: '牛顿 · 欧拉 · 高斯 · 拉马努金', desc_en: 'Newton · Euler · Gauss · Ramanujan', meta: '7位数学家的故事', meta_en: 'Stories of 7 Mathematicians', bg: 'linear-gradient(135deg,#1e1a2e,#2a2250,#3a2a60)' },
-  { to: '/workshop', title: '函数工坊', title_en: 'Function Lab', desc: '2D曲线 · 3D曲面 · 向量场 · AI绘图', desc_en: '2D Curves · 3D Surfaces · Vector Fields · AI Plots', meta: 'sin(x), x², eˣ, 傅里叶级数', meta_en: 'sin(x), x², eˣ, Fourier Series', bg: 'linear-gradient(135deg,#1a2528,#1a3532,#1a4540)' },
-  { to: '/practice', title: '练习', title_en: 'Practice', desc: '选题 · 纸笔作答 · 拍照上传 · AI批改', desc_en: 'Select Topics · Solve · Submit Photos · AI Grading', meta: '基础→进阶→考研→研究生→博士', meta_en: 'Basic → Advanced → Grad School → PhD', bg: 'linear-gradient(135deg,#2a1a1e,#4a2528,#5a2a2e)' },
+  { to: '/gaoshu', title: '微积分的世界', title_en: 'Calculus World', desc: '极限、导数、积分、级数、多元微积分', desc_en: 'Limits, Derivatives, Integrals, Series, Multivariable', meta: '5大主题 · 7位核心数学家', meta_en: '5 Topics · 7 Key Mathematicians', symbol: '∫', chapter: 'Ⅰ', accent: '#4a6b8a' },
+  { to: '/fractal', title: '分形探索', title_en: 'Fractal Explorer', desc: 'Mandelbrot 集 · Julia 集 · Lorenz 吸引子', desc_en: 'Mandelbrot · Julia · Lorenz Attractor', meta: 'Mandelbrot · Julia', symbol: '∞', chapter: 'Ⅳ', accent: '#8a5a4a' },
+  { to: '/gallery', title: '数学之美', title_en: 'Mathematical Beauty', desc: '欧拉恒等式 · 巴塞尔问题 · 高斯积分', desc_en: "Euler's Identity · Basel Problem · Gaussian Integral", meta: '最美的公式一览', meta_en: 'The Most Beautiful Formulas', symbol: 'π', chapter: 'Ⅲ', accent: '#7a5a6b' },
+  { to: '/mathematicians', title: '数学家长廊', title_en: 'Mathematicians', desc: '牛顿 · 欧拉 · 高斯 · 拉马努金', desc_en: 'Newton · Euler · Gauss · Ramanujan', meta: '7位数学家的故事', meta_en: 'Stories of 7 Mathematicians', symbol: 'E', chapter: 'Ⅱ', accent: '#6b7a4a' },
+  { to: '/workshop', title: '函数工坊', title_en: 'Function Lab', desc: '2D曲线 · 3D曲面 · 向量场 · AI绘图', desc_en: '2D Curves · 3D Surfaces · Vector Fields · AI Plots', meta: 'sin(x), x², eˣ, 傅里叶级数', meta_en: 'sin(x), x², eˣ, Fourier Series', symbol: 'f(x)', chapter: 'Ⅴ', accent: '#5a6b6b' },
+  { to: '/practice', title: '练习', title_en: 'Practice', desc: '选题 · 纸笔作答 · 拍照上传 · AI批改', desc_en: 'Select Topics · Solve · Submit Photos · AI Grading', meta: '基础→进阶→考研→研究生→博士', meta_en: 'Basic → Advanced → Grad School → PhD', symbol: '✎', accent: '#8a6f3d' },
 ]
 
 const displayCards = computed(() => cards.map(c => ({
@@ -116,18 +130,48 @@ onMounted(loadDaily)
 </script>
 
 <style scoped>
-.hero { text-align:center; padding:56px 32px 28px; }
-.hero-eyebrow {
-  font-size: 11px;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--accent-warm);
-  margin: 0 0 12px;
-  font-weight: 600;
+.hall-guide {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  max-width: 900px;
+  margin: 28px auto 8px;
+  padding: 0 20px;
 }
-.hero h1 { font-size: 38px; margin: 0; }
-.hero-sub { color:var(--text-secondary); max-width:640px; margin:14px auto; font-size:15px; }
-.daily-problem { max-width:680px; margin:0 auto 28px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:26px 28px; box-shadow:var(--shadow-card); }.daily-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.hall-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 18px 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-card);
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 13px;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+.hall-item:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-elevated);
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+.hall-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.hall-name { letter-spacing: 0.03em; }
+.daily-problem { max-width:680px; margin:24px auto 28px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:26px 28px; box-shadow:var(--shadow-card); }.daily-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
 .daily-label { font-size:12px; color:var(--accent); font-weight:600; letter-spacing:0.04em; }
 .daily-date { font-size:11px; color:var(--text-muted); font-variant-numeric:tabular-nums; }
 .daily-q { font-size:15px; line-height:1.9; }

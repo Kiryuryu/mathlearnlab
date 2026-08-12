@@ -92,13 +92,6 @@ onMounted(() => run(async () => {
 }).catch(e => console.warn('Failed to load mathematician', e)))
 </script>
 <style scoped>
-.hero {
-  background: radial-gradient(90% 70% at 50% 0%, #eef0f4 0%, transparent 70%), linear-gradient(180deg, #f1efe7 0%, #f6f3ec 100%);
-  color: var(--text-primary);
-  text-align:center;
-  padding:48px 32px 36px;
-  border-bottom: 1px solid var(--border);
-}
 .portrait { width:120px; height:120px; border-radius:50%; margin:0 auto 20px; overflow:hidden; border:3px solid var(--border); background:var(--bg-card); display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-card); }
 .avatar { font-size:48px; font-weight:700; color:var(--accent); font-family:var(--font-heading); }
 .photo-img { width:100%; height:100%; object-fit:cover; }

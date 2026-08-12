@@ -31,3 +31,25 @@ def test_read_cached_invalidated_on_change(tmp_path, monkeypatch):
     # Modify file — mtime changes, cache should refresh
     f.write_text("v2", encoding="utf-8")
     assert content._read_cached(f) == "v2"
+
+
+def test_resolve_concept_en(tmp_path, monkeypatch):
+    """concept.md must resolve to the en variant when lang=en and it exists."""
+    monkeypatch.setattr(content, "CONTENT_DIR", tmp_path)
+    zh = tmp_path / "exhibits" / "limits"
+    en = tmp_path / "en" / "exhibits" / "limits"
+    zh.mkdir(parents=True)
+    en.mkdir(parents=True)
+    (zh / "concept.md").write_text("zh", encoding="utf-8")
+    (en / "concept.md").write_text("en", encoding="utf-8")
+    p = content._resolve_path("exhibits/limits/concept", "en")
+    assert p == en / "concept.md"
+
+
+def test_notebook_not_in_exhibits():
+    """No exhibit may carry a 'notebook' field — concept content is per-exhibit now."""
+    from server.content_data import exhibits
+    for key, ex in exhibits.items():
+        if key == "gaoshu":
+            continue
+        assert "notebook" not in ex, f"{key} still references a shared notebook"

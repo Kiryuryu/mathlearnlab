@@ -1,35 +1,44 @@
-## What is a Limit?
+## Limits — The Art of Infinite Approximation
 
-Intuitively, the limit of $f(x)$ as $x$ approaches $a$ is the value that $f(x)$ gets arbitrarily close to.
+What does it feel like to "approach arbitrarily close"? Imagine walking along a curve toward a point, closer and closer, until the distance is imperceptible — but how close is "close enough"? A limit turns this intuition into a verifiable statement: **however small an error you demand, I can name a range in which the function stays inside that error.**
 
-### Formal Definition (ε-δ)
+### The ε-δ Definition: Making "Approach" Verifiable
 
 $$\lim_{x \to a} f(x) = L$$
 
 means: for every $\varepsilon > 0$, there exists $\delta > 0$ such that if $0 < |x - a| < \delta$, then $|f(x) - L| < \varepsilon$.
 
-### Classic Examples
+This definition is the rigorous foundation of calculus. It is a game of tolerance:
 
-**1. A Simple Limit**
+- $\varepsilon$ is the **allowed error in the function value** — you may shrink it arbitrarily
+- $\delta$ is the **control range in the input** — I must find one to answer your challenge
+- The order matters: **first you give ε, then I find δ**. However small ε is, δ still exists
 
-$$\lim_{x \to 3} (2x + 1) = 7$$
+**Geometric intuition:** once $x$ enters the narrow band $(a-\delta, a+\delta)$, the value $f(x)$ is guaranteed to lie inside the error band $(L-\varepsilon, L+\varepsilon)$. That is the precise meaning of "arbitrarily close."
 
-**2. The Derivative as a Limit**
+### Existence: Both Sides Must Agree
 
-$$\lim_{h \to 0} \frac{f(x+h) - f(x)}{h}$$
+The limit $\lim_{x\to a} f(x) = L$ exists **if and only if** the left-hand and right-hand limits are both equal to $L$:
 
-This is the instantaneous rate of change — the foundation of differential calculus.
+$$\lim_{x\to a^-}f(x) = \lim_{x\to a^+}f(x) = L$$
 
-**3. A Special Limit**
+Approaching from the left and from the right must give the same value. This simple condition is a trap for piecewise, absolute-value, and floor functions — for example, $\frac{|x|}{x}$ has left and right limits $-1$ and $1$ at $x=0$, so its limit does not exist there.
 
-$$\lim_{x \to 0} \frac{\sin x}{x} = 1$$
+### Two Classic Limits
 
-This limit is the key to computing derivatives of trigonometric functions.
+$$\lim_{x\to 0}\frac{\sin x}{x} = 1, \qquad \lim_{x\to\infty}\left(1+\frac{1}{x}\right)^x = e$$
 
-### Why Limits Matter
+The first is the key to differentiating trigonometric functions; the second draws the natural constant $e$ out of compounding growth. Neither can be found by substitution — both are forced out through squeezing and the definition itself. That is the power of a limit.
 
-Limits give us the ability to reason about:
-- **Instantaneous change** (velocity at a single moment)
-- **Infinite sums** (area under a curve)
-- **Continuity** (no jumps or breaks)
-- **Approximation** (getting as close as we want)
+### Why Limits Underpin All of Calculus
+
+- **Instantaneous change**: the derivative $f'(x)=\lim_{h\to0}\frac{f(x+h)-f(x)}{h}$ is itself a limit
+- **Accumulation**: the definite integral is the limit of a Riemann sum
+- **Continuity**: $\lim_{x\to a} f(x) = f(a)$ means the function has no jumps
+- **Infinite sums**: infinitely many terms can add to a finite value, again by limits
+
+The entire edifice of calculus stands on this one pillar.
+
+---
+
+**From here:** visit **Applications** to see limits computing π, modeling compound growth, and denoising images; in **Interactive**, drag the ε slider and watch δ respond to each of your challenges.

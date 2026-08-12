@@ -1,42 +1,51 @@
-## What Is Linear Algebra
+## Applications of Linear Algebra
 
-Linear algebra is the mathematics of **vector spaces and linear transformations**. Its core question: when we stretch, rotate, or compress space, what stays the same?
+Now that you know vectors, matrices, determinants, and eigenvectors, let's see how this "language of space" powers the modern world.
 
-### Vectors — More Than Just Arrows
+### 1. PageRank — The Search Engine of the Web
 
-A vector is an ordered pair (x, y), but its deepest meaning: **a point's position in space, starting from the origin.**
+Google treats the entire internet as one **giant matrix**: each row and column is a web page, and the entries encode link relationships. A page's "importance" is the principal eigenvector of this matrix.
 
-- Vector addition: translation
-- Scalar multiplication: scaling
-- Linear combination: representing any point using a few basis vectors
+- Iterative computation: each page's importance = weighted sum of pages linking to it
+- Once converged, the weight vector reaches a steady state — the ranking is fixed
 
-### Matrices — "Transformers" of Space
+**An eigenvector of one matrix defines the order of the entire internet.**
 
-The product Ax means: **transform vector x to a new location.**
+### 2. PCA Dimensionality Reduction — The Core Tool of Data Science
 
-$$
-\begin{bmatrix} a & b \\ c & d \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix} = \begin{bmatrix} ax + by \\ cx + dy \end{bmatrix}
-$$
+High-dimensional data (samples with hundreds of features) is hard to analyze and visualize. **Principal Component Analysis (PCA)** finds the eigenvectors of the covariance matrix corresponding to the largest eigenvalues — directions that preserve the most variance (information).
 
-Think of a matrix as a "space deformer" — the entire coordinate grid gets stretched, rotated, or sheared.
+- Projecting 100-dimensional data onto the 2 most important directions loses the least information
+- Face recognition, gene analysis, and recommender systems all use PCA for preprocessing
 
-### Determinants — How Area Changes
+**Dimensionality reduction is about finding the directions in which data changes most.**
 
-For a 2×2 matrix, det(A) = ad - bc. Geometrically, it's the **area** of the parallelogram that the unit square becomes after the transformation.
+### 3. Quantum Mechanics — The World's Eigenvalue Problem
 
-- det(A) = 0 → the transformation flattens space into a line
-- det(A) > 0 → orientation preserved
-- det(A) < 0 → orientation flipped
+The Schrödinger equation $H\psi = E\psi$ is an **eigenvalue equation**: the Hamiltonian operator $H$ acting on the wavefunction $\psi$ equals a constant $E$ times $\psi$.
 
-### Eigenvalues and Eigenvectors — Directional Invariants
+- **Energy levels** are the eigenvalues $E$
+- **Orbitals** (the shapes of electron clouds) are the eigenvectors $\psi$
 
-For a matrix A, if there exists a vector v such that Av = λv, then v is an **eigenvector** and λ is an **eigenvalue**.
+Heisenberg even expressed physical quantities directly as matrices — hence **matrix mechanics**. Quantum computing and chemistry simulation are built entirely on this mathematics.
 
-Eigenvectors under A are only stretched/compressed (by λ), their **direction unchanged**. This reveals the transformation's essential structure.
+### 4. 3D Graphics — The Skeleton of Game Engines
 
-### Applications
+Every 3D scene you see on screen is a chain of matrix multiplications:
 
-- **PageRank**: Google treats the entire web as a giant matrix, computing its principal eigenvector for search rankings
-- **PCA**: Principal Component Analysis finds eigenvectors of the covariance matrix corresponding to the largest eigenvalues
-- **Quantum mechanics**: The Schrödinger equation is an eigenvalue problem — energy levels are eigenvalues, orbitals are eigenvectors
-- **3D graphics**: Rotation, projection, and perspective in game engines are all matrix multiplications
+- **Rotation**: turning an object $45°$ around an axis
+- **Projection**: flattening 3D coordinates onto the 2D screen (perspective projection)
+- **View transform**: converting camera coordinates into world coordinates
+
+Game engines perform tens of millions of matrix multiplications per frame — that is what GPUs are built for.
+
+### 5. Compression and Recommendation — The Wisdom of Matrices
+
+- **Image compression**: treat the image as a matrix and use Singular Value Decomposition (SVD) to keep the largest singular values while discarding fine detail
+- **Recommender systems**: factorize the user–item rating matrix to fill in the "unrated" entries
+
+**The intuition behind matrix factorization: decompose complex information into a combination of a few principal components.**
+
+---
+
+Behind all of these is one idea: **the world can be modeled as space, change can be modeled as matrices, and the essence lives in the eigenvectors.** Look back at the definitions in **Core Concepts** with this eye, and the formulas stop being symbols — they become pictures of space.

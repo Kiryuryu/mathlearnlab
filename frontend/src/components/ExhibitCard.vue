@@ -1,6 +1,8 @@
 <template>
   <router-link :to="to" class="card" :style="cardStyle">
     <div class="card-accent" :style="{ background: accent }"></div>
+    <span v-if="chapter" class="card-chapter chapter-roman">{{ chapter }}</span>
+    <span v-if="symbol" class="card-symbol">{{ symbol }}</span>
     <div class="card-body">
       <h2>{{ title }}</h2>
       <p>{{ desc }}</p>
@@ -19,6 +21,8 @@ const props = defineProps({
   meta: String,
   bg: { type: String, default: '' }, // legacy gradient prop, now ignored in favor of paper style
   accent: { type: String, default: '' }, // optional muted chapter-marker color
+  symbol: { type: String, default: '' }, // math symbol watermark (∞, ∆, ∫, ∑, ∂, λ, P)
+  chapter: { type: String, default: '' }, // roman numeral chapter marker (Ⅰ, Ⅱ, …)
 })
 
 // Book-cloth muted accents per chapter, desaturated to fit paper palette
@@ -77,6 +81,25 @@ const cardStyle = computed(() => ({
   height: 3px;
   background: var(--card-accent);
   opacity: 0.75;
+}
+.card-chapter {
+  position: absolute;
+  top: 18px; right: 22px;
+  font-size: 44px;
+  font-weight: 800;
+  color: var(--text-muted);
+  opacity: 0.14;
+  pointer-events: none;
+}
+.card-symbol {
+  position: absolute;
+  top: 26px; left: 26px;
+  font-family: var(--font-mono);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--card-accent);
+  opacity: 0.85;
+  pointer-events: none;
 }
 .card-body { position: relative; z-index: 1; }
 .card-body h2 {

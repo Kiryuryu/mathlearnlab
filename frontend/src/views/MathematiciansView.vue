@@ -1,8 +1,10 @@
 <template>
   <div class="page">
-    <p class="hero-eyebrow">{{ $t('mathematicians.eyebrow') }}</p>
-    <h1>{{ $t('mathematicians.title') }}</h1>
-    <p class="sub">{{ $t('mathematicians.subtitle') }}</p>
+    <div class="page-head">
+      <p class="hero-eyebrow">{{ $t('mathematicians.eyebrow') }}</p>
+      <h1>{{ $t('mathematicians.title') }}</h1>
+      <p class="sub">{{ $t('mathematicians.subtitle') }}</p>
+    </div>
     <div class="grid">
       <router-link v-for="m in mathematicians" :key="m.key" :to="'/mathematicians/'+m.key" class="card" :style="{ '--card-accent': m.accent }">
         <span class="card-accent-bar"></span>
@@ -28,18 +30,6 @@ const mathematicians = [
 </script>
 <style scoped>
 .page { max-width:1200px; margin:0 auto; padding:48px 20px 32px; }
-.page h1, .sub { text-align:center; }
-.hero-eyebrow {
-  font-size: 11px;
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
-  color: var(--accent-warm);
-  font-weight: 600;
-  margin: 0 0 10px;
-  text-align: center;
-}
-.page h1 { font-size:34px; margin-bottom:8px; }
-.sub { color:var(--text-secondary); }
 .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:20px; padding:28px 0 12px; }
 .card {
   display:flex; align-items:flex-start; gap:16px; padding:24px 24px 20px;

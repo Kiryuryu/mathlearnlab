@@ -2,14 +2,16 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
+const backend = process.env.BACKEND_PORT ? `http://127.0.0.1:${process.env.BACKEND_PORT}` : 'http://127.0.0.1:8000'
+
 export default defineConfig({
   plugins: [vue()],
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
   server: {
     proxy: {
-      '/api': 'http://127.0.0.1:8000',
-      '/static': 'http://127.0.0.1:8000',
-      '/content': 'http://127.0.0.1:8000'
+      '/api': backend,
+      '/static': backend,
+      '/content': backend
     }
   },
   build: {

@@ -1,8 +1,10 @@
 <template>
   <div class="page">
-    <p class="hero-eyebrow">{{ $t('gallery.eyebrow') }}</p>
-    <h1>{{ $t('gallery.title') }}</h1>
-    <p class="sub">{{ $t('gallery.subtitle') }}</p>
+    <div class="page-head">
+      <p class="hero-eyebrow">{{ $t('gallery.eyebrow') }}</p>
+      <h1>{{ $t('gallery.title') }}</h1>
+      <p class="sub">{{ $t('gallery.subtitle') }}</p>
+    </div>
     <div class="grid">
       <router-link v-for="g in items" :key="g.title" :to="g.to" class="card" :style="{ '--card-accent': g.accent }">
         <span class="card-accent-bar"></span>
@@ -34,18 +36,6 @@ const items = computed(() => rawItems.map(i => ({
 </script>
 <style scoped>
 .page { max-width:1100px; margin:0 auto; padding:48px 20px 32px; }
-.page h1 { text-align:center; }
-.hero-eyebrow {
-  font-size: 11px;
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
-  color: var(--accent-warm);
-  font-weight: 600;
-  margin: 0 0 10px;
-  text-align: center;
-}
-.page h1 { font-size:34px; margin-bottom:8px; }
-.sub { color:var(--text-secondary); text-align:center; }
 .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:20px; padding:28px 0 12px; }
 .card {
   display:block; color:var(--text-primary); text-decoration:none; border-radius:var(--radius-lg);

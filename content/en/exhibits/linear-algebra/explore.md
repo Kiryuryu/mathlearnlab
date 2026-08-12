@@ -1,6 +1,6 @@
 ## Interactive Exploration: Visualizing Linear Transformations
 
-Adjust the matrix entries below and watch how the basis vectors (1,0) and (0,1) transform, and how the entire coordinate grid deforms.
+Adjust the matrix entries below and watch how the basis vectors (1,0) and (0,1) transform, and how the entire coordinate grid deforms. **A matrix is a deformer of space.**
 
 <div id="linTransform" style="width:100%;height:500px;border:1px solid var(--border);border-radius:8px;margin:16px 0;"></div>
 
@@ -22,6 +22,33 @@ Adjust the matrix entries below and watch how the basis vectors (1,0) and (0,1) 
   <button class="btn btn-sm" onclick="presetTransform(0,0,0,0)">Zero</button>
   <button class="btn btn-sm" onclick="presetTransform(-1,0,0,1)">Mirror</button>
 </div>
+
+### Try It 1: A Matrix with Zero Determinant
+
+Enter $A = \begin{bmatrix}1 & 2 \\ 2 & 4\end{bmatrix}$ in the matrix above. What happens to the grid? What is det(A)?
+
+<details>
+<summary>Answer</summary>
+det(A) = 1×4 − 2×2 = 0. Every grid point is crushed onto a single line — two-dimensional space collapses to one dimension, and all area information is lost. A zero determinant means the transformation is not invertible.
+</details>
+
+### Try It 2: Find the Eigenvectors
+
+Set the matrix to $A = \begin{bmatrix}2 & 0 \\ 0 & 3\end{bmatrix}$. Which directions are unchanged by the transformation?
+
+<details>
+<summary>Answer</summary>
+The basis vectors (1,0) and (0,1) are stretched by 2 and 3 times respectively, with their directions unchanged — they are the eigenvectors, with eigenvalues 2 and 3. Look at the grid: it stretches 2× horizontally and 3× vertically.
+</details>
+
+### Try It 3: Does Rotation Change the Area?
+
+Set the matrix to the rotation matrix $\begin{bmatrix}0 & -1 \\ 1 & 0\end{bmatrix}$ (click the "Rotate 90°" preset). What is det(A)? Did the area change?
+
+<details>
+<summary>Answer</summary>
+det(A) = 0×0 − (−1)×1 = 1. Rotation preserves area (|det| = 1) and preserves orientation (det > 0). The rotational part of a matrix never changes area — which is why rotation and scaling can be treated separately.
+</details>
 
 <script>
 function updateTransform() {
