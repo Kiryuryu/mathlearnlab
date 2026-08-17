@@ -1,4 +1,6 @@
-const PLOTLY_SRC = 'https://cdn.jsdelivr.net/npm/plotly.js@2.35.2/dist/plotly.min.js'
+// Self-hosted (server/static/vendor/plotly.min.js) so charts work reliably in
+// mainland China — public CDNs like jsdelivr can be slow or blocked there.
+const PLOTLY_SRC = '/static/vendor/plotly.min.js'
 let _promise = null
 
 export function loadPlotly() {

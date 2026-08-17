@@ -5,24 +5,18 @@ Practice API — AI-only problem generation with deduplication.
 import random
 import string
 from fastapi import APIRouter, HTTPException, Request, Depends
-from pydantic import BaseModel
 from server.config import settings
 from server.routers.auth import require_user
-from server.services.deepseek import chat_completion
+from server.services.deepseek import resolve_api_key, chat_completion
+from server.services.ratelimit import use_ai_quota
+from server.models.problems import persist_problem, record_generated
 from server.services.practice_service import (
     build_generate_prompt,
     build_recent_avoidance,
     extract_json,
-    persist_problem,
-    record_generated,
 )
 
 router = APIRouter()
-
-
-class GenerateRequest(BaseModel):
-    topic_key: str
-    difficulty: str = "medium"
 
 
 @router.post("/api/practice/generate")
@@ -40,9 +34,15 @@ async def generate_problem(request: Request, user: dict = Depends(require_user))
     exhibit_name = exhibit.get("zh", topic_key)
     knowledge_points = exhibit.get("big_question", "")
 
-    key = request.headers.get("X-API-Key")
-    if not key:
-        raise HTTPException(status_code=401, detail="请先在登录时配置 DeepSeek API Key")
+    api_key = resolve_api_key(request.headers.get("X-API-Key"))
+    if not api_key:
+        raise HTTPException(status_code=401, detail="请先配置 DeepSeek API Key（右上角设置）")
+
+    if not use_ai_quota(user["user_id"]):
+        raise HTTPException(
+            status_code=429,
+            detail=f"今日 AI 调用额度已用完（每日 {settings.ai_daily_limit} 次），请明天再来",
+        )
 
     gen_id = "GEN-" + "".join(random.choices(string.ascii_uppercase + string.digits, k=5))
     avoid_text = build_recent_avoidance(topic_key)
@@ -51,7 +51,7 @@ async def generate_problem(request: Request, user: dict = Depends(require_user))
     try:
         response = await chat_completion(
             [{"role": "user", "content": prompt}],
-            api_key=key,
+            api_key=api_key,
             max_tokens=1500,
             json_mode=True,
         )

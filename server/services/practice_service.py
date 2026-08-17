@@ -1,68 +1,19 @@
 """
 Practice service — AI problem generation helpers (history, prompt, JSON parsing).
 Pure helpers so the router stays thin and the logic is testable.
+
+Storage of generated problems/history lives in server.models.problems
+(SQLite-backed; race-safe). This module only builds prompts and parses output.
 """
 
 import json
-import time
-from pathlib import Path
 
-DATA_DIR = Path(__file__).resolve().parent.parent.parent / "data"
-GENERATED_DIR = DATA_DIR / "generated_problems"
-GENERATED_DIR.mkdir(parents=True, exist_ok=True)
-
-
-def history_path(topic: str) -> Path:
-    return GENERATED_DIR / f"{topic}.json"
-
-
-def load_history(topic: str) -> list[dict]:
-    p = history_path(topic)
-    if not p.exists():
-        return []
-    try:
-        return json.loads(p.read_text(encoding="utf-8"))
-    except Exception:
-        return []
-
-
-def save_history(topic: str, entries: list[dict]):
-    history_path(topic).write_text(
-        json.dumps(entries[-200:], ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
-
-
-def record_generated(problem: dict, gen_id: str, topic_key: str, difficulty: str):
-    history = load_history(topic_key)
-    history.append({
-        "id": problem.get("id", gen_id),
-        "preview": problem.get("preview", "")[:120],
-        "topic": topic_key,
-        "difficulty": difficulty,
-        "ts": time.time(),
-    })
-    save_history(topic_key, history)
-
-
-def persist_problem(problem: dict, topic_key: str):
-    problem_path = GENERATED_DIR / f"{topic_key}_problems.json"
-    existing = []
-    if problem_path.exists():
-        try:
-            existing = json.loads(problem_path.read_text(encoding="utf-8"))
-        except Exception:
-            existing = []
-    existing.append(problem)
-    problem_path.write_text(
-        json.dumps(existing[-500:], ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
+from server.models.problems import load_recent_history, persist_problem, record_generated
 
 
 def build_recent_avoidance(topic_key: str) -> str:
-    history = load_history(topic_key)
-    recent = [h.get("preview", "") for h in history[-10:] if h.get("preview")]
+    """Text listing recently generated problems so the AI avoids duplicates."""
+    recent = [h.get("preview", "") for h in load_recent_history(topic_key, 10) if h.get("preview")]
     if not recent:
         return ""
     return (

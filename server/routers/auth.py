@@ -1,9 +1,11 @@
 """
 Auth API — registration, login, user info.
 """
+import logging
+import re
 from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from server.models.database import get_db, db_session
+from starlette.concurrency import run_in_threadpool
 from server.models.auth import (
     hash_password,
     verify_password,
@@ -11,10 +13,15 @@ from server.models.auth import (
     decode_access_token,
     generate_user_id,
 )
+from server.models.users import username_exists, create_user, get_user_by_username, get_user_by_id
 from server.services.ratelimit import is_blocked, record_failure, record_success
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 security = HTTPBearer(auto_error=False)
+
+_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
 def _client_ip(request: Request) -> str:
@@ -31,6 +38,8 @@ class RegisterRequest(BaseModel):
     username: str
     password: str
     email: str = ""
+    # Honeypot field — real browsers never fill it; bots often do.
+    website: str = ""
 
 
 class LoginRequest(BaseModel):
@@ -64,9 +73,7 @@ def require_user(user: dict | None = Depends(get_current_user)) -> dict:
 async def check_username(username: str):
     if len(username) < 3:
         return {"available": False, "reason": "too_short"}
-    with db_session() as conn:
-        existing = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
-    return {"available": existing is None, "reason": "taken" if existing else None}
+    return {"available": not username_exists(username), "reason": "taken" if username_exists(username) else None}
 
 
 @router.post("/api/auth/register")
@@ -78,26 +85,30 @@ async def register(body: RegisterRequest, request: Request):
         raise HTTPException(status_code=400, detail="Username must be at least 3 characters")
     if len(body.password) < 6:
         raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+    if body.email and not _EMAIL_RE.match(body.email):
+        raise HTTPException(status_code=400, detail="Invalid email address")
+    if body.website:
+        # Honeypot tripped — silently pretend success without creating an account.
+        logger.info("Registration honeypot triggered from %s (username=%s)", ip, body.username)
+        return {"message": "Registration submitted, awaiting admin approval", "status": "pending"}
 
-    with db_session() as conn:
-        existing = conn.execute("SELECT id FROM users WHERE username = ?", (body.username,)).fetchone()
-        if existing:
-            raise HTTPException(status_code=409, detail="Username already taken")
+    if username_exists(body.username):
+        raise HTTPException(status_code=409, detail="Username already taken")
 
-        user_id = generate_user_id()
-        pwd_hash = hash_password(body.password)
-        conn.execute(
-            "INSERT INTO users (id, username, email, password_hash, status) VALUES (?, ?, ?, ?, 'pending')",
-            (user_id, body.username, body.email, pwd_hash),
-        )
-        conn.commit()
+    user_id = generate_user_id()
+    create_user(user_id, body.username, body.email, hash_password(body.password))
 
     from server.services.email import send_admin_notification
     approve_url = "https://www.mathlearnlab.cn/admin"
-    send_admin_notification(
-        subject=f"Math Museum - New Registration: {body.username}",
-        body=f"<h3>New User Registration</h3><p>Username: {body.username}</p><p>Email: {body.email}</p><p>ID: {user_id}</p><p>Review at: <a href=\"{approve_url}\">{approve_url}</a></p>"
-    )
+    # Send asynchronously and never let SMTP failure fail the registration.
+    try:
+        await run_in_threadpool(
+            send_admin_notification,
+            subject=f"Math Museum - New Registration: {body.username}",
+            body=f"<h3>New User Registration</h3><p>Username: {body.username}</p><p>Email: {body.email}</p><p>ID: {user_id}</p><p>Review at: <a href=\"{approve_url}\">{approve_url}</a></p>",
+        )
+    except Exception:
+        logger.exception("Admin notification email failed for user %s", user_id)
 
     return {
         "message": "Registration submitted, awaiting admin approval",
@@ -110,8 +121,7 @@ async def login(body: LoginRequest, request: Request):
     ip = _client_ip(request)
     if is_blocked(ip):
         raise HTTPException(status_code=429, detail="Too many attempts, please try later")
-    with db_session() as conn:
-        row = conn.execute("SELECT * FROM users WHERE username = ?", (body.username,)).fetchone()
+    row = get_user_by_username(body.username)
 
     if row is None or not verify_password(body.password, row["password_hash"]):
         record_failure(ip)
@@ -135,9 +145,7 @@ async def login(body: LoginRequest, request: Request):
 
 @router.get("/api/auth/me")
 async def me(user: dict = Depends(require_user)):
-    conn = get_db()
-    row = conn.execute("SELECT * FROM users WHERE id = ?", (user["user_id"],)).fetchone()
-    conn.close()
+    row = get_user_by_id(user["user_id"])
     if row is None:
         raise HTTPException(status_code=404, detail="User not found")
     return {

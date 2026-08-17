@@ -21,13 +21,14 @@ https://www.mathlearnlab.cn
 
 ### AI 功能
 - 智能出题（基础→进阶→考研→研究生→博士）
-- 纸笔作答 → 拍照上传 → AI 批改
+- 纸笔作答 → 拍照上传 → AI 批改（限制图片 ≤5MB，仅 JPEG/PNG/WebP/GIF）
 - 数学聊天助手（基于 DeepSeek API）
+- 每位用户每日 AI 调用配额（默认 60 次，`AI_DAILY_LIMIT` 可调，持久化在数据库）
 
 ### 用户系统
-- 注册审核制（管理员邮箱审批）
+- 注册审核制（管理员邮箱审批；注册含蜜罐反爬 + 邮箱格式校验）
 - MySQL / SQLite 持久化存储
-- API Key 存储在浏览器 localStorage
+- API Key 存储在浏览器 localStorage（生产环境仅信任服务端 `DEEPSEEK_API_KEY`）
 
 ### 安全
 - HTTPS（Let's Encrypt）
@@ -121,10 +122,12 @@ mathlearnlab/
 | 变量 | 说明 | 是否必填 |
 |------|------|---------|
 | `JWT_SECRET_KEY` | JWT 签名密钥，用于防止令牌伪造 | 是 |
-| `ADMIN_SECRET` | 管理后台访问密钥 | 是 |
+| `ADMIN_SECRET` | 管理后台访问密钥（`Authorization: Bearer <secret>` 头） | 是 |
 | `DEEPSEEK_API_KEY` | DeepSeek API 密钥 | 是 |
 | `DATABASE_URL` | 数据库连接字符串 | 否（留空则用 SQLite） |
 | `SMTP_*` | 邮件通知配置 | 否 |
+| `AI_DAILY_LIMIT` | 每用户每日 AI 调用配额（默认 60） | 否 |
+| `MAX_IMAGE_BYTES` | 批改图片大小上限（默认 5MB） | 否 |
 
 ### 密钥生成
 

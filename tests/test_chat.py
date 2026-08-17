@@ -55,18 +55,21 @@ def test_stream_chat_route_passes_guide(monkeypatch):
 
     monkeypatch.setattr(chat_router.chat_service, "stream_chat", fake_stream_chat)
 
-    client = TestClient(app)
-    # Build a valid auth token.
-    from server.models.auth import create_access_token
-    token = create_access_token("1", "testuser")
-    headers = {"Authorization": f"Bearer {token}"}
-    r = client.post("/api/chat/stream", json={
-        "messages": [{"role": "user", "content": "讲一讲 ε-δ"}],
-        "guide_mode": True,
-        "exhibit_key": "limits",
-        "exhibit_name": "极限 — 无限逼近的艺术",
-        "lang": "zh",
-    }, headers=headers)
-    assert r.status_code == 200
-    assert captured.get("guide", {}).get("key") == "limits"
-    assert captured.get("guide", {}).get("mode") is True
+    # `with` triggers the app lifespan so the SQLite tables (incl. ai_usage)
+    # exist before the quota check runs.
+    with TestClient(app) as client:
+        # Build a valid auth token.
+        from server.models.auth import create_access_token
+        token = create_access_token("1", "testuser")
+        # Debug mode accepts a client-supplied API key.
+        headers = {"Authorization": f"Bearer {token}", "X-API-Key": "test-key"}
+        r = client.post("/api/chat/stream", json={
+            "messages": [{"role": "user", "content": "讲一讲 ε-δ"}],
+            "guide_mode": True,
+            "exhibit_key": "limits",
+            "exhibit_name": "极限 — 无限逼近的艺术",
+            "lang": "zh",
+        }, headers=headers)
+        assert r.status_code == 200
+        assert captured.get("guide", {}).get("key") == "limits"
+        assert captured.get("guide", {}).get("mode") is True

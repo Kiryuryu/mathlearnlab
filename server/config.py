@@ -32,6 +32,15 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 60 * 24  # 24 hours
 
+    # ── Admin ──
+    admin_secret: str = ""
+
+    # ── Limits ──
+    # Max decoded size (bytes) for OCR/grade image uploads.
+    max_image_bytes: int = 5 * 1024 * 1024
+    # Per-user per-day AI call quota (chat / generate / grade).
+    ai_daily_limit: int = 60
+
     # ── Email / SMTP ──
     smtp_host: str = ""
     smtp_user: str = ""
@@ -87,6 +96,11 @@ def validate_settings():
                 "JWT_SECRET_KEY environment variable is required in non-debug mode. "
                 "Generate one with: python -c \"import secrets; print(secrets.token_urlsafe(32))\""
             )
+        if not os.getenv("ADMIN_SECRET", ""):
+            raise RuntimeError(
+                "ADMIN_SECRET environment variable is required in non-debug mode. "
+                "Generate one with: python -c \"import secrets; print(secrets.token_urlsafe(32))\""
+            )
     if not os.getenv("DEEPSEEK_API_KEY", ""):
         raise RuntimeError(
             "DEEPSEEK_API_KEY environment variable is required. "
@@ -117,3 +131,5 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 CONTENT_DIR = BASE_DIR / settings.content_dir
 DATA_DIR = BASE_DIR / settings.data_dir
 STATIC_DIR = Path(__file__).resolve().parent / "static"
+# Vite builds the frontend SPA into server/static-spa (see frontend/vite.config.js).
+STATIC_SPA_DIR = Path(__file__).resolve().parent / "static-spa"

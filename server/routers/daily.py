@@ -6,10 +6,11 @@ Uses the server's DeepSeek key, so no user login/API key required.
 import json
 import random
 import string
-from datetime import date
+from datetime import datetime
 from pathlib import Path
 from fastapi import APIRouter
 from server.config import DATA_DIR, settings
+from server.models.auth import CST
 from server.services.deepseek import chat_completion
 from server.services.practice_service import build_generate_prompt, extract_json
 
@@ -58,8 +59,12 @@ def _save(d: str, data: dict):
 
 @router.get("/api/daily/problem")
 async def daily_problem():
-    """Return today's AI-generated problem (cached per day)."""
-    today = date.today().isoformat()  # server-local date
+    """Return today's AI-generated problem (cached per day).
+
+    The day is computed in China Standard Time so users in CN always see
+    "today's" problem, regardless of the server's timezone.
+    """
+    today = datetime.now(CST).date().isoformat()
 
     cached = _load_cached(today)
     if cached and not cached.get("_error"):

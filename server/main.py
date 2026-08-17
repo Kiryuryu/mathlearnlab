@@ -8,9 +8,10 @@ Run:
 import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from server.config import settings, CONTENT_DIR, DATA_DIR, STATIC_DIR
+from server.config import settings, CONTENT_DIR, DATA_DIR, STATIC_DIR, STATIC_SPA_DIR
 from server.models.database import init_db
 from server.middleware import RequestLogMiddleware
 
@@ -71,3 +72,23 @@ app.include_router(blog.router)
 app.include_router(bookmarks.router)
 app.include_router(daily.router)
 app.include_router(graph.router)
+
+# ── SPA fallback (registered last, so specific routes win) ──
+# The Vue build (server/static-spa) is served for any unmatched GET route,
+# with history-mode deep links falling back to index.html.
+# Note: /static, /api, /data, /content are handled by the routes/mounts above;
+# a truly unknown API path still returns JSON 404 instead of the SPA shell.
+
+
+@app.get("/{full_path:path}", include_in_schema=False)
+async def spa_fallback(full_path: str):
+    if full_path.startswith(("api/", "static/", "data/", "content/", "docs")):
+        return JSONResponse(status_code=404, content={"detail": "Not found"})
+    index = STATIC_SPA_DIR / "index.html"
+    if full_path:
+        candidate = STATIC_SPA_DIR / full_path
+        if candidate.is_file():
+            return FileResponse(candidate)
+    if index.exists():
+        return FileResponse(index)
+    return JSONResponse(status_code=404, content={"detail": "Not found"})

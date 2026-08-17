@@ -59,8 +59,7 @@ async function load() {
   try {
     const r = await apiFetch(`/api/admin/users?status=${filter.value}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ secret: secret.value })
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${secret.value}` }
     })
     if (!r.ok) { showToast(t('admin.loadFail')); return }
     const d = await r.json()
@@ -73,8 +72,7 @@ async function approve(id) {
   try {
     const r = await apiFetch(`/api/admin/users/${id}/approve`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ secret: secret.value })
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${secret.value}` }
     })
     if (!r.ok) { showToast(t('admin.actionFail')); return }
     load()
@@ -85,8 +83,7 @@ async function reject(id) {
   try {
     const r = await apiFetch(`/api/admin/users/${id}/reject`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ secret: secret.value })
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${secret.value}` }
     })
     if (!r.ok) { showToast(t('admin.actionFail')); return }
     load()

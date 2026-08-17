@@ -10,8 +10,9 @@ from server.config import CONTENT_DIR, settings
 SECTION_ZH = {"content": "内容", "subjects": "学科", "exhibits": "微积分", "mathematicians": "数学家长廊"}
 SECTION_EN = {"content": "Content", "subjects": "Subjects", "exhibits": "Calculus", "mathematicians": "Mathematicians"}
 
-# Cache of scanned .md files: {path_str: (mtime_ns, text)}. Rebuilt when any file changes.
-_FILE_CACHE: dict[str, tuple[int, str]] = {}
+# Cache of scanned .md files: {path_str: (mtime_ns, text, text_lower)}.
+# Lowercased text is cached so per-request .lower() over every file is avoided.
+_FILE_CACHE: dict[str, tuple[int, str, str]] = {}
 _FILE_CACHE_TS = 0.0
 _CACHE_TTL = 30  # seconds
 
@@ -27,7 +28,7 @@ def _refresh_file_cache():
     if now - _FILE_CACHE_TS < _CACHE_TTL:
         return
     _FILE_CACHE_TS = now
-    cache: dict[str, tuple[int, str]] = {}
+    cache: dict[str, tuple[int, str, str]] = {}
     base = Path(CONTENT_DIR)
     for directory in (base, base / "en"):
         if not directory.exists():
@@ -42,7 +43,8 @@ def _refresh_file_cache():
                 if cached and cached[0] == st.st_mtime_ns:
                     cache[path_str] = cached
                     continue
-                cache[path_str] = (st.st_mtime_ns, md_file.read_text(encoding="utf-8"))
+                text = md_file.read_text(encoding="utf-8")
+                cache[path_str] = (st.st_mtime_ns, text, text.lower())
             except Exception:
                 continue
     _FILE_CACHE.clear()
@@ -80,9 +82,9 @@ def search_content_files(query: str, lang: str) -> list[dict]:
     base = Path(CONTENT_DIR)
     _refresh_file_cache()
 
-    for path_str, (_mtime, text) in _FILE_CACHE.items():
+    for path_str, (_mtime, text, text_lower) in _FILE_CACHE.items():
         try:
-            idx = text.lower().find(query)
+            idx = text_lower.find(query)
             if idx == -1:
                 continue
             rel = str(Path(path_str).relative_to(base))

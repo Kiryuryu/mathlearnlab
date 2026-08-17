@@ -50,7 +50,7 @@
         <div v-else v-html="sections[s]" class="content-fade"></div>
 
         <!-- Interactive block lives at the end of the explore section -->
-        <div v-if="s === 'explore' && lazyViz" class="viz-wrap" :data-viz-ready="vizReady ? '1' : '0'">
+        <div v-if="s === 'explore' && lazyViz" class="explore-block">
           <EulerSpiral v-if="topic === 'derivatives'" />
           <ManimVideo
             v-if="manimVideo"
@@ -59,8 +59,8 @@
             :title="manimVideo.title"
             :desc="manimVideo.desc"
           />
-          <div ref="vizPlot" class="viz-plot"></div>
-          <div ref="vizControls" class="viz-ctrls"></div>        </div>
+          <ExhibitViz v-if="VIZ_TOPICS.includes(topic)" :topic="topic" />
+        </div>
       </section>
 
       <!-- Narrative "up next" card -->
@@ -90,8 +90,6 @@
 import { ref, watch, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { loadPlotly } from '@/utils/plotly'
-import { museumViz } from '@/utils/viz'
 import { renderMarkdown } from '@/utils/markdown'
 import { useAuth } from '@/stores/auth'
 import { useChatStore } from '@/stores/chat'
@@ -100,8 +98,11 @@ import { apiFetch } from '@/utils/api'
 import ExhibitHero from '@/components/ExhibitHero.vue'
 import EulerSpiral from '@/components/EulerSpiral.vue'
 import ManimVideo from '@/components/ManimVideo.vue'
+import ExhibitViz from '@/components/ExhibitViz.vue'
 
 const SECTIONS = ['concept', 'applications', 'history', 'beauty', 'method', 'explore']
+// Topics that ship an interactive Plotly visualization.
+const VIZ_TOPICS = ['limits', 'derivatives', 'integrals', 'series', 'multivariable']
 
 const { t, locale } = useI18n()
 const route = useRoute()
@@ -117,9 +118,6 @@ const loadedSections = ref({})
 const loading = ref(false)
 const isBookmarked = ref(false)
 
-const vizPlot = ref(null)
-const vizControls = ref(null)
-const vizReady = ref(false)
 const lazyViz = ref(false)
 const activeSection = ref('concept')
 const sectionEls = {}
@@ -319,37 +317,8 @@ function onScroll() {
   if (current !== activeSection.value) activeSection.value = current
 }
 
-// ── Plotly viz (lazy, tree-shaking-safe: inlined side effects must stay) ──
-let vizTimer = null
-let vizTopic = null
-function vizLabels() {
-  return { epsilon: t('exhibit.vizEpsilon'), tangent: t('exhibit.vizTangent'), rectangles: t('exhibit.vizRectangles'), harmonics: t('exhibit.vizHarmonics') }
-}
-async function runViz() {
-  if (!lazyViz.value) return
-  clearTimeout(vizTimer)
-  vizTimer = setTimeout(async () => {
-    try {
-      await loadPlotly()
-      await nextTick()
-      const el = Array.isArray(vizPlot.value) ? vizPlot.value[0] : vizPlot.value
-      const ctrls = Array.isArray(vizControls.value) ? vizControls.value[0] : vizControls.value
-      if (!el) { runViz(); return }
-      const tp = topic.value
-      if (vizTopic === tp) return
-      const lbl = vizLabels()
-      if (tp === 'limits') { museumViz.epsilon(el, ctrls, lbl, window.Plotly) }
-      else if (tp === 'derivatives') { museumViz.tangent(el, ctrls, lbl, window.Plotly) }
-      else if (tp === 'integrals') { museumViz.riemann(el, ctrls, lbl, window.Plotly) }
-      else if (tp === 'series') { museumViz.fourier(el, ctrls, lbl, window.Plotly) }
-      else if (tp === 'multivariable') { museumViz.gradient(el, ctrls, window.Plotly) }
-      vizTopic = tp
-      vizReady.value = true
-    } catch(e) { console.warn('Plotly init failed', e) }
-  }, 120)
-}
-watch(lazyViz, (v) => { if (v) runViz() })
-watch(topic, () => { vizTopic = null; lazyViz.value = false; vizReady.value = false; loadContent() })
+// ── Plotly viz is delegated to <ExhibitViz>; we only gate it on scroll ──
+watch(topic, () => { lazyViz.value = false; loadContent() })
 watch(locale, () => { if (exhibit.value) loadContent() })
 
 // ── Bookmarks ──
@@ -405,7 +374,6 @@ loadContent()
 onMounted(loadBookmarks)
 onBeforeUnmount(() => {
   if (scrollHandler) window.removeEventListener('scroll', scrollHandler)
-  clearTimeout(vizTimer)
 })
 </script>
 
@@ -487,9 +455,7 @@ onBeforeUnmount(() => {
 .content-fade :deep(h3) { font-size: 18px; margin: 24px 0 10px; }
 .content-fade :deep(p) { margin: 10px 0; }
 
-.viz-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin: 20px 0; }
-.viz-plot { width: 100%; height: 420px; }
-.viz-ctrls { text-align: center; margin-top: 8px; font-size: 13px; }
+.explore-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin: 20px 0; }
 
 /* Narrative "up next" card */
 .next-note {

@@ -53,11 +53,15 @@ export function useChatStream({ getModel, getLang, getContext, getGuide }) {
     const guide = getGuide ? getGuide() : null
     abortCtrl = new AbortController()
     try {
+      // Send only the most recent 30 turns — matches the server-side cap and
+      // keeps request bodies from growing without bound.
+      const history = messages.value.filter(m => m.role !== 'hint').map(m => ({ role: m.role, content: m.content }))
+      const payload = history.slice(-30)
       const r = await apiFetch('/api/chat/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: messages.value.filter(m => m.role !== 'hint').map(m => ({ role: m.role, content: m.content })),
+          messages: payload,
           model: getModel(),
           context_route: ctx,
           lang,

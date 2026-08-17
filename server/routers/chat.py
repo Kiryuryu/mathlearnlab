@@ -1,12 +1,14 @@
 """
 Chat API — SSE streaming chat with DeepSeek.
-API key comes from server config (DEEPSEEK_API_KEY), not client.
+API key comes from server config (DEEPSEEK_API_KEY), not client (in production).
 """
 
 from fastapi import APIRouter, Request, HTTPException, Depends
 from fastapi.responses import StreamingResponse
 from server.services import chat_service
 from server.config import settings
+from server.services.deepseek import resolve_api_key
+from server.services.ratelimit import use_ai_quota, ai_quota_left
 from server.routers.auth import require_user
 
 router = APIRouter()
@@ -37,10 +39,17 @@ async def chat_stream(request: Request, user: dict = Depends(require_user)):
             "name": body.get("exhibit_name", ""),
         }
 
-    api_key = request.headers.get("X-API-Key") or settings.deepseek_api_key
+    api_key = resolve_api_key(request.headers.get("X-API-Key"))
     if not api_key:
         err = "请先配置 API Key（点击右上角圆点按钮）" if lang == "zh" else "Please configure your API Key first"
         raise HTTPException(status_code=401, detail=err)
+
+    # Per-user daily quota (persisted in SQLite).
+    if not use_ai_quota(user["user_id"]):
+        left = ai_quota_left(user["user_id"])
+        err = f"今日 AI 调用额度已用完（每日 {settings.ai_daily_limit} 次），请明天再来" if lang == "zh" \
+            else f"Daily AI quota exhausted ({settings.ai_daily_limit}/day). Please try again tomorrow."
+        raise HTTPException(status_code=429, detail=err)
 
     return StreamingResponse(
         chat_service.stream_chat(

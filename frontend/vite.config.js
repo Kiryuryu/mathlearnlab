@@ -17,14 +17,15 @@ export default defineConfig({
   build: {
     outDir: '../server/static-spa',
     emptyOutDir: true,
-    // rolldown misclassifies the Plotly.react calls as pure and drops the interactive charts.
-    // Disable tree-shaking so the exhibit visualizations are always built in.
+    // rolldown misclassifies the Plotly.react calls as pure and would drop the
+    // interactive charts. Keep property side effects (so Plotly.react calls are
+    // retained) without disabling tree-shaking wholesale, so unused imports and
+    // dead modules can still be eliminated. Verify with a build + grep for
+    // "Plotly.react" in the emitted chunks.
     rolldownOptions: {
       treeshake: {
         propertyReadSideEffects: 'always',
         propertyWriteSideEffects: true,
-        annotations: false,
-        moduleSideEffects: true,
       },
     },
   }

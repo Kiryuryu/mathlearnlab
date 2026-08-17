@@ -21,7 +21,7 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest
+          pip install -r requirements-dev.txt
 
       - name: Import check
         run: |
@@ -31,9 +31,9 @@ jobs:
           CI=true python -c "from server.services.chat_service import stream_chat"
           CI=true python -c "from server.services.grader import grade_submission"
 
-      - name: Run config tests
+      - name: Run backend tests
         run: |
-          pytest tests/test_config.py -v
+          DEBUG=true pytest tests/ -v
 
   frontend:
     runs-on: ubuntu-latest

@@ -63,14 +63,42 @@ def test_production_requires_jwt():
         assert "JWT_SECRET_KEY" in result.stderr or "JWT_SECRET_KEY" in result.stdout
 
 
+def test_production_requires_admin_secret():
+    """When DEBUG=false and ADMIN_SECRET is missing, startup should fail."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        env = os.environ.copy()
+        env["DEBUG"] = "false"
+        env["JWT_SECRET_KEY"] = "test-secret-key-12345"
+        env["DEEPSEEK_API_KEY"] = "sk-test-key-12345"
+        env.pop("ADMIN_SECRET", None)
+        env.pop("DATABASE_URL", None)
+        env.pop("SMTP_HOST", None)
+        env.pop("SMTP_USER", None)
+        env.pop("SMTP_PASS", None)
+        env.pop("ADMIN_EMAIL", None)
+        env.pop("PYTEST_CURRENT_TEST", None)
+        env.pop("CI", None)
+
+        result = subprocess.run(
+            [sys.executable, "-c",
+             "from server.config import get_settings; get_settings()"],
+            cwd=os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            env=env,
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode != 0
+        assert "ADMIN_SECRET" in result.stderr or "ADMIN_SECRET" in result.stdout
+
+
 def test_production_requires_deepseek_key():
     """When DEBUG=false and DEEPSEEK_API_KEY is missing, startup should fail."""
     with tempfile.TemporaryDirectory() as tmpdir:
         env = os.environ.copy()
         env["DEBUG"] = "false"
         env["JWT_SECRET_KEY"] = "test-secret-key-12345"
+        env["ADMIN_SECRET"] = "test-admin-secret-12345"
         env.pop("DEEPSEEK_API_KEY", None)
-        env.pop("ADMIN_SECRET", None)
         env.pop("DATABASE_URL", None)
         env.pop("SMTP_HOST", None)
         env.pop("SMTP_USER", None)
@@ -99,7 +127,7 @@ def test_production_with_valid_config_succeeds():
         env["DEBUG"] = "false"
         env["JWT_SECRET_KEY"] = "test-secret-key-12345"
         env["DEEPSEEK_API_KEY"] = "sk-test-key-12345"
-        env.pop("ADMIN_SECRET", None)
+        env["ADMIN_SECRET"] = "test-admin-secret-12345"
         env.pop("DATABASE_URL", None)
         env.pop("SMTP_HOST", None)
         env.pop("SMTP_USER", None)

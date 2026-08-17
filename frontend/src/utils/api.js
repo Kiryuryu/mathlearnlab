@@ -18,7 +18,8 @@ let unauthorizedHandler = null
 export function apiFetch(url, opts = {}) {
   const headers = { ...(opts.headers || {}) }
   const token = getAuthToken()
-  if (token) headers['Authorization'] = `Bearer ${token}`
+  // Don't clobber an explicitly provided Authorization (e.g. admin secret).
+  if (token && !headers['Authorization']) headers['Authorization'] = `Bearer ${token}`
   const key = localStorage.getItem(APIKEY_KEY)
   if (key) headers['X-API-Key'] = key
   return fetch(url, { ...opts, headers }).then(r => {
