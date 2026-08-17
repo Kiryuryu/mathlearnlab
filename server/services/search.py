@@ -62,21 +62,23 @@ def _snippet(text: str, idx: int, query_len: int, around: int = 40, tail: int = 
     return snippet
 
 
+# Only content that maps to a real SPA route is searchable. The legacy
+# notebooks/notes/problems/error-log directories have no frontend route, so
+# returning them would produce dead links.
+_SEARCHABLE_ROOTS = ("exhibits/", "news/")
+
+
 def _route_for(rel: str) -> str:
     rel = rel.replace(".md", "")
-    if rel.startswith("problems/"):
-        return "/problems/" + rel
-    if rel.startswith("notes/"):
-        return "/notes/" + rel
-    if rel.startswith("error-log/"):
-        return "/error-log/" + rel.rsplit("/", 1)[-1]
     if rel.startswith("exhibits/"):
         return "/exhibit/" + rel.split("/")[1]
-    return "/notebooks/" + rel
+    if rel.startswith("news/"):
+        return "/news/" + rel[len("news/"):]
+    return "/" + rel
 
 
 def search_content_files(query: str, lang: str) -> list[dict]:
-    """Search all .md files in CONTENT_DIR and CONTENT_DIR/en (cached)."""
+    """Search searchable .md files in CONTENT_DIR and CONTENT_DIR/en (cached)."""
     results = []
     query = query.lower()
     base = Path(CONTENT_DIR)
@@ -84,19 +86,21 @@ def search_content_files(query: str, lang: str) -> list[dict]:
 
     for path_str, (_mtime, text, text_lower) in _FILE_CACHE.items():
         try:
-            idx = text_lower.find(query)
-            if idx == -1:
-                continue
             rel = str(Path(path_str).relative_to(base))
             en = rel.startswith("en/")
             rel2 = rel[3:] if en else rel
+            if not rel2.startswith(_SEARCHABLE_ROOTS):
+                continue
+            idx = text_lower.find(query)
+            if idx == -1:
+                continue
             title = rel2.replace(".md", "").replace("-", " ").replace("/", " > ")
             if en:
                 title += " (EN)"
             results.append({
                 "title": title,
                 "excerpt": _snippet(text, idx, len(query))[:160],
-                "route": "/" + rel2.replace(".md", "") if en else _route_for(rel2),
+                "route": _route_for(rel2),
                 "section": _section("content", "en" if en else lang),
             })
         except Exception:

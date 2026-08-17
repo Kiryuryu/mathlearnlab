@@ -29,6 +29,23 @@ def username_exists(username: str) -> bool:
     return row is not None
 
 
+def get_user_by_email(email: str) -> dict | None:
+    if not email:
+        return None
+    with db_session() as conn:
+        row = conn.execute(
+            "SELECT id, username, email, status FROM users WHERE email = ?", (email,)
+        ).fetchone()
+    return dict(row) if row else None
+
+
+def update_user_password(user_id: str, password_hash: str):
+    with db_session() as conn:
+        conn.execute(
+            "UPDATE users SET password_hash = ? WHERE id = ?", (password_hash, user_id)
+        )
+
+
 def create_user(user_id: str, username: str, email: str, password_hash: str, status: str = "pending"):
     with db_session() as conn:
         conn.execute(

@@ -4,11 +4,16 @@ import App from './App.vue'
 import router from './router'
 import i18n from './i18n'
 import { useToast } from '@/utils/toast'
+import { useAuth } from '@/stores/auth'
 
 const app = createApp(App)
-app.use(createPinia())
+const pinia = createPinia()
+app.use(pinia)
 app.use(router)
 app.use(i18n)
+
+// Learn whether the server has AI configured (so hasModel works for guests).
+useAuth(pinia).loadAiConfig()
 
 function friendlyError(err) {
   const msg = err?.message || String(err || '')

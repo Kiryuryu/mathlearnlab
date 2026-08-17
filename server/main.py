@@ -45,6 +45,17 @@ app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 async def health():
     return {"status": "ok", "app": settings.app_name, "version": "4.0.0"}
 
+
+# ── AI capability config (lets the frontend know whether server-side AI is on) ──
+@app.get("/api/config/ai")
+async def ai_config():
+    return {
+        "server_ai": bool(settings.deepseek_api_key),
+        "debug": settings.debug,
+        "ai_daily_limit": settings.ai_daily_limit,
+        "model": settings.deepseek_model,
+    }
+
 # ── Museum exhibit info ──
 @app.get("/api/museum/exhibits")
 async def museum_exhibits():

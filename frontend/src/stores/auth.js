@@ -10,9 +10,33 @@ export const useAuth = defineStore('auth', () => {
   const showAiSetup = ref(false)
   const apiKey = ref(localStorage.getItem('mathlearnlab:apikey') || '')
   const model = ref(localStorage.getItem('mathlearnlab:model') || 'deepseek-chat')
+  // Whether the server has its own DeepSeek key configured (production).
+  // When true, AI features work without the user providing a key.
+  const serverAi = ref(false)
+  const aiDailyLimit = ref(60)
 
   const isLoggedIn = computed(() => !!token.value && !!user.value)
-  const hasModel = computed(() => !!apiKey.value && !!model.value)
+  // In production the server key powers AI, so a personal key is optional.
+  const hasModel = computed(() => serverAi.value || (!!apiKey.value && !!model.value))
+
+  // Probe /api/config/ai to learn whether server-side AI is available.
+  // Runs once per app load; safe to call even when not logged in.
+  let aiConfigPromise = null
+  function loadAiConfig() {
+    if (!aiConfigPromise) {
+      aiConfigPromise = fetch('/api/config/ai')
+        .then(r => r.ok ? r.json() : null)
+        .then(cfg => {
+          if (cfg) {
+            serverAi.value = !!cfg.server_ai
+            if (cfg.ai_daily_limit) aiDailyLimit.value = cfg.ai_daily_limit
+          }
+        })
+        .catch(() => {})
+        .finally(() => {})
+    }
+    return aiConfigPromise
+  }
 
   function openLogin(tab = 'register') {
     loginTab.value = tab
@@ -38,10 +62,15 @@ export const useAuth = defineStore('auth', () => {
       throw err
     }
     const d = await r.json()
-    token.value = d.token; user.value = d.user
-    localStorage.setItem('mathlearnlab:token', d.token)
-    localStorage.setItem('mathlearnlab:user', JSON.stringify(d.user))
+    setToken(d.token, d.user)
     showLogin.value = false
+  }
+
+  function setToken(newToken, newUser) {
+    token.value = newToken
+    user.value = newUser
+    localStorage.setItem('mathlearnlab:token', newToken)
+    localStorage.setItem('mathlearnlab:user', JSON.stringify(newUser))
   }
 
   async function doRegister(username, password, email) {
@@ -69,5 +98,5 @@ export const useAuth = defineStore('auth', () => {
     localStorage.setItem('mathlearnlab:apikey', key)
   }
 
-  return { token, user, showLogin, loginTab, showSettings, showAiSetup, apiKey, model, isLoggedIn, hasModel, openLogin, closeLogin, openSettings, closeSettings, openAiSetup, closeAiSetup, doLogin, doRegister, setModelConfig, logout }
+  return { token, user, showLogin, loginTab, showSettings, showAiSetup, apiKey, model, serverAi, aiDailyLimit, isLoggedIn, hasModel, loadAiConfig, openLogin, closeLogin, openSettings, closeSettings, openAiSetup, closeAiSetup, doLogin, doRegister, setToken, setModelConfig, logout }
 })

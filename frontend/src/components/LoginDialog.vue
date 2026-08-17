@@ -15,14 +15,28 @@
         <span :class="['login-tab', { on: auth.loginTab === 'register' }]" @click="auth.loginTab = 'register'">{{ $t('login.register') }}</span>
       </div>
       <div v-if="auth.loginTab === 'login'">
-        <div class="field">
-          <input v-model="loginUser" :placeholder="$t('login.username')" class="login-inp" @keyup.enter="handleLogin">
+        <div v-if="mode === 'login'">
+          <div class="field">
+            <input v-model="loginUser" :placeholder="$t('login.username')" class="login-inp" @keyup.enter="handleLogin">
+          </div>
+          <div class="field">
+            <input v-model="loginPass" type="password" :placeholder="$t('login.password')" class="login-inp" @keyup.enter="handleLogin">
+          </div>
+          <p v-if="loginErr" class="login-err">{{ loginErr }}</p>
+          <button class="login-btn" @click="handleLogin">{{ $t('login.login') }}</button>
+          <p class="forgot-link" @click="mode = 'forgot'">{{ $t('login.forgotPassword') }}</p>
         </div>
-        <div class="field">
-          <input v-model="loginPass" type="password" :placeholder="$t('login.password')" class="login-inp" @keyup.enter="handleLogin">
+        <div v-else>
+          <h3 class="forgot-title">{{ $t('login.forgotTitle') }}</h3>
+          <div class="field">
+            <input v-model="forgotEmail" type="email" :placeholder="$t('login.forgotEmailPlaceholder')" class="login-inp" @keyup.enter="handleForgot">
+          </div>
+          <p v-if="forgotMsg" class="login-hint" :class="{ err: forgotErr }">{{ forgotMsg }}</p>
+          <button class="login-btn" :disabled="forgotSending" @click="handleForgot">
+            {{ forgotSending ? '…' : $t('login.forgotSend') }}
+          </button>
+          <p class="forgot-link" @click="mode = 'login'">← {{ $t('login.forgotBack') }}</p>
         </div>
-        <p v-if="loginErr" class="login-err">{{ loginErr }}</p>
-        <button class="login-btn" @click="handleLogin">{{ $t('login.login') }}</button>
       </div>
       <div v-else>
         <div class="field">
@@ -50,12 +64,34 @@ import BaseModal from '@/components/BaseModal.vue'
 const auth = useAuth()
 const { t } = useI18n()
 
+const mode = ref('login')
 const loginUser = ref(''), loginPass = ref(''), loginErr = ref('')
 const regUser = ref(''), regEmail = ref(''), regPass = ref(''), regErr = ref('')
 const regUserInput = ref(null)
 const userCheckMsg = ref('')
 const userCheckErr = ref(false)
+const forgotEmail = ref(''), forgotMsg = ref(''), forgotErr = ref(false), forgotSending = ref(false)
 let checkTimer = null
+
+async function handleForgot() {
+  if (!forgotEmail.value || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(forgotEmail.value)) {
+    forgotMsg.value = t('login.invalidEmail'); forgotErr.value = true; return
+  }
+  forgotSending.value = true
+  forgotErr.value = false
+  try {
+    const r = await fetch('/api/auth/forgot-password', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: forgotEmail.value })
+    })
+    const d = await r.json().catch(() => ({}))
+    if (!r.ok) { forgotMsg.value = d.detail || t('login.forgotFail'); forgotErr.value = true }
+    else { forgotMsg.value = t('login.forgotSent'); forgotErr.value = false; forgotEmail.value = '' }
+  } catch(e) {
+    forgotMsg.value = t('login.forgotFail'); forgotErr.value = true
+  }
+  forgotSending.value = false
+}
 
 async function checkUser() {
   const u = regUser.value.trim()
@@ -161,6 +197,9 @@ async function handleRegister() {
 .login-hint { font-size:11px; display:block; margin:4px 0 0; padding-left:2px; }
 .login-hint.err { color:var(--accent-error); }
 .login-hint:not(.err) { color:var(--accent-correct); }
+.forgot-link { font-size:12px; color:var(--text-muted); text-align:center; margin:12px 0 0; cursor:pointer; }
+.forgot-link:hover { color:var(--accent); }
+.forgot-title { font-size:15px; font-weight:600; color:var(--text-primary); text-align:center; margin:0 0 16px; }
 @media(max-width:520px) {
   .login-panel { flex-direction:column; }
   .login-left { width:100%; min-width:0; padding:22px 18px; flex-direction:row; gap:14px; justify-content:flex-start; }

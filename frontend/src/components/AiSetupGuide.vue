@@ -23,13 +23,14 @@
           <div class="model-desc">{{ locale === 'en' ? m.desc_en : m.desc_zh }}</div>
         </div>
       </div>
+      <p v-if="auth.serverAi" class="setup-hint">{{ $t('setup.serverAiNote') }}</p>
       <div class="step-actions">
         <button class="btn" @click="step = 'intro'">{{ $t('setup.back') }}</button>
-        <button class="btn btn-primary" @click="step = 'key'">{{ $t('setup.next') }}</button>
+        <button class="btn btn-primary" @click="goFromModel">{{ $t('setup.next') }}</button>
       </div>
     </div>
 
-    <!-- Step 3: Enter API Key -->
+    <!-- Step 3: Enter API Key (development only; skipped when server AI is on) -->
     <div v-if="step === 'key'" class="step-content">
       <h2>{{ $t('setup.enterKey') }}</h2>
       <p>{{ $t('setup.keyDesc') }}</p>
@@ -70,6 +71,16 @@ const models = [
   { id: 'deepseek-chat', name: 'DeepSeek Chat', desc_zh: '通用模型，适合出题和批改', desc_en: 'General-purpose model, suitable for problem generation and grading' },
   { id: 'deepseek-reasoner', name: 'DeepSeek Reasoner', desc_zh: '推理增强，适合复杂批改', desc_en: 'Enhanced reasoning, suitable for complex grading' },
 ]
+
+function goFromModel() {
+  if (auth.serverAi) {
+    // Server-side AI is available — no personal key required.
+    auth.setModelConfig(selectedModel.value, auth.apiKey)
+    emit('proceed')
+    return
+  }
+  step.value = 'key'
+}
 
 function saveAndProceed() {
   auth.setModelConfig(selectedModel.value, apiKeyInput.value.trim())

@@ -1,6 +1,7 @@
 """
-Email utility — send notification emails via SMTP.
+Email utility — send emails via SMTP (admin notifications, password reset).
 """
+
 import logging
 import os
 import smtplib
@@ -15,22 +16,34 @@ SMTP_PASS = os.getenv("SMTP_PASS", "")
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "")
 
 
-def send_admin_notification(subject: str, body: str):
-    """Send an email notification to the admin."""
-    if not SMTP_HOST or not SMTP_USER:
-        logger.warning("SMTP not configured; skipping admin notification: %s", subject)
+def send_email(to: str, subject: str, body_html: str):
+    """Send an HTML email to an arbitrary recipient via SMTP.
+
+    Never raises — failures are logged so callers (e.g. registration /
+    password reset) can proceed without crashing.
+    """
+    if not to or not SMTP_HOST or not SMTP_USER:
+        logger.warning("SMTP not configured or no recipient; skipping email: %s", subject)
         return
 
     msg = MIMEMultipart()
     msg["From"] = SMTP_USER
-    msg["To"] = ADMIN_EMAIL
+    msg["To"] = to
     msg["Subject"] = subject
-    msg.attach(MIMEText(body, "html", "utf-8"))
+    msg.attach(MIMEText(body_html, "html", "utf-8"))
 
     try:
         server = smtplib.SMTP_SSL(SMTP_HOST, 465)
         server.login(SMTP_USER, SMTP_PASS)
-        server.sendmail(SMTP_USER, [ADMIN_EMAIL], msg.as_string())
+        server.sendmail(SMTP_USER, [to], msg.as_string())
         server.quit()
     except Exception:
-        logger.exception("Failed to send admin notification: %s", subject)
+        logger.exception("Failed to send email to %s: %s", to, subject)
+
+
+def send_admin_notification(subject: str, body: str):
+    """Send an email notification to the admin."""
+    if not ADMIN_EMAIL:
+        logger.warning("ADMIN_EMAIL not set; skipping admin notification: %s", subject)
+        return
+    send_email(ADMIN_EMAIL, subject, body)

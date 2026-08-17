@@ -16,6 +16,7 @@ const routes = [
   { path: '/news/:slug', name: 'news-post', meta: { titleKey: 'nav.news' }, component: () => import('@/views/NewsView.vue') },
   { path: '/admin', name: 'admin', meta: { titleKey: 'admin.title' }, component: () => import('@/views/AdminView.vue') },
   { path: '/bookmarks', name: 'bookmarks', meta: { titleKey: 'bookmarks.title' }, component: () => import('@/views/BookmarksView.vue') },
+  { path: '/reset-password', name: 'reset-password', meta: { titleKey: 'reset.title' }, component: () => import('@/views/ResetPasswordView.vue') },
   { path: '/:path(.*)', name: 'not-found', meta: { titleKey: 'notFound.title' }, component: () => import('@/views/NotFoundView.vue') }
 ]
 

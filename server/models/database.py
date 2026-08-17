@@ -200,6 +200,15 @@ def init_db():
                 calls   INTEGER NOT NULL DEFAULT 0,
                 PRIMARY KEY (user_id, day)
             );
+            -- Password-reset tokens (one-time, expiring).
+            CREATE TABLE IF NOT EXISTS password_reset_tokens (
+                token_hash TEXT PRIMARY KEY,
+                user_id    TEXT NOT NULL,
+                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                expires_at TEXT NOT NULL,
+                used       INTEGER NOT NULL DEFAULT 0
+            );
+            CREATE INDEX IF NOT EXISTS idx_prt_user ON password_reset_tokens(user_id);
         """)
         conn.commit()
         apply_pending(conn)

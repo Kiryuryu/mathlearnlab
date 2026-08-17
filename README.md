@@ -27,12 +27,14 @@ https://www.mathlearnlab.cn
 
 ### 用户系统
 - 注册审核制（管理员邮箱审批；注册含蜜罐反爬 + 邮箱格式校验）
+- 忘记密码：邮箱重置链接（30 分钟一次性令牌）
+- JWT 滑动续期：24h 内活跃会话自动刷新，无需重新登录
 - MySQL / SQLite 持久化存储
 - API Key 存储在浏览器 localStorage（生产环境仅信任服务端 `DEEPSEEK_API_KEY`）
 
 ### 安全
 - HTTPS（Let's Encrypt）
-- nginx 限流 + fail2ban 自动封禁
+- nginx 限流（auth 10r/m、AI 15r/m per-IP）+ 每用户每日 AI 配额 + fail2ban
 - SQL 参数化查询防注入
 - ICP 备案
 
@@ -79,7 +81,16 @@ npm run lint    # ESLint 检查
 npm run build   # 构建
 ```
 
-GitHub Actions（`.github/workflows/ci.yml`）会在 push/PR 时自动运行后端测试、前端 lint、测试和构建。
+GitHub Actions（`.github/workflows/ci.yml`）会在 push/PR 时自动运行后端全量测试、前端 lint、测试和构建；push 到 main 且通过后会自动部署到 ECS（需在 GitHub Secrets 配置 `DEPLOY_HOST` / `DEPLOY_USER` / `DEPLOY_SSH_KEY`，详见 `STATUS.md`）。
+
+## 手动部署
+
+```bash
+pip install paramiko
+export DEPLOY_HOST=8.137.78.250 DEPLOY_USER=root
+export DEPLOY_SSH_KEY="$HOME/.ssh/mathlearnlab_deploy"   # 或 DEPLOY_PASS=<密码>
+python scripts/ci_deploy.py   # 全量同步 server/ content/ static-spa/ 并重启服务
+```
 
 ## 项目结构
 

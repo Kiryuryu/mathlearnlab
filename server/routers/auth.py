@@ -13,7 +13,8 @@ from server.models.auth import (
     decode_access_token,
     generate_user_id,
 )
-from server.models.users import username_exists, create_user, get_user_by_username, get_user_by_id
+from server.models.users import username_exists, create_user, get_user_by_username, get_user_by_id, get_user_by_email, update_user_password
+from server.models.reset_tokens import create_reset_token, consume_reset_token, cleanup_expired_tokens
 from server.services.ratelimit import is_blocked, record_failure, record_success
 
 logger = logging.getLogger(__name__)
@@ -44,6 +45,15 @@ class RegisterRequest(BaseModel):
 
 class LoginRequest(BaseModel):
     username: str
+    password: str
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
     password: str
 
 
@@ -152,4 +162,68 @@ async def me(user: dict = Depends(require_user)):
         "id": row["id"],
         "username": row["username"],
         "email": row["email"],
+    }
+
+
+@router.post("/api/auth/forgot-password")
+async def forgot_password(body: ForgotPasswordRequest, request: Request):
+    """Email a one-time reset link if the address belongs to a registered user.
+
+    Always returns the same message to avoid user enumeration; rate-limited
+    per IP like the other auth endpoints.
+    """
+    ip = _client_ip(request)
+    if is_blocked(ip):
+        raise HTTPException(status_code=429, detail="Too many attempts, please try later")
+    if not body.email or not _EMAIL_RE.match(body.email):
+        raise HTTPException(status_code=400, detail="Invalid email address")
+
+    user = get_user_by_email(body.email)
+    if user:
+        token = create_reset_token(user["id"])
+        cleanup_expired_tokens()
+        reset_url = f"https://www.mathlearnlab.cn/reset-password?token={token}"
+        try:
+            from server.services.email import send_email
+            await run_in_threadpool(
+                send_email,
+                body.email,
+                "Math Museum - Password Reset",
+                f"<p>你好 {user['username']}，</p>"
+                f"<p>请点击以下链接重置你的密码（30 分钟内有效）：</p>"
+                f"<p><a href=\"{reset_url}\">{reset_url}</a></p>"
+                f"<p>如果这不是你本人的操作，请忽略此邮件。</p>",
+            )
+        except Exception:
+            logger.exception("Password reset email failed for user %s", user["id"])
+
+    return {"message": "如果该邮箱已注册，重置链接已发送至你的邮箱"}
+
+
+@router.post("/api/auth/reset-password")
+async def reset_password(body: ResetPasswordRequest):
+    """Reset a password using a one-time token from the reset email."""
+    if len(body.password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+    user_id = consume_reset_token(body.token)
+    if user_id is None:
+        raise HTTPException(status_code=400, detail="重置链接无效或已过期，请重新申请")
+    update_user_password(user_id, hash_password(body.password))
+    return {"message": "密码已重置，请使用新密码登录"}
+
+
+@router.post("/api/auth/refresh")
+async def refresh(user: dict = Depends(require_user)):
+    """Issue a fresh token for a still-valid session (sliding expiry).
+
+    Requires the current (non-expired) token in the Authorization header;
+    returns a new token so active users are not logged out every 24h.
+    """
+    row = get_user_by_id(user["user_id"])
+    if row is None:
+        raise HTTPException(status_code=401, detail="User not found")
+    token = create_access_token(row["id"], row["username"])
+    return {
+        "token": token,
+        "user": {"id": row["id"], "username": row["username"], "email": row["email"]},
     }
